@@ -1,0 +1,28 @@
+{
+  "name": "edumind",
+  "version": "1.0.0",
+  "description": "EDUMIND - Système de Gestion d'Écoles Privées & Cours de Soutien",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "server": "node server.js"
+  },
+  "keywords": [
+    "school-management",
+    "edumind",
+    "algeria",
+    "cours-de-soutien",
+    "electron"
+  ],
+  "author": "EDUMIND Team",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^4.22.2",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "electron": "^34.0.0"
+  }
+}

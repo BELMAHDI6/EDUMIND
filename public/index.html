@@ -1,0 +1,3381 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EDUMIND — Système de Gestion Scolaire & Cours de Soutien</title>
+  <link rel="icon" type="image/png" href="/img/logo-icon.png">
+  <link rel="stylesheet" href="/css/style.css?v=2.3">
+  <!-- Chart.js for 12-Month Financial Curves -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- JsBarcode for Student ID Card Barcode Generation -->
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+  <!-- QRCode.js for QR Generation -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+
+  <!-- ==================== LOGIN SCREEN OVERLAY ==================== -->
+  <div id="loginScreen" class="login-screen-overlay active">
+    <div class="login-background-glow glow-1"></div>
+    <div class="login-background-glow glow-2"></div>
+    
+    <div class="login-container">
+      <div class="login-card">
+        <!-- Brand Header -->
+        <div class="login-brand">
+          <div class="login-logo-wrap">
+            <img src="/img/logo-icon.png" alt="EDUMIND" class="login-logo-img">
+          </div>
+          <h1 class="login-title">EDUMIND</h1>
+          <p class="login-subtitle" data-i18n="login_tagline">Système de Gestion Scolaire Professionnel</p>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="login-form" onsubmit="event.preventDefault(); app.handleLogin();" autocomplete="on">
+          <!-- Role Selector (Admin automatic/default) -->
+          <div class="login-field-group">
+            <label class="login-label" data-i18n="login_lbl_role">Compte utilisateur</label>
+            <div class="login-role-selector">
+              <div class="login-role-badge">
+                <div class="login-role-avatar">
+                  <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <div class="login-role-info">
+                  <span class="login-role-name" data-i18n="login_role_admin">Administrateur</span>
+                  <span class="login-role-status"><i class="fa-solid fa-circle-check"></i> <span data-i18n="login_role_auto">Sélectionné automatiquement</span></span>
+                </div>
+              </div>
+              <input type="hidden" id="loginRole" value="admin">
+            </div>
+          </div>
+
+          <!-- Password Field (Mandatory) -->
+          <div class="login-field-group">
+            <div class="login-label-row">
+              <label class="login-label" for="loginPassword" data-i18n="login_lbl_password">Mot de passe <span class="required-star">*</span></label>
+              <span class="login-mandatory-badge" data-i18n="login_mandatory">Obligatoire</span>
+            </div>
+            <div class="login-input-wrapper">
+              <span class="login-input-icon"><i class="fa-solid fa-lock"></i></span>
+              <input 
+                type="password" 
+                id="loginPassword" 
+                class="login-input" 
+                placeholder="Entrez votre mot de passe..." 
+                required 
+                autocomplete="current-password"
+                autofocus
+              >
+              <button 
+                type="button" 
+                class="btn-toggle-password" 
+                id="btnToggleLoginPass" 
+                onclick="app.toggleLoginPasswordVisibility()" 
+                title="Afficher/Masquer le mot de passe"
+                aria-label="Toggle password visibility"
+              >
+                <i class="fa-regular fa-eye" id="eyeIconLogin"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Error Alert Banner (Hidden by default) -->
+          <div id="loginErrorAlert" class="login-error-alert" style="display: none;">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span id="loginErrorMessage">Mot de passe incorrect</span>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn-login-submit" id="btnLoginSubmit">
+            <span class="btn-login-text" data-i18n="login_btn_submit">Se connecter</span>
+            <i class="fa-solid fa-arrow-right-to-bracket btn-login-icon"></i>
+            <span class="btn-login-spinner" style="display: none;"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
+          </button>
+        </form>
+
+        <!-- Login Footer with Language Switcher -->
+        <div class="login-card-footer">
+          <div class="login-lang-switch">
+            <button type="button" class="login-lang-btn" onclick="app.toggleLanguageFromLogin()">
+              <i class="fa-solid fa-globe"></i>
+              <span id="loginLangText">العربية</span>
+            </button>
+          </div>
+          <div class="login-security-badge">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span data-i18n="login_secured">Accès sécurisé & chiffré</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SIDEBAR BACKDROP ==================== -->
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <!-- ==================== SIDEBAR ==================== -->
+  <aside class="sidebar" id="appSidebar">
+    <div class="sidebar-header">
+      <div class="brand-logo" id="brandLogoTrigger" title="EDUMIND">
+        <img src="/img/logo-icon.png" alt="EDUMIND" class="brand-logo-img" style="width: 36px; height: 36px; object-fit: contain; display: block;">
+      </div>
+      <div class="brand-info">
+        <h2>EDUMIND</h2>
+        <span data-i18n="tagline">Gestion Scolaire Pro</span>
+      </div>
+      <button class="btn-sidebar-collapse" id="btnSidebarCollapse" title="Réduire le menu (Ctrl+B)"
+        aria-label="Toggle Sidebar">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+    </div>
+
+    <!-- Active Tab: Tableau de bord -->
+    <div class="nav-dashboard-wrapper">
+      <div class="nav-item active" data-view="dashboard">
+        <span class="nav-icon icon-dashboard"><i class="fa-solid fa-house"></i></span>
+        <span data-i18n="nav_dashboard">Tableau de bord</span>
+      </div>
+    </div>
+
+    <!-- Category: QUOTIDIEN -->
+    <div class="nav-category" data-i18n="cat_quotidien">QUOTIDIEN</div>
+    <ul class="nav-list">
+      <li class="nav-item" data-view="eleves">
+        <span class="nav-icon icon-eleves"><i class="fa-solid fa-user-graduate"></i></span>
+        <span data-i18n="nav_eleves">Élèves</span>
+      </li>
+      <li class="nav-item" data-view="inscriptions">
+        <span class="nav-icon icon-inscriptions"><i class="fa-solid fa-clipboard-check"></i></span>
+        <span data-i18n="nav_inscriptions">Inscriptions</span>
+      </li>
+      <li class="nav-item" data-view="paiements">
+        <span class="nav-icon icon-paiements"><i class="fa-solid fa-credit-card"></i></span>
+        <span data-i18n="nav_paiements">Paiements</span>
+      </li>
+      <li class="nav-item" data-view="echeances">
+        <span class="nav-icon icon-echeances"><i class="fa-regular fa-calendar-check"></i></span>
+        <span data-i18n="nav_echeances">Échéances</span>
+      </li>
+      <li class="nav-item" data-view="caisse">
+        <span class="nav-icon icon-caisse"><i class="fa-solid fa-cash-register"></i></span>
+        <span data-i18n="nav_caisse">Caisse</span>
+      </li>
+      <li class="nav-item" data-view="planning">
+        <span class="nav-icon icon-planning"><i class="fa-solid fa-calendar-days"></i></span>
+        <span data-i18n="nav_planning">Planning</span>
+      </li>
+      <li class="nav-item" data-view="pointage">
+        <span class="nav-icon icon-pointage"><i class="fa-solid fa-qrcode"></i></span>
+        <span data-i18n="nav_pointage">Pointage</span>
+      </li>
+    </ul>
+
+    <!-- Category: CONFIGURATION -->
+    <div class="nav-category" data-i18n="cat_configuration">CONFIGURATION</div>
+    <ul class="nav-list">
+      <li class="nav-item" data-view="groupes">
+        <span class="nav-icon icon-groupes"><i class="fa-solid fa-users"></i></span>
+        <span data-i18n="nav_groupes">Groupes</span>
+      </li>
+      <li class="nav-item" data-view="enseignants">
+        <span class="nav-icon icon-profs"><i class="fa-solid fa-chalkboard-user"></i></span>
+        <span data-i18n="nav_enseignants">Enseignants</span>
+      </li>
+      <li class="nav-item" data-view="niveaux">
+        <span class="nav-icon icon-niveaux"><i class="fa-solid fa-layer-group"></i></span>
+        <span data-i18n="nav_niveaux">Niveaux</span>
+      </li>
+      <li class="nav-item" data-view="salles">
+        <span class="nav-icon icon-salles"><i class="fa-solid fa-door-open"></i></span>
+        <span data-i18n="nav_salles">Salles</span>
+      </li>
+      <li class="nav-item" data-view="matieres">
+        <span class="nav-icon icon-matieres"><i class="fa-solid fa-book-bookmark"></i></span>
+        <span data-i18n="nav_matieres">Matières</span>
+      </li>
+      <li class="nav-item" data-view="settings">
+        <span class="nav-icon icon-settings"><i class="fa-solid fa-gear"></i></span>
+        <span data-i18n="nav_settings">Paramètres</span>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <span class="sidebar-version-badge">EDUMIND v1.0.0</span>
+    </div>
+  </aside>
+
+  <!-- ==================== MAIN CONTENT WRAPPER ==================== -->
+  <main class="main-wrapper">
+    <!-- Top Header -->
+    <header class="top-header">
+      <div class="header-left">
+        <button class="btn-sidebar-toggle" id="btnSidebarToggle" title="Afficher / Masquer le menu (Ctrl+B)"
+          aria-label="Toggle Sidebar">
+          <i class="fa-solid fa-bars-staggered"></i>
+        </button>
+        <div class="header-greeting">
+          <h1 id="headerGreetingTitle">
+            <span id="greetingText">Bon après-midi</span> 👋 — <span style="color: #60a5fa;">EDUMIND</span>
+          </h1>
+          <div class="header-date" id="currentDateDisplay">Mercredi 9 Septembre 2026</div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- School Year Badge -->
+        <div class="badge-year" id="badgeSchoolYear">
+          <i class="fa-regular fa-calendar"></i>
+          <span>Année 2025-2026</span>
+        </div>
+
+        <!-- Dark/Light Theme Switcher Button -->
+        <button class="btn-icon btn-theme-header" id="btnThemeToggle" title="Changer le Thème (Mode Sombre / Clair)"
+          aria-label="Toggle Theme">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+
+        <!-- Language Switcher Button -->
+        <button class="btn-lang" id="btnLangToggle" title="Changer la langue / تغيير اللغة">
+          <i class="fa-solid fa-globe"></i>
+          <span id="langButtonText">العربية</span>
+        </button>
+
+        <!-- Logout Button -->
+        <button class="btn-logout-header" id="btnLogout" onclick="app.logout()" title="Déconnexion / تسجيل الخروج" aria-label="Déconnexion">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <span data-i18n="btn_logout">Déconnexion</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ==================== 1. DASHBOARD VIEW ==================== -->
+    <section class="view-container active" id="view-dashboard">
+      <!-- Top KPIs Cards Grid -->
+      <div class="stats-grid">
+        <!-- 1. Élèves Actifs -->
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="stat-title" data-i18n="kpi_eleves">Élèves actifs</span>
+            <div class="stat-icon-badge badge-green"><i class="fa-solid fa-user-graduate"></i></div>
+          </div>
+          <div class="stat-value" id="kpiActiveStudents">0</div>
+        </div>
+
+        <!-- 2. Inscriptions -->
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="stat-title" data-i18n="kpi_inscriptions">Inscriptions</span>
+            <div class="stat-icon-badge badge-cyan"><i class="fa-regular fa-clipboard"></i></div>
+          </div>
+          <div class="stat-value" id="kpiEnrollments">0</div>
+        </div>
+
+        <!-- 3. Collecté aujourd'hui -->
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="stat-title" data-i18n="kpi_today">Collecté aujourd'hui</span>
+            <div class="stat-icon-badge badge-green"><i class="fa-solid fa-dollar-sign"></i></div>
+          </div>
+          <div class="stat-value" id="kpiTodayCollected">0 DA</div>
+        </div>
+
+        <!-- 4. Collecté ce mois -->
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="stat-title" data-i18n="kpi_month">Collecté ce mois</span>
+            <div class="stat-icon-badge badge-blue"><i class="fa-regular fa-calendar-days"></i></div>
+          </div>
+          <div class="stat-value" id="kpiMonthCollected">0 DA</div>
+        </div>
+
+        <!-- 5. Total Impayé -->
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="stat-title" data-i18n="kpi_unpaid">Total impayé</span>
+            <div class="stat-icon-badge badge-red"><i class="fa-solid fa-circle-exclamation"></i></div>
+          </div>
+          <div class="stat-value" id="kpiTotalUnpaid" style="color: #ef4444;">0 DA</div>
+          <div class="stat-subtext" id="kpiRecoveryRate">Recouvrement : 100%</div>
+        </div>
+
+        <!-- 6. Enseignants -->
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="stat-title" data-i18n="kpi_profs">Enseignants</span>
+            <div class="stat-icon-badge badge-orange"><i class="fa-solid fa-graduation-cap"></i></div>
+          </div>
+          <div class="stat-value" id="kpiTeachers">0</div>
+        </div>
+
+        <!-- 7. Matières -->
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="stat-title" data-i18n="kpi_matieres">Matières</span>
+            <div class="stat-icon-badge badge-purple"><i class="fa-solid fa-book"></i></div>
+          </div>
+          <div class="stat-value" id="kpiSubjects">0</div>
+        </div>
+      </div>
+
+      <!-- Middle Section: 12-Month Chart + Notifications -->
+      <div class="analytics-grid">
+        <!-- 12-month Revenue Evolution -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-chart-line" style="color: #3b82f6;"></i>
+              <span data-i18n="chart_title">Évolution des encaissements — 12 mois</span>
+            </div>
+            <button class="btn-secondary" onclick="app.switchView('paiements')" data-i18n="btn_view_reports">Voir les
+              rapports</button>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="revenueChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Alerts & Notifications -->
+        <div class="card notification-card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-regular fa-bell" style="color: #f59e0b;"></i>
+              <span data-i18n="alerts_title">Alertes & Notifications</span>
+            </div>
+          </div>
+          <div id="alertsContainer">
+            <div class="empty-state">
+              <div class="empty-state-icon"><i class="fa-regular fa-circle-check" style="color: #10b981;"></i></div>
+              <p style="font-weight: 600;" data-i18n="all_good">Tout est en ordre</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Tables: Paiements Récents & Impayés Récents -->
+      <div class="tables-grid">
+        <!-- Paiements Récents -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-receipt" style="color: #10b981;"></i>
+              <span data-i18n="recent_payments">Paiements récents</span>
+            </div>
+            <button class="btn-secondary" onclick="app.switchView('paiements')" data-i18n="btn_view_all">Voir
+              tout</button>
+          </div>
+          <div class="table-responsive">
+            <table class="edumind-table">
+              <thead>
+                <tr>
+                  <th data-i18n="th_eleve">ÉLÈVE</th>
+                  <th data-i18n="th_matiere">MATIÈRE</th>
+                  <th data-i18n="th_montant">MONTANT</th>
+                  <th data-i18n="th_date">DATE</th>
+                </tr>
+              </thead>
+              <tbody id="recentPaymentsTableBody">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Impayés Récents -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i>
+              <span data-i18n="recent_unpaid">Impayés récents</span>
+            </div>
+            <button class="btn-secondary" onclick="app.switchView('echeances')" data-i18n="btn_view_all">Voir
+              tout</button>
+          </div>
+          <div class="table-responsive">
+            <table class="edumind-table">
+              <thead>
+                <tr>
+                  <th data-i18n="th_eleve">ÉLÈVE</th>
+                  <th data-i18n="th_matiere">MATIÈRE</th>
+                  <th data-i18n="th_restedu">RESTE DÛ</th>
+                </tr>
+              </thead>
+              <tbody id="recentUnpaidTableBody">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 2. ÉLÈVES (STUDENTS) VIEW (STYLE SCHOOLARIS) ==================== -->
+    <section class="view-container" id="view-eleves">
+      <!-- 1. STUDENTS LIST SUB-VIEW -->
+      <div id="studentsListView" class="students-list-wrapper">
+        <div class="schoolaris-header">
+          <h2 class="schoolaris-title" data-i18n="title_eleves">Élèves</h2>
+          <button class="btn-primary" onclick="app.openModalStudent()"
+            style="box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);">
+            <i class="fa-solid fa-plus"></i>
+            <span data-i18n="btn_add_student">Nouvel élève</span>
+          </button>
+        </div>
+
+        <!-- Schoolaris Filter Bar -->
+        <div class="schoolaris-card" style="margin-bottom: 20px;">
+          <div class="schoolaris-filter-bar" style="border-bottom: none;">
+            <div class="schoolaris-search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="searchStudentInput" class="schoolaris-search-input"
+                placeholder="Nom, matricule, téléphone..." oninput="app.loadStudents()">
+            </div>
+            <select id="filterStudentStatus" class="schoolaris-select" style="max-width: 140px;"
+              onchange="app.loadStudents()">
+              <option value="active">Actifs</option>
+              <option value="all">Tous les statuts</option>
+              <option value="inactive">Inactifs</option>
+            </select>
+            <select id="filterStudentLevel" class="schoolaris-select" onchange="app.loadStudents()">
+              <option value="">Tous niveaux</option>
+            </select>
+            <select id="filterStudentPayment" class="schoolaris-select" style="max-width: 160px;"
+              onchange="app.loadStudents()">
+              <option value="all">Tous paiements</option>
+              <option value="paid">À jour</option>
+              <option value="unpaid">En retard / Dette</option>
+            </select>
+            <div style="display: flex; gap: 10px; margin-left: auto;">
+              <button class="btn-badges-header" onclick="app.printAllBadges()" title="Imprimer les badges">
+                <i class="fa-solid fa-id-card"></i>
+                <span>Badges</span>
+              </button>
+              <button class="btn-excel" onclick="app.exportStudentsToExcel()" title="Exporter en Excel">
+                <i class="fa-solid fa-download"></i>
+                <span>Excel</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Students Table Card -->
+        <div class="schoolaris-card">
+          <div class="table-responsive">
+            <table class="schoolaris-table">
+              <thead>
+                <tr>
+                  <th style="width: 140px;">MATRICULE</th>
+                  <th data-i18n="th_nom">NOM</th>
+                  <th data-i18n="th_prenom">PRÉNOM</th>
+                  <th data-i18n="th_niveau">NIVEAU</th>
+                  <th data-i18n="th_phone">TÉLÉPHONE</th>
+                  <th style="text-align: center;">INSCRIPTIONS</th>
+                  <th>FACTURÉ</th>
+                  <th>PAYÉ</th>
+                  <th>RESTE</th>
+                  <th>STATUT</th>
+                  <th style="text-align: right; width: 170px;">ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody id="schoolarisStudentsTableBody">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. STUDENT PROFILE (FICHE ÉLÈVE) SUB-VIEW -->
+      <div id="studentProfileView" class="student-profile-wrapper">
+        <!-- Profile Action Toolbar -->
+        <div class="profile-toolbar">
+          <button class="btn-profile-back" onclick="app.backToStudentsList()">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Retour</span>
+          </button>
+          <button class="btn-profile-edit" id="btnProfileEdit" onclick="app.editCurrentProfileStudent()">
+            <i class="fa-solid fa-pen-to-square"></i>
+            <span>Modifier</span>
+          </button>
+          <button class="btn-profile-enroll" id="btnProfileEnroll" onclick="app.enrollCurrentProfileStudent()">
+            <i class="fa-solid fa-file-circle-plus"></i>
+            <span>Inscrire aux matières</span>
+          </button>
+          <button class="btn-profile-print" onclick="app.printStudentFiche()">
+            <i class="fa-solid fa-print"></i>
+            <span>Imprimer fiche</span>
+          </button>
+          <button class="btn-profile-badge" id="btnProfileBadge" onclick="app.badgeCurrentProfileStudent()">
+            <i class="fa-solid fa-id-card"></i>
+            <span>Badge</span>
+          </button>
+          <button class="btn-profile-report" id="btnProfileReport" onclick="app.reportCurrentProfileStudent()">
+            <i class="fa-solid fa-clipboard-user"></i>
+            <span>Rapport d'assiduité</span>
+          </button>
+        </div>
+
+        <!-- Student Hero Banner Card -->
+        <div class="student-hero-card">
+          <div class="student-hero-avatar" id="profileHeroAvatar">
+            <!-- Injected via JS -->
+          </div>
+          <div class="student-hero-info">
+            <div class="student-hero-matricule" id="profileHeroMatricule">EL0001</div>
+            <h1 class="student-hero-name" id="profileHeroName">Nom Prénom</h1>
+            <div class="student-hero-level" id="profileHeroLevel">Niveau scolaire</div>
+            <div class="student-hero-pills">
+              <span class="hero-pill hero-pill-status up-to-date" id="profileHeroStatusPill">À jour</span>
+              <span class="hero-pill hero-pill-info" id="profileHeroEnrollmentsPill">0 inscriptions</span>
+              <span class="hero-pill hero-pill-info" id="profileHeroPaymentsPill">0 paiements</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Financial KPI Cards -->
+        <div class="profile-kpis-grid">
+          <div class="profile-kpi-card">
+            <span class="profile-kpi-label">Total facturé</span>
+            <div class="profile-kpi-value" id="profileKpiBilled">0 DA</div>
+          </div>
+          <div class="profile-kpi-card">
+            <span class="profile-kpi-label">Total payé</span>
+            <div class="profile-kpi-value green" id="profileKpiPaid">0 DA</div>
+          </div>
+          <div class="profile-kpi-card">
+            <span class="profile-kpi-label">Reste dû</span>
+            <div class="profile-kpi-value" id="profileKpiRemaining">0 DA</div>
+          </div>
+          <div class="profile-kpi-card">
+            <span class="profile-kpi-label">Paiements</span>
+            <div class="profile-kpi-value" id="profileKpiPayments">0</div>
+          </div>
+        </div>
+
+        <!-- 2 Columns: Informations Personnelles & Inscriptions -->
+        <div class="profile-details-grid">
+          <!-- Left: Personal Info -->
+          <div class="schoolaris-card" style="padding: 24px;">
+            <h3 style="font-size: 16px; font-weight: 700; color: var(--text-heading); margin-bottom: 16px;">
+              <i class="fa-regular fa-user" style="color: #3b82f6; margin-right: 8px;"></i>
+              Informations personnelles
+            </h3>
+            <div class="profile-info-row">
+              <span class="profile-info-label">SEXE</span>
+              <span class="profile-info-val" id="profileInfoGender">Masculin</span>
+            </div>
+            <div class="profile-info-row">
+              <span class="profile-info-label">NIVEAU</span>
+              <span class="profile-info-val" id="profileInfoLevel">-</span>
+            </div>
+            <div class="profile-info-row">
+              <span class="profile-info-label">DATE INSCRIPTION</span>
+              <span class="profile-info-val" id="profileInfoDate">-</span>
+            </div>
+            <div class="profile-info-row">
+              <span class="profile-info-label">TÉL. ÉLÈVE</span>
+              <span class="profile-info-val" id="profileInfoPhone">-</span>
+            </div>
+            <div class="profile-info-row">
+              <span class="profile-info-label">TÉL. PARENT</span>
+              <span class="profile-info-val" id="profileInfoParentPhone">-</span>
+            </div>
+            <div class="profile-info-row">
+              <span class="profile-info-label">NOM DU TUTEUR</span>
+              <span class="profile-info-val" id="profileInfoParentName">-</span>
+            </div>
+            <div class="profile-info-row">
+              <span class="profile-info-label">ADRESSE</span>
+              <span class="profile-info-val" id="profileInfoAddress">-</span>
+            </div>
+          </div>
+
+          <!-- Right: Inscriptions -->
+          <div class="schoolaris-card" style="padding: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <h3 style="font-size: 16px; font-weight: 700; color: var(--text-heading); margin: 0;">
+                <i class="fa-solid fa-graduation-cap" style="color: #10b981; margin-right: 8px;"></i>
+                <span id="profileInscriptionsTitle">Inscriptions (0)</span>
+              </h3>
+              <button class="btn-link"
+                style="font-size: 12px; color: #3b82f6; cursor: pointer; text-decoration: underline;"
+                onclick="app.enrollCurrentProfileStudent()">
+                + Inscrire
+              </button>
+            </div>
+            <div id="profileInscriptionsContainer" style="max-height: 280px; overflow-y: auto;">
+              <!-- Injected via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom: Historique des paiements -->
+        <div class="schoolaris-card">
+          <div class="schoolaris-card-header">
+            <span class="schoolaris-card-title" id="profilePaymentsTitle">Historique des paiements (0)</span>
+            <button class="btn-secondary" style="padding: 6px 14px; font-size: 12.5px;" onclick="window.print()">
+              <i class="fa-solid fa-print"></i>
+              <span>Imprimer</span>
+            </button>
+          </div>
+          <div class="table-responsive">
+            <table class="schoolaris-table">
+              <thead>
+                <tr>
+                  <th>N° REÇU</th>
+                  <th>PÉRIODE / MOIS</th>
+                  <th>GROUPE / MATIÈRE</th>
+                  <th>MODE</th>
+                  <th>MONTANT PAYÉ</th>
+                  <th>DATE</th>
+                  <th style="text-align: right;">REÇU</th>
+                </tr>
+              </thead>
+              <tbody id="profilePaymentsTableBody">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 3. POINTAGE & GESTION DES PRÉSENCES ==================== -->
+    <section class="view-container" id="view-pointage">
+      <!-- Section Header -->
+      <div class="card-header" style="margin-bottom: 16px; flex-wrap: wrap; gap: 14px;">
+        <div>
+          <div class="card-title" style="font-size: 22px;">
+            <i class="fa-solid fa-clipboard-user" style="color: #38bdf8;"></i>
+            <span data-i18n="title_attendance">Gestion des Présences & Feuilles d'Appel</span>
+          </div>
+          <p style="color: var(--text-muted); font-size: 13px; margin-top: 4px;" data-i18n="subtitle_attendance">
+            Vérification manuelle des présences par groupe, suivi des dates et nombre de séances.
+          </p>
+        </div>
+
+        <!-- Mode Switcher Tabs -->
+        <div class="att-tabs-nav" style="margin-bottom: 0;">
+          <button type="button" class="att-tab-btn active" id="tabBtnSheet" onclick="app.switchAttendanceMode('sheet')">
+            <i class="fa-solid fa-list-check"></i>
+            <span data-i18n="tab_manual_attendance">Feuille d'Appel par Groupe</span>
+          </button>
+          <button type="button" class="att-tab-btn" id="tabBtnScan" onclick="app.switchAttendanceMode('scan')">
+            <i class="fa-solid fa-qrcode"></i>
+            <span data-i18n="tab_rapid_scan">Scanner Code-barres / QR</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ================= MODE 1: MANUAL GROUP ATTENDANCE SHEET ================= -->
+      <div id="attendanceSheetView">
+        <!-- Control Card: Group Selection & Session Date/Number -->
+        <div class="att-control-card">
+          <div class="att-control-grid">
+            <!-- 1. Group Selector -->
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" style="font-weight: 700; color: #60a5fa;">
+                <i class="fa-solid fa-users"></i>
+                <span data-i18n="lbl_select_group">Sélectionner le Groupe</span>
+              </label>
+              <select id="attSelectGroup" class="form-control" onchange="app.onAttendanceGroupChange(this.value)">
+                <option value="">-- Choisir un groupe --</option>
+              </select>
+            </div>
+
+            <!-- 2. Session Date -->
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" style="font-weight: 700;">
+                <i class="fa-regular fa-calendar-days"></i>
+                <span data-i18n="lbl_session_date">Date de la Séance</span>
+              </label>
+              <input type="date" id="attSessionDate" class="form-control"
+                onchange="app.onAttendanceDateChange(this.value)">
+            </div>
+
+            <!-- 3. Session Number -->
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" style="font-weight: 700;">
+                <i class="fa-solid fa-hashtag"></i>
+                <span data-i18n="lbl_session_num">N° Séance</span>
+              </label>
+              <input type="number" id="attSessionNumber" class="form-control" min="1" placeholder="Ex: 1">
+            </div>
+
+            <!-- 4. Session Topic -->
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">
+                <i class="fa-solid fa-book-open"></i>
+                <span data-i18n="lbl_session_topic">Thème / Notes du cours</span>
+              </label>
+              <input type="text" id="attSessionTopic" class="form-control" placeholder="Ex: Chapitre 2 / Exercices">
+            </div>
+
+            <!-- 5. Action Buttons -->
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+              <button type="button" class="btn-primary" onclick="app.saveAttendanceSheet()" id="btnSaveAttendance"
+                title="Enregistrer la feuille de présence">
+                <i class="fa-solid fa-floppy-disk"></i>
+                <span data-i18n="btn_save_attendance">Enregistrer</span>
+              </button>
+              <button type="button" class="btn-secondary" onclick="app.printAttendanceSheet()"
+                title="Imprimer la feuille d'appel">
+                <i class="fa-solid fa-print"></i>
+              </button>
+              <button type="button" class="btn-secondary" onclick="app.openAttendanceMatrixModal()"
+                title="Historique & Grille des séances"
+                style="background: rgba(139, 92, 246, 0.15); color: #a78bfa; border-color: rgba(139, 92, 246, 0.3);">
+                <i class="fa-solid fa-table-cells"></i>
+                <span data-i18n="btn_view_matrix">Grille des Séances</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Group Details Sub-bar -->
+          <div id="attGroupDetailsBar"
+            style="display: none; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border-color); flex-wrap: wrap; gap: 18px; font-size: 13px; color: var(--text-muted);">
+            <div><i class="fa-solid fa-layer-group" style="color: #60a5fa;"></i> <span id="attGroupLevel">-</span></div>
+            <div><i class="fa-solid fa-book-bookmark" style="color: #34d399;"></i> <span id="attGroupSubject">-</span>
+            </div>
+            <div><i class="fa-solid fa-chalkboard-user" style="color: #fbbf24;"></i> <span id="attGroupTeacher">-</span>
+            </div>
+            <div><i class="fa-solid fa-door-open" style="color: #f472b6;"></i> <span id="attGroupRoom">-</span></div>
+            <div><i class="fa-regular fa-clock" style="color: #38bdf8;"></i> <span id="attGroupSchedule">-</span></div>
+          </div>
+        </div>
+
+        <!-- Live Stats Ribbon for Selected Session -->
+        <div class="att-stats-ribbon">
+          <div class="att-stat-pill">
+            <div class="att-stat-icon" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6;">
+              <i class="fa-solid fa-users"></i>
+            </div>
+            <div class="att-stat-info">
+              <div class="att-stat-num" id="attStatTotal">0</div>
+              <div class="att-stat-label" data-i18n="stat_inscrits">Total Élèves</div>
+            </div>
+          </div>
+
+          <div class="att-stat-pill">
+            <div class="att-stat-icon" style="background: rgba(139, 92, 246, 0.15); color: #8b5cf6;">
+              <i class="fa-solid fa-calendar-check"></i>
+            </div>
+            <div class="att-stat-info">
+              <div class="att-stat-num" id="attStatSessions">0</div>
+              <div class="att-stat-label" data-i18n="stat_total_seances">Séances Effectuées</div>
+            </div>
+          </div>
+
+          <div class="att-stat-pill">
+            <div class="att-stat-icon" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">
+              <i class="fa-solid fa-user-check"></i>
+            </div>
+            <div class="att-stat-info">
+              <div class="att-stat-num" id="attStatPresent" style="color: #10b981;">0</div>
+              <div class="att-stat-label" data-i18n="stat_presents">Présents</div>
+            </div>
+          </div>
+
+          <div class="att-stat-pill">
+            <div class="att-stat-icon" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">
+              <i class="fa-solid fa-user-xmark"></i>
+            </div>
+            <div class="att-stat-info">
+              <div class="att-stat-num" id="attStatAbsent" style="color: #ef4444;">0</div>
+              <div class="att-stat-label" data-i18n="stat_absents">Absents</div>
+            </div>
+          </div>
+
+          <div class="att-stat-pill">
+            <div class="att-stat-icon" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">
+              <i class="fa-solid fa-user-clock"></i>
+            </div>
+            <div class="att-stat-info">
+              <div class="att-stat-num" id="attStatLate" style="color: #f59e0b;">0</div>
+              <div class="att-stat-label" data-i18n="stat_retards">Retards / Excusés</div>
+            </div>
+          </div>
+
+          <div class="att-stat-pill">
+            <div class="att-stat-icon" style="background: rgba(6, 182, 212, 0.15); color: #06b6d4;">
+              <i class="fa-solid fa-money-bill-wave"></i>
+            </div>
+            <div class="att-stat-info">
+              <div class="att-stat-num" id="attStatPayments" style="font-size: 16px;">0 / 0</div>
+              <div class="att-stat-label" data-i18n="stat_paid_ratio">Abonnement Réglé</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Attendance List Card -->
+        <div class="card">
+          <!-- Card Top Action Toolbar -->
+          <div
+            style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 18px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="position: relative; width: 260px;">
+                <i class="fa-solid fa-magnifying-glass"
+                  style="position: absolute; left: 12px; top: 12px; color: var(--text-muted);"></i>
+                <input type="text" id="attStudentSearch" class="form-control"
+                  style="padding-left: 36px; height: 38px; font-size: 13px;" placeholder="Filtrer un élève..."
+                  oninput="app.filterAttendanceStudents(this.value)">
+              </div>
+            </div>
+
+            <!-- Batch Action Buttons -->
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <button type="button" class="btn-secondary"
+                style="height: 36px; font-size: 12px; font-weight: 700; color: #10b981; border-color: rgba(16, 185, 129, 0.3);"
+                onclick="app.markAllAttendance('present')">
+                <i class="fa-solid fa-check-double"></i>
+                <span data-i18n="btn_mark_all_present">Tous Présents</span>
+              </button>
+              <button type="button" class="btn-secondary"
+                style="height: 36px; font-size: 12px; font-weight: 700; color: #ef4444; border-color: rgba(239, 68, 68, 0.3);"
+                onclick="app.markAllAttendance('absent')">
+                <i class="fa-solid fa-xmark"></i>
+                <span data-i18n="btn_mark_all_absent">Tous Absents</span>
+              </button>
+              <button type="button" class="btn-secondary"
+                style="height: 36px; font-size: 12px; font-weight: 700; color: #f59e0b; border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.08);"
+                onclick="app.confirmCloseAttendanceSession()"
+                title="Clôturer la séance et marquer tous les non-pointés comme absents">
+                <i class="fa-solid fa-user-xmark"></i>
+                <span data-i18n="btn_close_session_absent">Clôturer & Marquer les Absents</span>
+              </button>
+              <button type="button" class="btn-secondary" style="height: 36px; font-size: 12px; font-weight: 700;"
+                onclick="app.markAllAttendance(null)">
+                <i class="fa-solid fa-rotate-left"></i>
+                <span data-i18n="btn_reset">Réinitialiser</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Table of Students -->
+          <div class="table-responsive">
+            <table class="edumind-table">
+              <thead>
+                <tr>
+                  <th style="width: 50px;">#</th>
+                  <th data-i18n="th_eleve">ÉLÈVE</th>
+                  <th data-i18n="th_contact">CONTACT & TÉL</th>
+                  <th data-i18n="th_assiduite_groupe">ASSIDUITÉ (SÉANCES)</th>
+                  <th data-i18n="th_cotisation">ÉTAT COTISATION</th>
+                  <th style="min-width: 280px; text-align: center;" data-i18n="th_etat_presence">PRÉSENCE À LA SÉANCE
+                  </th>
+                  <th data-i18n="th_notes">REMARQUES</th>
+                </tr>
+              </thead>
+              <tbody id="attStudentsTableBody">
+                <tr>
+                  <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                    <i class="fa-solid fa-hand-pointer"
+                      style="font-size: 32px; margin-bottom: 10px; display: block; opacity: 0.5;"></i>
+                    Veuillez sélectionner un groupe ci-dessus pour afficher la feuille d'appel.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= MODE 2: RAPID BARCODE SCANNER ================= -->
+      <div id="attendanceScanView" style="display: none;">
+        <!-- Control Bar: Group Selector, Session Date, Live Counters & Manual Finish Button -->
+        <div class="card" style="margin-bottom: 18px; padding: 18px 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <!-- Selectors -->
+            <div style="display: flex; gap: 14px; align-items: center; flex-wrap: wrap; flex: 1;">
+              <div style="min-width: 270px;">
+                <label class="form-label"
+                  style="font-weight: 700; color: #60a5fa; margin-bottom: 5px; display: flex; align-items: center; gap: 6px;">
+                  <i class="fa-solid fa-users"></i>
+                  <span data-i18n="lbl_select_group">Sélectionner le Groupe en cours</span>
+                </label>
+                <select id="scanSelectGroup" class="form-control" style="font-weight: 700; height: 42px;"
+                  onchange="app.onScanGroupChange(this.value)">
+                  <option value="">-- Choisir un groupe --</option>
+                </select>
+              </div>
+
+              <div style="width: 170px;">
+                <label class="form-label"
+                  style="font-weight: 700; margin-bottom: 5px; display: flex; align-items: center; gap: 6px;">
+                  <i class="fa-regular fa-calendar-days"></i>
+                  <span data-i18n="lbl_session_date">Date Séance</span>
+                </label>
+                <input type="date" id="scanSessionDate" class="form-control" style="height: 42px;"
+                  onchange="app.onScanDateChange(this.value)">
+              </div>
+            </div>
+
+            <!-- Live Session Counters -->
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <div style="display: flex; gap: 8px;">
+                <div class="att-stat-pill" style="padding: 6px 14px; min-width: 85px; border-radius: 10px;">
+                  <div class="att-stat-info">
+                    <div class="att-stat-num" id="scanStatTotal" style="font-size: 17px;">0</div>
+                    <div class="att-stat-label" data-i18n="stat_inscrits" style="font-size: 10px;">Total</div>
+                  </div>
+                </div>
+                <div class="att-stat-pill"
+                  style="padding: 6px 14px; min-width: 85px; border-radius: 10px; border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.08);">
+                  <div class="att-stat-info">
+                    <div class="att-stat-num" id="scanStatPresent" style="color: #10b981; font-size: 17px;">0</div>
+                    <div class="att-stat-label" data-i18n="stat_presents" style="color: #10b981; font-size: 10px;">
+                      Présents</div>
+                  </div>
+                </div>
+                <div class="att-stat-pill"
+                  style="padding: 6px 14px; min-width: 85px; border-radius: 10px; border-color: rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.08);">
+                  <div class="att-stat-info">
+                    <div class="att-stat-num" id="scanStatPending" style="color: #f59e0b; font-size: 17px;">0</div>
+                    <div class="att-stat-label" data-i18n="stat_en_attente" style="color: #f59e0b; font-size: 10px;">En
+                      Attente</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Manual End-Of-Attendance & Mark Absent Button -->
+              <button type="button" class="btn-primary" id="btnScanCloseSession"
+                onclick="app.confirmCloseAttendanceSession()"
+                style="background: linear-gradient(135deg, #ef4444, #dc2626); border: none; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35); height: 42px; padding: 0 18px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-user-xmark"></i>
+                <span data-i18n="btn_close_session_absent">Terminer l'appel & Marquer les absents</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="pointage-hero" style="margin-bottom: 22px;">
+          <h2
+            style="font-size: 22px; font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <i class="fa-solid fa-qrcode" style="color: #38bdf8;"></i>
+            <span data-i18n="pointage_title">Pointage & Présence Rapide</span>
+          </h2>
+          <p style="color: #94a3b8; margin-bottom: 20px; font-size: 13.5px;" data-i18n="pointage_subtitle">
+            Scannez le badge/QR de l'élève ou saisissez son matricule pour enregistrer sa présence et vérifier son état
+            de paiement.
+          </p>
+
+          <form id="pointageForm" class="pointage-scan-box"
+            onsubmit="event.preventDefault(); app.handlePointageScan();">
+            <input type="text" id="pointageInput" class="input-scan"
+              placeholder="Scannez le code-barres ou tapez le matricule (Ex: ETU-2026-001)..." autocomplete="off">
+            <button type="submit" class="btn-primary" style="padding: 0 28px; font-size: 16px;">
+              <i class="fa-solid fa-barcode"></i>
+              <span data-i18n="btn_scan">Pointer</span>
+            </button>
+          </form>
+
+          <!-- Dynamic Scan Result Card -->
+          <div id="pointageResultCard" class="pointage-result-card" style="display: none;">
+            <div id="pointageBadge" class="pointage-badge-huge">À JOUR</div>
+            <div style="display: flex; gap: 20px; align-items: center; justify-content: center; margin-top: 10px;">
+              <div id="pointageAvatar" class="student-avatar-box" style="width: 80px; height: 95px; font-size: 38px;">
+                <i class="fa-solid fa-user"></i>
+              </div>
+              <div style="text-align: left;" id="pointageInfoText">
+                <!-- Details injected via JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Session Scanned Students Table -->
+        <div class="card">
+          <div
+            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <i class="fa-solid fa-clipboard-check" style="color: #10b981; font-size: 18px;"></i>
+              <h3 style="font-size: 15px; font-weight: 700; margin: 0;" data-i18n="title_live_scanned">Élèves pointés
+                dans cette séance</h3>
+              <span id="scanBadgeCount"
+                style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-weight: 700; padding: 2px 10px; border-radius: 12px; font-size: 12px;">0
+                présents</span>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted);">
+              <i class="fa-solid fa-bolt" style="color: #f59e0b;"></i> <span data-i18n="tip_barcode_autofocus">Le champ
+                reste toujours actif pour enchaîner les scans au scanner</span>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="edumind-table">
+              <thead>
+                <tr>
+                  <th style="width: 50px;">#</th>
+                  <th data-i18n="th_heure">HEURE</th>
+                  <th data-i18n="th_matricule">MATRICULE</th>
+                  <th data-i18n="th_eleve">ÉLÈVE</th>
+                  <th data-i18n="th_cotisation">ÉTAT COTISATION</th>
+                  <th style="width: 140px; text-align: center;" data-i18n="th_statut">STATUT</th>
+                  <th style="width: 80px; text-align: center;" data-i18n="th_actions">ACTION</th>
+                </tr>
+              </thead>
+              <tbody id="scanLiveTableBody">
+                <tr>
+                  <td colspan="7" style="text-align: center; padding: 30px; color: var(--text-muted);">
+                    Sélectionnez un groupe pour afficher la liste de présence en direct.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 4. PAIEMENTS & REÇUS VIEW ==================== -->
+    <section class="view-container" id="view-paiements">
+      <div class="card-header" style="margin-bottom: 20px;">
+        <div class="card-title" style="font-size: 22px;">
+          <i class="fa-solid fa-credit-card" style="color: #10b981;"></i>
+          <span data-i18n="title_paiements">Gestion des Paiements & Reçus</span>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+          <div class="schoolaris-search-box" style="width: 320px; min-width: 220px;">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchPaymentInput" class="schoolaris-search-input"
+              placeholder="Rechercher élève, N° reçu, groupe..."
+              oninput="app.filterPayments(this.value)">
+          </div>
+          <button class="btn-primary" onclick="app.openModalPayment()">
+            <i class="fa-solid fa-plus"></i>
+            <span data-i18n="btn_new_payment">Encaisser un Paiement</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-responsive">
+          <table class="edumind-table">
+            <thead>
+              <tr>
+                <th>N° REÇU</th>
+                <th data-i18n="th_eleve">ÉLÈVE</th>
+                <th data-i18n="th_groupe">GROUPE / MATIÈRE</th>
+                <th>PÉRIODE</th>
+                <th data-i18n="th_montant">MONTANT PAYÉ</th>
+                <th data-i18n="th_mode">MODE</th>
+                <th data-i18n="th_date">DATE</th>
+                <th>ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody id="paymentsTableBody">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 5. ÉCHÉANCES & IMPAYÉS ==================== -->
+    <section class="view-container" id="view-echeances">
+      <div class="card-header" style="margin-bottom: 20px;">
+        <div class="card-title" style="font-size: 22px;">
+          <i class="fa-regular fa-calendar-check" style="color: #14b8a6;"></i>
+          <span data-i18n="title_echeances">Échéances & Suivi des Impayés</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-responsive">
+          <table class="edumind-table">
+            <thead>
+              <tr>
+                <th data-i18n="th_eleve">ÉLÈVE</th>
+                <th data-i18n="th_groupe">GROUPE</th>
+                <th data-i18n="th_matiere">MATIÈRE</th>
+                <th data-i18n="th_phone">TÉLÉPHONE</th>
+                <th data-i18n="th_montant_du">MONTANT DÛ</th>
+                <th>ACTION RAPIDE</th>
+              </tr>
+            </thead>
+            <tbody id="echeancesTableBody">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 6. CAISSE & TRÉSORERIE ==================== -->
+    <section class="view-container" id="view-caisse">
+      <div class="card-header" style="margin-bottom: 20px;">
+        <div class="card-title" style="font-size: 22px;">
+          <i class="fa-solid fa-cash-register" style="color: #f59e0b;"></i>
+          <span data-i18n="title_caisse">Trésorerie & Journal de Caisse</span>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn-primary" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"
+            onclick="app.openModalCaisseMovement('entree')">
+            <i class="fa-solid fa-plus"></i>
+            <span>Entrée de Caisse</span>
+          </button>
+          <button class="btn-primary" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);"
+            onclick="app.openModalCaisseMovement('sortie')">
+            <i class="fa-solid fa-minus"></i>
+            <span>Sortie (Dépense)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Caisse Stat Cards -->
+      <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 24px;">
+        <div class="stat-card" style="border-left: 4px solid #10b981;">
+          <span class="stat-title">Entrées Encaissées</span>
+          <div class="stat-value" id="caisseTodayIn" style="color: #10b981;">0 DA</div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+            Ce mois: <strong id="caisseMonthIn" style="color: #10b981;">0 DA</strong>
+          </div>
+        </div>
+        <div class="stat-card" style="border-left: 4px solid #ef4444;">
+          <span class="stat-title">Sorties & Dépenses</span>
+          <div class="stat-value" id="caisseTodayOut" style="color: #ef4444;">0 DA</div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+            Ce mois: <strong id="caisseMonthOut" style="color: #ef4444;">0 DA</strong>
+          </div>
+        </div>
+        <div class="stat-card" style="border-left: 4px solid #3b82f6;">
+          <span class="stat-title">Solde Net en Caisse</span>
+          <div class="stat-value" id="caisseNetBalance" style="color: #3b82f6;">0 DA</div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+            Total cumulé: <strong id="caisseAllTimeBalance">0 DA</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Caisse Filter Bar -->
+      <div class="card" style="margin-bottom: 18px; padding: 14px 18px;">
+        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <label style="font-size: 12px; font-weight: 600; color: var(--text-muted);">Type:</label>
+            <select id="caisseFilterType" class="form-control" style="width: auto; padding: 6px 12px;"
+              onchange="app.filterCaisse()">
+              <option value="all">Tous les types</option>
+              <option value="entree">Entrées uniquement (+)</option>
+              <option value="sortie">Sorties uniquement (-)</option>
+            </select>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <label style="font-size: 12px; font-weight: 600; color: var(--text-muted);">Catégorie:</label>
+            <select id="caisseFilterCategory" class="form-control" style="width: auto; padding: 6px 12px;"
+              onchange="app.filterCaisse()">
+              <option value="all">Toutes les catégories</option>
+              <option value="Paiement élève">Paiement élève</option>
+              <option value="Salaire enseignant">Salaire enseignant</option>
+              <option value="Loyer">Loyer</option>
+              <option value="Électricité">Électricité & Eau</option>
+              <option value="Fournitures">Fournitures & Tirages</option>
+              <option value="Maintenance">Maintenance & Réparation</option>
+              <option value="Autre">Autre</option>
+            </select>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <label style="font-size: 12px; font-weight: 600; color: var(--text-muted);">Période:</label>
+            <input type="date" id="caisseFilterFrom" class="form-control" style="width: auto; padding: 6px 10px;"
+              onchange="app.filterCaisse()">
+            <span style="font-size: 12px; color: var(--text-muted);">au</span>
+            <input type="date" id="caisseFilterTo" class="form-control" style="width: auto; padding: 6px 10px;"
+              onchange="app.filterCaisse()">
+          </div>
+          <div style="flex: 1; min-width: 180px;">
+            <input type="text" id="caisseFilterSearch" class="form-control"
+              placeholder="Rechercher par libellé, reçu, référence..." style="padding: 6px 12px;"
+              oninput="app.filterCaisse()">
+          </div>
+          <button class="btn-secondary" style="padding: 6px 12px;" onclick="app.resetCaisseFilters()">
+            <i class="fa-solid fa-rotate-left"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Caisse Movements Table -->
+      <div class="card">
+        <div class="table-responsive">
+          <table class="edumind-table">
+            <thead>
+              <tr>
+                <th>DATE & HEURE</th>
+                <th>FLUX</th>
+                <th>DÉSIGNATION / MOTIF</th>
+                <th>CATÉGORIE</th>
+                <th>RÉFÉRENCE</th>
+                <th>MODE</th>
+                <th style="text-align: right;">MONTANT (DA)</th>
+                <th style="text-align: center;">ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody id="caisseTableBody">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 7. ENSEIGNANTS & HONORAIRES ==================== -->
+    <section class="view-container" id="view-enseignants">
+      <div class="card-header" style="margin-bottom: 20px;">
+        <div class="card-title" style="font-size: 22px;">
+          <i class="fa-solid fa-chalkboard-user" style="color: #f97316;"></i>
+          <span data-i18n="title_enseignants">Enseignants & Honoraires</span>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+          <div class="schoolaris-search-box" style="width: 320px; min-width: 220px;">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchTeacherInput" class="schoolaris-search-input"
+              placeholder="Rechercher par nom d'enseignant, matière..."
+              oninput="app.filterTeachers(this.value)">
+          </div>
+          <button class="btn-primary" onclick="app.openModalTeacher()">
+            <i class="fa-solid fa-plus"></i>
+            <span data-i18n="btn_add_teacher">Ajouter un Enseignant</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-responsive">
+          <table class="edumind-table">
+            <thead>
+              <tr>
+                <th>MATRICULE</th>
+                <th>ENSEIGNANT</th>
+                <th>SPÉCIALITÉ</th>
+                <th>TÉLÉPHONE</th>
+                <th>MODE DE RÉMUNÉRATION</th>
+                <th>GROUPES</th>
+                <th>ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody id="teachersTableBody">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 8. PLANNING & SALLES ==================== -->
+    <section class="view-container" id="view-planning">
+      <div class="schoolaris-header" style="margin-bottom: 20px;">
+        <div class="schoolaris-title" style="display: flex; align-items: center; gap: 10px;">
+          <i class="fa-solid fa-calendar-days" style="color: #8b5cf6;"></i>
+          <span data-i18n="title_planning">Planning & Emploi du Temps</span>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button class="btn-secondary" onclick="app.togglePlanningView()" id="btnPlanningToggle">
+            <i class="fa-solid fa-table-cells"></i>
+            <span id="planningViewText">Vue Grille Hebdo</span>
+          </button>
+          <button class="btn-secondary" onclick="app.printPlanning()" title="Imprimer l'emploi du temps filtré">
+            <i class="fa-solid fa-print"></i>
+            <span>Imprimer le Planning</span>
+          </button>
+          <button class="btn-secondary" onclick="app.openModalRoomsAvailability()">
+            <i class="fa-solid fa-door-open"></i>
+            <span>Disponibilité des Salles</span>
+          </button>
+          <button class="btn-primary" onclick="app.openModalGroup()">
+            <i class="fa-solid fa-plus"></i>
+            <span>Créer un Groupe / Séance</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Planning KPI Stats Cards -->
+      <div class="planning-kpi-grid"
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 20px;">
+        <div class="kpi-card"
+          style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; gap: 16px;">
+          <div
+            style="width: 48px; height: 48px; border-radius: 12px; background: rgba(59, 130, 246, 0.15); display: flex; align-items: center; justify-content: center; color: #3b82f6; font-size: 20px;">
+            <i class="fa-solid fa-calendar-check"></i>
+          </div>
+          <div>
+            <div style="font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Séances
+              / Groupes</div>
+            <div id="planningKpiTotalGroups" style="font-size: 24px; font-weight: 800; color: var(--text-main);">0</div>
+          </div>
+        </div>
+
+        <div class="kpi-card"
+          style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; gap: 16px;">
+          <div
+            style="width: 48px; height: 48px; border-radius: 12px; background: rgba(139, 92, 246, 0.15); display: flex; align-items: center; justify-content: center; color: #8b5cf6; font-size: 20px;">
+            <i class="fa-solid fa-clock"></i>
+          </div>
+          <div>
+            <div style="font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Volume
+              Hebdomadaire</div>
+            <div id="planningKpiTotalHours" style="font-size: 24px; font-weight: 800; color: var(--text-main);">0h</div>
+          </div>
+        </div>
+
+        <div class="kpi-card"
+          style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; gap: 16px;">
+          <div
+            style="width: 48px; height: 48px; border-radius: 12px; background: rgba(16, 185, 129, 0.15); display: flex; align-items: center; justify-content: center; color: #10b981; font-size: 20px;">
+            <i class="fa-solid fa-chalkboard-user"></i>
+          </div>
+          <div>
+            <div style="font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">
+              Enseignants Programmés</div>
+            <div id="planningKpiTeachersCount" style="font-size: 24px; font-weight: 800; color: var(--text-main);">0
+            </div>
+          </div>
+        </div>
+
+        <div class="kpi-card"
+          style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; gap: 16px;">
+          <div
+            style="width: 48px; height: 48px; border-radius: 12px; background: rgba(245, 158, 11, 0.15); display: flex; align-items: center; justify-content: center; color: #f59e0b; font-size: 20px;">
+            <i class="fa-solid fa-door-open"></i>
+          </div>
+          <div>
+            <div style="font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Salles
+              Utilisées</div>
+            <div id="planningKpiRoomsCount" style="font-size: 24px; font-weight: 800; color: var(--text-main);">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Planning Filter Bar -->
+      <div class="schoolaris-card" style="margin-bottom: 20px; padding: 16px;">
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+          <div class="schoolaris-search-box" style="flex: 1; min-width: 200px;">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchPlanningInput" class="schoolaris-search-input"
+              placeholder="Rechercher groupe, matière, enseignant..." oninput="app.filterPlanning()">
+          </div>
+          <select id="filterPlanningTeacher" class="schoolaris-select" style="min-width: 170px;"
+            onchange="app.filterPlanning()">
+            <option value="">Tous les enseignants</option>
+          </select>
+          <select id="filterPlanningRoom" class="schoolaris-select" style="min-width: 150px;"
+            onchange="app.filterPlanning()">
+            <option value="">Toutes les salles</option>
+          </select>
+          <select id="filterPlanningLevel" class="schoolaris-select" style="min-width: 150px;"
+            onchange="app.filterPlanning()">
+            <option value="">Tous les niveaux</option>
+          </select>
+          <select id="filterPlanningSubject" class="schoolaris-select" style="min-width: 150px;"
+            onchange="app.filterPlanning()">
+            <option value="">Toutes les matières</option>
+          </select>
+          <select id="filterPlanningDay" class="schoolaris-select" style="min-width: 140px;"
+            onchange="app.filterPlanning()">
+            <option value="">Tous les jours</option>
+            <option value="Samedi">Samedi</option>
+            <option value="Dimanche">Dimanche</option>
+            <option value="Lundi">Lundi</option>
+            <option value="Mardi">Mardi</option>
+            <option value="Mercredi">Mercredi</option>
+            <option value="Jeudi">Jeudi</option>
+            <option value="Vendredi">Vendredi</option>
+          </select>
+          <button type="button" class="btn-secondary" style="padding: 8px 14px;" onclick="app.resetPlanningFilters()"
+            title="Réinitialiser les filtres">
+            <i class="fa-solid fa-rotate-left"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Planning List View -->
+      <div class="card" id="planningListView">
+        <div class="table-responsive">
+          <table class="edumind-table">
+            <thead>
+              <tr>
+                <th>GROUPE</th>
+                <th>NIVEAU</th>
+                <th>MATIÈRE</th>
+                <th>ENSEIGNANT</th>
+                <th>SALLE</th>
+                <th>JOUR & HEURE</th>
+                <th>DURÉE</th>
+                <th>PRIX MENSUEL</th>
+                <th>EFFECTIF</th>
+                <th>ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody id="groupsTableBody">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Planning Weekly Grid View (Initially Hidden) -->
+      <div id="planningGridView" style="display: none;">
+        <div class="weekly-schedule-grid" id="weeklyScheduleGrid">
+          <!-- 7 day columns injected via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 9. NIVEAUX & MATIÈRES ==================== -->
+    <section class="view-container" id="view-niveaux">
+      <div class="card-header" style="margin-bottom: 20px;">
+        <div class="card-title" style="font-size: 22px;">
+          <i class="fa-solid fa-layer-group" style="color: #3b82f6;"></i>
+          <span>Niveaux Scolaires & Formations</span>
+        </div>
+        <button class="btn-primary" onclick="app.openModalLevel()">
+          <i class="fa-solid fa-plus"></i>
+          <span>Ajouter un Niveau</span>
+        </button>
+      </div>
+      <div class="card">
+        <div class="table-responsive">
+          <table class="edumind-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>INTITULÉ DU NIVEAU</th>
+                <th>CATÉGORIE (CYCLE)</th>
+                <th>ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody id="levelsTableBody">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="view-container" id="view-salles">
+      <!-- Salles Header -->
+      <div class="salles-header">
+        <div class="salles-title-area">
+          <div class="salles-main-title">
+            <i class="fa-solid fa-door-open"></i>
+            <span data-i18n="title_salles">Salles de Cours</span>
+          </div>
+          <div class="salles-subtitle" data-i18n="subtitle_salles">
+            Gestion des espaces pédagogiques, capacités d'accueil, équipements et plannings d'occupation
+          </div>
+        </div>
+
+        <div class="salles-header-actions">
+          <!-- View Switcher (Grid / Table) -->
+          <div class="view-mode-toggle" id="roomsViewToggle">
+            <button class="view-mode-btn active" id="btnRoomsViewGrid" onclick="app.setRoomsViewMode('grid')"
+              title="Vue Grille">
+              <i class="fa-solid fa-grip"></i>
+              <span data-i18n="view_grid">Cartes</span>
+            </button>
+            <button class="view-mode-btn" id="btnRoomsViewTable" onclick="app.setRoomsViewMode('table')"
+              title="Vue Tableau">
+              <i class="fa-solid fa-table-list"></i>
+              <span data-i18n="view_table">Tableau</span>
+            </button>
+          </div>
+
+          <!-- Availability Check Button -->
+          <button class="btn-secondary" onclick="app.openModalRoomsAvailability()"
+            title="Vérifier la disponibilité des salles">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span data-i18n="btn_check_avail">Disponibilité en direct</span>
+          </button>
+
+          <!-- Add Room Button -->
+          <button class="btn-primary" onclick="app.openModalRoom()"
+            style="box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);">
+            <i class="fa-solid fa-plus"></i>
+            <span data-i18n="btn_new_room">Nouvelle salle</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Top 4 Stat Cards Row -->
+      <div class="salles-stats-grid">
+        <!-- 1. Total Salles -->
+        <div class="salles-stat-card">
+          <div class="salles-stat-label">
+            <i class="fa-solid fa-door-open" style="color: #38bdf8;"></i>
+            <span data-i18n="kpi_total_rooms">Total des salles</span>
+          </div>
+          <div class="salles-stat-val-rooms" id="roomsKpiTotal">0</div>
+        </div>
+
+        <!-- 2. Capacité Totale -->
+        <div class="salles-stat-card">
+          <div class="salles-stat-label">
+            <i class="fa-solid fa-users-rectangle" style="color: #10b981;"></i>
+            <span data-i18n="kpi_total_capacity">Capacité d'accueil</span>
+          </div>
+          <div>
+            <div class="salles-stat-val-capacity" id="roomsKpiCapacity">0 places</div>
+          </div>
+        </div>
+
+        <!-- 3. Équipées Projecteur -->
+        <div class="salles-stat-card">
+          <div class="salles-stat-label">
+            <i class="fa-solid fa-video" style="color: #f59e0b;"></i>
+            <span data-i18n="kpi_projectors">Avec Vidéoprojecteur</span>
+          </div>
+          <div>
+            <div class="salles-stat-val-projector" id="roomsKpiProjector">0</div>
+          </div>
+        </div>
+
+        <!-- 4. Groupes Assignés -->
+        <div class="salles-stat-card">
+          <div class="salles-stat-label">
+            <i class="fa-solid fa-calendar-check" style="color: #a855f7;"></i>
+            <span data-i18n="kpi_assigned_groups">Groupes programmés</span>
+          </div>
+          <div class="salles-stat-val-groups" id="roomsKpiGroups">0</div>
+        </div>
+      </div>
+
+      <!-- Main Container: Filter Toolbar & Rooms Display -->
+      <div class="salles-main-card">
+        <!-- Toolbar -->
+        <div class="salles-toolbar">
+          <div class="salles-toolbar-left">
+            <div class="salles-search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="roomsFilterSearch" class="salles-search-input"
+                placeholder="Rechercher une salle..." oninput="app.filterRooms()">
+            </div>
+            <select id="roomsFilterProjector" class="salles-filter-select" onchange="app.filterRooms()">
+              <option value="">Tous vidéoprojecteurs</option>
+              <option value="yes">Avec vidéoprojecteur</option>
+              <option value="no">Sans vidéoprojecteur</option>
+            </select>
+            <select id="roomsFilterCapacity" class="salles-filter-select" onchange="app.filterRooms()">
+              <option value="">Toutes capacités</option>
+              <option value="small">&lt; 20 places</option>
+              <option value="medium">20 à 29 places</option>
+              <option value="large">30+ places</option>
+            </select>
+            <select id="roomsFilterOccupancy" class="salles-filter-select" onchange="app.filterRooms()">
+              <option value="">Toutes les salles</option>
+              <option value="occupied">Occupées (avec groupes)</option>
+              <option value="free">Disponibles (sans groupes)</option>
+            </select>
+          </div>
+
+          <div class="salles-toolbar-right">
+            <span class="schoolaris-counter-badge" id="roomsCounterDisplay">0 salle</span>
+          </div>
+        </div>
+
+        <!-- 1. Grid Cards View -->
+        <div id="roomsCardsGrid" class="rooms-cards-grid">
+          <!-- Injected via JS -->
+        </div>
+
+        <!-- 2. Table View (Hidden by default or toggled) -->
+        <div id="roomsTableContainer" class="table-responsive" style="display: none; padding: 10px;">
+          <table class="edumind-table">
+            <thead>
+              <tr>
+                <th data-i18n="th_salle">SALLE</th>
+                <th data-i18n="th_capacite">CAPACITÉ</th>
+                <th data-i18n="th_projecteur">VIDÉOPROJECTEUR</th>
+                <th data-i18n="th_equipement">ÉQUIPEMENT & REMARQUES</th>
+                <th data-i18n="th_groupes_occup">GROUPES ASSIGNÉS</th>
+                <th data-i18n="th_actions">ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody id="roomsTableBody">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="view-container" id="view-matieres">
+      <div class="card-header" style="margin-bottom: 20px;">
+        <div class="card-title" style="font-size: 22px;">
+          <i class="fa-solid fa-book-bookmark" style="color: #a855f7;"></i>
+          <span>Matières Enseignées</span>
+        </div>
+        <button class="btn-primary" onclick="app.openModalSubject()">
+          <i class="fa-solid fa-plus"></i>
+          <span>Ajouter une Matière</span>
+        </button>
+      </div>
+      <div class="card">
+        <div class="table-responsive">
+          <table class="edumind-table">
+            <thead>
+              <tr>
+                <th>MATIÈRE</th>
+                <th>CODE</th>
+                <th>COULEUR</th>
+                <th>ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody id="subjectsTableBody">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 10. INSCRIPTIONS VIEW ==================== -->
+    <section class="view-container" id="view-inscriptions">
+      <div class="card-header" style="margin-bottom: 20px;">
+        <div class="card-title" style="font-size: 22px;">
+          <i class="fa-solid fa-clipboard-check" style="color: #06b6d4;"></i>
+          <span>Inscrire un Élève dans un Groupe</span>
+        </div>
+      </div>
+      <div class="card" style="max-width: 650px; margin: 0 auto;">
+        <form id="enrollmentForm" onsubmit="event.preventDefault(); app.saveEnrollment();">
+          <div class="form-group">
+            <label class="form-label">Sélectionner l'Élève</label>
+            <select id="enrollStudentSelect" class="form-control" required>
+              <option value="">-- Choisir un élève --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sélectionner le Groupe / Cours</label>
+            <select id="enrollGroupSelect" class="form-control" required>
+              <option value="">-- Choisir un groupe --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Remise Mensuelle (DA) (Optionnel)</label>
+            <input type="number" id="enrollDiscount" class="form-control" placeholder="0" value="0">
+          </div>
+          <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 12px;">
+            <i class="fa-solid fa-check"></i>
+            <span>Valider l'Inscription</span>
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ==================== 11. PARAMÈTRES (STYLE SCHOOLARIS) ==================== -->
+    <section class="view-container" id="view-settings">
+      <div class="schoolaris-header" style="margin-bottom: 24px;">
+        <h2 class="schoolaris-title" data-i18n="nav_settings">Paramètres</h2>
+      </div>
+
+      <div class="settings-split-layout">
+        <!-- Settings Sub-Navigation Sidebar -->
+        <aside class="settings-subnav">
+          <button type="button" class="settings-nav-btn active" data-settings-tab="etablissement"
+            onclick="app.switchSettingsTab('etablissement')">
+            <i class="fa-solid fa-house"></i>
+            <span data-i18n="tab_etablissement">Établissement</span>
+          </button>
+          <button type="button" class="settings-nav-btn" data-settings-tab="securite"
+            onclick="app.switchSettingsTab('securite')">
+            <i class="fa-solid fa-lock"></i>
+            <span data-i18n="tab_securite">Sécurité</span>
+          </button>
+          <button type="button" class="settings-nav-btn" data-settings-tab="facturation"
+            onclick="app.switchSettingsTab('facturation')">
+            <i class="fa-regular fa-credit-card"></i>
+            <span data-i18n="tab_facturation">Facturation</span>
+          </button>
+          <button type="button" class="settings-nav-btn" data-settings-tab="caisse"
+            onclick="app.switchSettingsTab('caisse')">
+            <i class="fa-solid fa-vault"></i>
+            <span data-i18n="tab_caisse">Caisse</span>
+          </button>
+          <button type="button" class="settings-nav-btn" data-settings-tab="donnees"
+            onclick="app.switchSettingsTab('donnees')">
+            <i class="fa-solid fa-database"></i>
+            <span data-i18n="tab_donnees">Données</span>
+          </button>
+
+          <div class="settings-nav-divider"></div>
+
+          <button type="button" class="settings-nav-btn item-admin" data-settings-tab="administration"
+            onclick="app.switchSettingsTab('administration')">
+            <i class="fa-solid fa-shield"></i>
+            <span data-i18n="tab_administration">Administration</span>
+          </button>
+        </aside>
+
+        <!-- Settings Content Panels -->
+        <div class="settings-panels-container">
+
+          <!-- 1. TAB: ÉTABLISSEMENT -->
+          <div class="settings-tab-panel active" id="settingsTab-etablissement">
+            <h3 class="settings-panel-title">Informations de l'établissement</h3>
+
+            <div class="settings-card">
+              <form id="formEtablissement" onsubmit="event.preventDefault(); app.saveEtablissementSettings();">
+                <div class="form-group">
+                  <label class="form-label">Nom de l'établissement</label>
+                  <input type="text" id="settingSchoolName" class="form-control" placeholder="Schoolaris / EDUMIND">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Adresse</label>
+                  <input type="text" id="settingSchoolAddress" class="form-control" placeholder="Adresse">
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Téléphone</label>
+                    <input type="text" id="settingSchoolPhone" class="form-control" placeholder="0550 000 000">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="settingSchoolEmail" class="form-control" placeholder="contact@ecole.dz">
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Devise</label>
+                    <input type="text" id="settingCurrency" class="form-control" value="DA">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Année scolaire</label>
+                    <input type="text" id="settingActiveYear" class="form-control" value="2025-2026">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Logo (pour impression)</label>
+                  <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+                    <input type="file" id="settingLogoFile" accept="image/*" style="display: none;"
+                      onchange="app.handleSchoolLogoUpload(event)">
+                    <button type="button" class="btn-secondary"
+                      onclick="document.getElementById('settingLogoFile').click()" style="padding: 9px 16px;">
+                      <i class="fa-solid fa-image"></i> Choisir un fichier...
+                    </button>
+                    <span id="settingLogoFileName" style="color: var(--text-muted); font-size: 13px;">Aucun fichier
+                      sélectionné</span>
+                    <div id="settingLogoPreviewContainer" style="display: none; align-items: center; gap: 8px;">
+                      <img id="settingLogoPreview" src="" alt="Logo"
+                        style="height: 36px; border-radius: 6px; border: 1px solid var(--border-color); background: #fff; padding: 2px;">
+                      <button type="button" class="btn-icon"
+                        style="width: 30px; height: 30px; font-size: 12px; color: #ef4444;"
+                        onclick="app.removeSchoolLogo()"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="settings-card-actions">
+                  <button type="submit" class="btn-primary">Enregistrer</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Badges élèves (impression) -->
+            <div class="settings-card" style="margin-top: 24px;">
+              <h4 class="settings-card-subtitle"
+                style="margin-bottom: 16px; font-size: 15px; font-weight: 700; color: var(--text-heading);">Badges
+                élèves (impression)</h4>
+              <form id="formBadgeDimensions" onsubmit="event.preventDefault(); app.saveBadgeSettings();">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Largeur (mm)</label>
+                    <input type="number" step="0.1" id="settingBadgeWidth" class="form-control" value="85.6">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Hauteur (mm)</label>
+                    <input type="number" step="0.1" id="settingBadgeHeight" class="form-control" value="53.98">
+                  </div>
+                </div>
+                <div class="settings-card-actions">
+                  <button type="submit" class="btn-primary">Enregistrer</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- 2. TAB: SÉCURITÉ -->
+          <div class="settings-tab-panel" id="settingsTab-securite">
+            <h3 class="settings-panel-title">Sécurité</h3>
+
+            <div class="settings-card" style="max-width: 600px;">
+              <h4 class="settings-card-subtitle"
+                style="margin-bottom: 20px; font-size: 15px; font-weight: 700; color: var(--text-heading);">Changer le
+                mot de passe</h4>
+              <form id="formChangePassword" onsubmit="event.preventDefault(); app.changePassword();">
+                <div class="form-group">
+                  <label class="form-label">Mot de passe actuel</label>
+                  <input type="password" id="settingOldPassword" class="form-control" placeholder="••••••••" required>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Nouveau mot de passe</label>
+                  <input type="password" id="settingNewPassword" class="form-control" placeholder="••••••••" required>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Confirmer</label>
+                  <input type="password" id="settingConfirmPassword" class="form-control" placeholder="••••••••"
+                    required>
+                </div>
+
+                <div class="settings-card-actions">
+                  <button type="submit" class="btn-primary" id="btnSubmitPassword">Changer le mot de passe</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- 3. TAB: FACTURATION -->
+          <div class="settings-tab-panel" id="settingsTab-facturation">
+            <h3 class="settings-panel-title">Facturation & Échéances</h3>
+
+            <div class="settings-card">
+              <form id="formBillingSettings" onsubmit="event.preventDefault(); app.saveBillingSettings();">
+                <!-- Section: PRORATA -->
+                <div class="settings-section-badge">PRORATA</div>
+
+                <div class="settings-check-group">
+                  <label class="settings-custom-checkbox">
+                    <input type="checkbox" id="settingProrataMensuel">
+                    <span class="checkbox-box"></span>
+                    <div class="checkbox-labels">
+                      <span class="checkbox-title">Prorata mensuel</span>
+                      <span class="checkbox-desc">1re échéance calculée au prorata des jours restants dans le
+                        mois</span>
+                    </div>
+                  </label>
+
+                  <label class="settings-custom-checkbox">
+                    <input type="checkbox" id="settingProrataHebdo">
+                    <span class="checkbox-box"></span>
+                    <div class="checkbox-labels">
+                      <span class="checkbox-title">Prorata hebdomadaire</span>
+                      <span class="checkbox-desc">1re semaine calculée au prorata des jours restants</span>
+                    </div>
+                  </label>
+                </div>
+
+                <!-- Section: GÉNÉRATION DES ÉCHÉANCES -->
+                <div class="settings-section-badge" style="margin-top: 28px;">GÉNÉRATION DES ÉCHÉANCES</div>
+
+                <div class="form-row" style="margin-bottom: 20px;">
+                  <div class="form-group">
+                    <label class="form-label">Jour de génération</label>
+                    <input type="number" min="1" max="31" id="settingBillingGenDay" class="form-control" value="1">
+                    <span class="form-hint">Jour du mois où les échéances sont créées</span>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Jour limite de paiement</label>
+                    <input type="number" min="1" max="31" id="settingBillingDueDay" class="form-control" value="15">
+                    <span class="form-hint">Après ce jour → statut « retard »</span>
+                  </div>
+                </div>
+
+                <div class="settings-check-group">
+                  <label class="settings-custom-checkbox">
+                    <input type="checkbox" id="settingAlertStartup" checked>
+                    <span class="checkbox-box"></span>
+                    <div class="checkbox-labels">
+                      <span class="checkbox-title">Alerte au démarrage</span>
+                      <span class="checkbox-desc">Alerte si les échéances du mois courant n'ont pas encore été
+                        générées</span>
+                    </div>
+                  </label>
+
+                  <label class="settings-custom-checkbox">
+                    <input type="checkbox" id="settingAutoSilentGen">
+                    <span class="checkbox-box"></span>
+                    <div class="checkbox-labels">
+                      <span class="checkbox-title">Génération automatique silencieuse</span>
+                      <span class="checkbox-desc">Génère les échéances manquantes sans alerte (prioritaire sur l'option
+                        précédente)</span>
+                    </div>
+                  </label>
+                </div>
+
+                <div class="settings-card-actions">
+                  <button type="submit" class="btn-primary">Enregistrer</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- 4. TAB: CAISSE -->
+          <div class="settings-tab-panel" id="settingsTab-caisse">
+            <h3 class="settings-panel-title">Catégories de caisse</h3>
+
+            <div class="caisse-categories-grid">
+              <!-- Left: Entrées -->
+              <div class="settings-card caisse-cat-card">
+                <div class="caisse-cat-header text-green">
+                  <i class="fa-solid fa-arrow-trend-up"></i>
+                  <span>Entrées</span>
+                </div>
+
+                <div class="caisse-tags-wrapper" id="caisseTagsEntree">
+                  <!-- Dynamically populated tags -->
+                </div>
+
+                <div class="caisse-add-row">
+                  <input type="text" id="inputNewCatEntree" class="form-control" placeholder="Nouvelle catégorie..."
+                    onkeydown="if(event.key==='Enter'){event.preventDefault();app.addCaisseCategory('entree');}">
+                  <button type="button" class="btn-primary" onclick="app.addCaisseCategory('entree')">Ajouter</button>
+                </div>
+              </div>
+
+              <!-- Right: Sorties -->
+              <div class="settings-card caisse-cat-card">
+                <div class="caisse-cat-header text-red">
+                  <i class="fa-solid fa-arrow-trend-down"></i>
+                  <span>Sorties</span>
+                </div>
+
+                <div class="caisse-tags-wrapper" id="caisseTagsSortie">
+                  <!-- Dynamically populated tags -->
+                </div>
+
+                <div class="caisse-add-row">
+                  <input type="text" id="inputNewCatSortie" class="form-control" placeholder="Nouvelle catégorie..."
+                    onkeydown="if(event.key==='Enter'){event.preventDefault();app.addCaisseCategory('sortie');}">
+                  <button type="button" class="btn-primary" onclick="app.addCaisseCategory('sortie')">Ajouter</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. TAB: DONNÉES -->
+          <div class="settings-tab-panel" id="settingsTab-donnees">
+            <h3 class="settings-panel-title">Gestion des Données & Sauvegardes</h3>
+
+            <div class="settings-card">
+              <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+                <h4 style="font-size: 16px; margin: 0; font-weight: 700;">Sauvegarde de la Base SQLite</h4>
+                <span
+                  style="display: inline-flex; align-items: center; gap: 6px; background: rgba(16, 185, 129, 0.15); color: #10b981; padding: 4px 12px; border-radius: 20px; font-size: 11.5px; font-weight: 600;">
+                  <i class="fa-solid fa-circle-check"></i> Sauvegarde Auto Active (7 derniers jours)
+                </span>
+              </div>
+
+              <p style="color: var(--text-muted); font-size: 13.5px; margin-bottom: 20px; line-height: 1.6;">
+                Le système effectue automatiquement une copie quotidienne de sécurité dans le dossier
+                <code>backups/</code> et conserve un historique des 7 derniers jours. Vos données de travail actuelles
+                restent 100% sécurisées dans <code>edumind.sqlite</code>.
+              </p>
+
+              <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
+                <a href="/api/backup/download" class="btn-primary"
+                  style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-download"></i>
+                  <span>Télécharger la Sauvegarde Instantanée (.sqlite)</span>
+                </a>
+              </div>
+
+              <div style="border-top: 1px solid var(--border-color); padding-top: 18px;">
+                <h4
+                  style="font-size: 13.5px; font-weight: 600; margin-bottom: 12px; color: var(--text-heading); display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-clock-rotate-left" style="color: #38bdf8;"></i>
+                  Archives automatiques des 7 derniers jours :
+                </h4>
+                <div id="backupsListContainer" style="display: flex; flex-direction: column; gap: 8px;">
+                  <div style="color: var(--text-muted); font-size: 12px;">Chargement des sauvegardes...</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 6. TAB: ADMINISTRATION -->
+          <div class="settings-tab-panel" id="settingsTab-administration">
+            <h3 class="settings-panel-title" style="color: #ef4444;">Administration du Système</h3>
+
+            <div class="settings-card">
+              <div class="admin-info-grid">
+                <div class="admin-info-item">
+                  <span class="admin-label">Application</span>
+                  <span class="admin-value">EDUMIND Pro v1.0.0</span>
+                </div>
+                <div class="admin-info-item">
+                  <span class="admin-label">État du Système</span>
+                  <span class="admin-value" style="color: #10b981;"><i class="fa-solid fa-circle"
+                      style="font-size: 8px; margin-right: 6px;"></i> Opérationnel</span>
+                </div>
+              </div>
+
+              <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-color);">
+                <h4 style="font-size: 14px; font-weight: 700; color: #ef4444; margin-bottom: 10px;">Zone de Sécurité &
+                  Maintenance</h4>
+                <p style="color: var(--text-muted); font-size: 12.5px; margin-bottom: 16px;">
+                  Les actions ci-dessous touchent au fonctionnement interne du logiciel. Utilisez-les avec précaution.
+                </p>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                  <button type="button" class="btn-secondary" onclick="location.reload()" style="font-size: 12.5px;">
+                    <i class="fa-solid fa-arrows-rotate"></i> Actualiser l'interface & Vider le cache
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== GROUPES VIEW (STYLE SCHOOLARIS) ==================== -->
+    <section class="view-container" id="view-groupes">
+      <!-- Top Title & Quick Action -->
+      <div class="schoolaris-header">
+        <h2 class="schoolaris-title" data-i18n="title_groupes">Groupes</h2>
+        <button class="btn-primary" onclick="app.openModalGroup()"
+          style="box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);">
+          <i class="fa-solid fa-plus"></i>
+          <span data-i18n="btn_new_group">+ Nouveau groupe</span>
+        </button>
+      </div>
+
+      <!-- Top 3 Stat Cards Row -->
+      <div class="schoolaris-stats-grid">
+        <!-- 1. Groupes Actifs -->
+        <div class="schoolaris-stat-card">
+          <div class="schoolaris-stat-label" data-i18n="kpi_active_groups">Groupes actifs</div>
+          <div class="schoolaris-stat-val-groupes" id="groupesKpiActive">0</div>
+        </div>
+
+        <!-- 2. Élèves Inscrits -->
+        <div class="schoolaris-stat-card">
+          <div class="schoolaris-stat-label" data-i18n="kpi_enrolled_students">Élèves inscrits</div>
+          <div>
+            <div class="schoolaris-stat-val-eleves" id="groupesKpiStudents">0</div>
+            <div class="schoolaris-stat-subtext" id="groupesKpiCapacity">sur 0 places</div>
+          </div>
+        </div>
+
+        <!-- 3. Taux de Remplissage -->
+        <div class="schoolaris-stat-card">
+          <div class="schoolaris-stat-label" data-i18n="kpi_fill_rate">Taux de remplissage</div>
+          <div>
+            <div class="schoolaris-stat-val-taux" id="groupesKpiFillRate">0%</div>
+            <div class="fill-rate-bar-track">
+              <div class="fill-rate-bar-fill" id="groupesFillRateBar" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Card: Liste des groupes -->
+      <div class="schoolaris-card">
+        <!-- Card Header: Title, Count, Excel Export -->
+        <div class="schoolaris-card-header">
+          <span class="schoolaris-card-title" data-i18n="list_groups">Liste des groupes</span>
+          <div class="schoolaris-card-actions">
+            <span class="schoolaris-counter-badge" id="groupesCounterDisplay">0 groupe</span>
+            <button class="btn-excel" onclick="app.exportGroupesToExcel()" title="Exporter en Excel">
+              <i class="fa-solid fa-download"></i>
+              <span>Excel</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Toolbar -->
+        <div class="schoolaris-filter-bar">
+          <div class="schoolaris-search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="groupesFilterSearch" class="schoolaris-search-input" placeholder="Rechercher..."
+              oninput="app.filterGroupes()">
+          </div>
+          <select id="groupesFilterLevel" class="schoolaris-select" onchange="app.filterGroupes()">
+            <option value="">Tous niveaux</option>
+          </select>
+          <select id="groupesFilterSubject" class="schoolaris-select" onchange="app.filterGroupes()">
+            <option value="">Toutes matières</option>
+          </select>
+          <select id="groupesFilterTeacher" class="schoolaris-select" onchange="app.filterGroupes()">
+            <option value="">Tous enseignants</option>
+          </select>
+          <select id="groupesFilterStatus" class="schoolaris-select" onchange="app.filterGroupes()">
+            <option value="active">Actifs</option>
+            <option value="all">Tous les statuts</option>
+            <option value="inactive">Inactifs</option>
+          </select>
+        </div>
+
+        <!-- Table -->
+        <div class="table-responsive">
+          <table class="schoolaris-table">
+            <thead>
+              <tr>
+                <th data-i18n="th_group_name">NOM DU GROUPE</th>
+                <th data-i18n="th_matiere">MATIÈRE</th>
+                <th data-i18n="th_niveau">NIVEAU</th>
+                <th data-i18n="th_enseignant">ENSEIGNANT</th>
+                <th data-i18n="th_eleves_cap">ÉLÈVES / CAP.</th>
+                <th data-i18n="th_salle">SALLE</th>
+                <th data-i18n="th_statut">STATUT</th>
+                <th style="text-align: right; width: 140px;">ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody id="schoolarisGroupesTableBody">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- Modal: Ajouter / Modifier Élève -->
+  <div class="modal-overlay" id="modalStudent">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalStudentTitle">Inscrire un Nouvel Élève</h3>
+        <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="studentForm" onsubmit="event.preventDefault(); app.saveStudent();">
+        <input type="hidden" id="studentId">
+        <div class="form-group" style="margin-bottom: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label class="form-label" style="margin-bottom: 0;">Matricule (Numéro de Carte / Code-barres)</label>
+            <span style="font-size: 11px; color: var(--text-muted);">Laissez vide pour génération automatique</span>
+          </div>
+          <input type="text" id="studentMatricule" class="form-control" style="font-family: monospace; font-weight: 700; color: #38bdf8;" placeholder="Automatique (ex: EDU-2026-0024)">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Prénom *</label>
+            <input type="text" id="studentFirstName" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nom de famille *</label>
+            <input type="text" id="studentLastName" class="form-control" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Genre</label>
+            <select id="studentGender" class="form-control">
+              <option value="M">Masculin</option>
+              <option value="F">Féminin</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Niveau Scolaire</label>
+            <select id="studentLevel" class="form-control">
+              <!-- Injected via JS -->
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Téléphone de l'Élève</label>
+            <input type="text" id="studentPhone" class="form-control" placeholder="05/06/07...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Téléphone du Parent / Tuteur</label>
+            <input type="text" id="studentParentPhone" class="form-control" placeholder="05/06/07...">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nom du Parent / Tuteur</label>
+          <input type="text" id="studentParentName" class="form-control" placeholder="Nom complet du responsable...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Adresse de résidence</label>
+          <input type="text" id="studentAddress" class="form-control" placeholder="Commune, Ville...">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+          <button type="button" class="btn-secondary" onclick="app.closeModals()">Annuler</button>
+          <button type="submit" class="btn-primary">Enregistrer l'Élève</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Imprimer Carte d'Élève (Student Card with QR/Barcode) -->
+  <div class="modal-overlay" id="modalStudentCard">
+    <div class="modal-content" style="max-width: 440px; text-align: center;">
+      <div class="modal-header">
+        <h3 class="modal-title">Carte Scolaire de l'Élève</h3>
+        <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div id="printableCard" class="student-card-preview printable-area">
+        <div class="card-school-brand">
+          <div class="brand-logo" style="width: 32px; height: 32px; background: transparent; box-shadow: none;">
+            <img src="/img/logo-icon.png" alt="EDUMIND" style="width: 28px; height: 28px; object-fit: contain;">
+          </div>
+          <div style="text-align: left;">
+            <h4 style="font-size: 13px; font-weight: 800;" id="cardSchoolName">EDUMIND ACADEMY</h4>
+            <span style="font-size: 10px; color: #94a3b8;">CARTE SCOLAIRE OFFICIELLE</span>
+          </div>
+        </div>
+
+        <div class="student-card-body">
+          <div class="student-avatar-box">
+            <i class="fa-solid fa-user"></i>
+          </div>
+          <div class="student-card-details" style="text-align: left;">
+            <h4 id="cardStudentName">Yacine Brahimi</h4>
+            <p><strong style="color: #60a5fa;" id="cardStudentMatricule">ETU-2026-001</strong></p>
+            <p id="cardStudentLevel">3AS - BAC Maths</p>
+            <p id="cardStudentPhone">Tél: 0551 11 22 33</p>
+          </div>
+        </div>
+
+        <div class="card-qr-container">
+          <svg id="cardBarcodeSvg"></svg>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 12px; justify-content: center; margin-top: 14px;">
+        <button class="btn-secondary" onclick="app.closeModals()">Fermer</button>
+        <button class="btn-primary" onclick="window.print()">
+          <i class="fa-solid fa-print"></i>
+          <span>Imprimer la Carte</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Rapport d'Assiduité de l'Élève -->
+  <div class="modal-overlay" id="modalStudentAttendanceReport">
+    <div class="modal-content" style="max-width: 680px;">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="attReportTitle">Rapport d'Assiduité & Présence</h3>
+          <span style="font-size: 12px; color: var(--text-muted);" id="attReportSubtitle"></span>
+        </div>
+        <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <!-- Quick Summary Stats -->
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 16px 0;">
+        <div
+          style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; text-align: center;">
+          <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Séances</span>
+          <div style="font-size: 18px; font-weight: 800; margin-top: 4px;" id="attTotalCount">0</div>
+        </div>
+        <div
+          style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 8px; padding: 10px; text-align: center;">
+          <span style="font-size: 11px; color: #10b981; text-transform: uppercase;">Présent</span>
+          <div style="font-size: 18px; font-weight: 800; color: #10b981; margin-top: 4px;" id="attPresentCount">0</div>
+        </div>
+        <div
+          style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 8px; padding: 10px; text-align: center;">
+          <span style="font-size: 11px; color: #f59e0b; text-transform: uppercase;">Retard</span>
+          <div style="font-size: 18px; font-weight: 800; color: #f59e0b; margin-top: 4px;" id="attLateCount">0</div>
+        </div>
+        <div
+          style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 8px; padding: 10px; text-align: center;">
+          <span style="font-size: 11px; color: #ef4444; text-transform: uppercase;">Absent</span>
+          <div style="font-size: 18px; font-weight: 800; color: #ef4444; margin-top: 4px;" id="attAbsentCount">0</div>
+        </div>
+      </div>
+
+      <div style="max-height: 320px; overflow-y: auto;">
+        <table class="edumind-table">
+          <thead>
+            <tr>
+              <th>DATE</th>
+              <th>HEURE</th>
+              <th>COURS / GROUPE</th>
+              <th>ENSEIGNANT</th>
+              <th>STATUT</th>
+            </tr>
+          </thead>
+          <tbody id="attReportTableBody">
+            <!-- Injected via JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 18px;">
+        <button class="btn-primary" onclick="window.print()">
+          <i class="fa-solid fa-print"></i>
+          <span>Imprimer le Rapport</span>
+        </button>
+        <button class="btn-secondary" onclick="app.closeModals()">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Nouveau Paiement -->
+  <div class="modal-overlay" id="modalPayment">
+    <div class="modal-content" style="max-width: 540px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Encaisser un Paiement</h3>
+        <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="paymentForm" onsubmit="event.preventDefault(); app.savePayment();">
+        <div class="form-group">
+          <label class="form-label" data-i18n="lbl_eleve">Élève *</label>
+          <div class="schoolaris-search-box" style="margin-bottom: 8px; width: 100%;">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="payStudentSearch" class="schoolaris-search-input"
+              placeholder="Rechercher par nom, prénom ou matricule..."
+              oninput="app.filterPaymentStudents(this.value)"
+              onkeydown="app.handlePaymentStudentSearchKey(event)"
+              autocomplete="off">
+          </div>
+          <select id="payStudentSelect" class="form-control" required onchange="app.onPaymentStudentChange()">
+            <option value="">-- Choisir un élève --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Groupe / Matière *</label>
+          <select id="payGroupSelect" class="form-control" required onchange="app.onPaymentGroupChange()">
+            <option value="">-- Choisir un groupe --</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Mois Concerné</label>
+            <input type="text" id="payMonthPeriod" class="form-control" value="Septembre 2026" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Montant Payé (DA) *</label>
+            <input type="number" id="payAmount" class="form-control" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Remise (DA)</label>
+            <input type="number" id="payDiscount" class="form-control" value="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Mode de Paiement</label>
+            <select id="payMethod" class="form-control">
+              <option value="espece">Espèces (Caisse)</option>
+              <option value="baridimob">BaridiMob / CCP</option>
+              <option value="cheque">Chèque</option>
+            </select>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+          <button type="button" class="btn-secondary" onclick="app.closeModals()">Annuler</button>
+          <button type="submit" class="btn-primary">Valider & Imprimer le Reçu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Reçu de Paiement Imprimable -->
+  <div class="modal-overlay" id="modalReceipt">
+    <div class="modal-content" style="max-width: 520px; background-color: var(--bg-card);">
+      <div class="modal-header">
+        <h3 class="modal-title">Reçu de Paiement Officiel</h3>
+        <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <!-- Printable Area for Payment Receipt -->
+      <div id="printableReceipt" class="receipt-card printable-area">
+        <div class="receipt-header">
+          <h3 id="rcptSchoolName">EDUMIND ACADEMY</h3>
+          <p id="rcptSchoolDetails">Établissement Privé d'Enseignement & Soutien Scolaire</p>
+          <p id="rcptSchoolContact">Alger, Algérie | Tél: 0550 00 00 00</p>
+          <div class="receipt-badge-title">REÇU DE PAIEMENT / وصل استلام</div>
+        </div>
+
+        <div class="receipt-grid">
+          <div>
+            <span class="receipt-item-label">N° de Reçu:</span>
+            <span class="receipt-item-val" style="color: #2563eb;" id="rcptNumber">REC-2026-0001</span>
+          </div>
+          <div>
+            <span class="receipt-item-label">Date & Heure:</span>
+            <span class="receipt-item-val" id="rcptDate">10/09/2026 15:30</span>
+          </div>
+          <div>
+            <span class="receipt-item-label">Élève:</span>
+            <span class="receipt-item-val" id="rcptStudent">Yacine Brahimi</span>
+          </div>
+          <div>
+            <span class="receipt-item-label">Matricule:</span>
+            <span class="receipt-item-val" id="rcptMatricule">ETU-2026-001</span>
+          </div>
+          <div>
+            <span class="receipt-item-label">Groupe / Cours:</span>
+            <span class="receipt-item-val" id="rcptGroup">BAC Maths</span>
+          </div>
+          <div>
+            <span class="receipt-item-label">Enseignant:</span>
+            <span class="receipt-item-val" id="rcptTeacher">Karim Bensalem</span>
+          </div>
+          <div>
+            <span class="receipt-item-label">Mois Réglé:</span>
+            <span class="receipt-item-val" id="rcptMonth">Septembre 2026</span>
+          </div>
+          <div>
+            <span class="receipt-item-label">Mode de Règlement:</span>
+            <span class="receipt-item-val" style="text-transform: uppercase;" id="rcptMethod">Espèces</span>
+          </div>
+        </div>
+
+        <table class="receipt-table">
+          <thead>
+            <tr>
+              <th>DÉSIGNATION</th>
+              <th style="text-align: right;">MONTANT</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Frais mensuels du cours</td>
+              <td style="text-align: right;" id="rcptBasePrice">2,500.00 DA</td>
+            </tr>
+            <tr>
+              <td>Remise accordée</td>
+              <td style="text-align: right;" id="rcptDiscount">0.00 DA</td>
+            </tr>
+            <tr>
+              <td><strong>Reste Dû après ce paiement</strong></td>
+              <td style="text-align: right; color: #ef4444;" id="rcptRemaining">0.00 DA</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="receipt-total-box">
+          <span class="receipt-total-title">MONTANT VERSÉ / المحصّل</span>
+          <span class="receipt-total-amount" id="rcptTotalPaid">2,500.00 DA</span>
+        </div>
+
+        <div class="receipt-footer">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 12px; padding: 0 10px;">
+            <span>Signature du déposant</span>
+            <span>Cachet & Signature de l'administration</span>
+          </div>
+          <p style="font-size: 10px; color: #94a3b8;">
+            Document généré électroniquement par le système EDUMIND. Conservez ce reçu comme preuve de paiement.
+          </p>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+        <button type="button" class="btn-secondary" onclick="app.closeModals()">Fermer</button>
+        <button type="button" class="btn-primary" onclick="window.print()">
+          <i class="fa-solid fa-print"></i>
+          <span>Imprimer le Reçu</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Calcul Honoraires Enseignant -->
+  <div class="modal-overlay" id="modalTeacherEarnings">
+    <div class="modal-content" style="max-width: 550px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="teacherEarningsTitle">Calcul des Honoraires</h3>
+        <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="teacherEarningsBody">
+        <!-- Injected via JS -->
+      </div>
+      <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+        <button class="btn-secondary" onclick="app.closeModals()">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Ajouter Dépense -->
+  <div class="modal-overlay" id="modalExpense">
+    <div class="modal-content" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Enregistrer une Dépense</h3>
+        <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="expenseForm" onsubmit="event.preventDefault(); app.saveExpense();">
+        <div class="form-group">
+          <label class="form-label">Désignation de la dépense *</label>
+          <input type="text" id="expenseTitle" class="form-control"
+            placeholder="Ex: Loyer du local, Facture Sonelgaz..." required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Catégorie</label>
+            <select id="expenseCategory" class="form-control">
+              <option value="Loyer">Loyer</option>
+              <option value="Électricité">Électricité & Eau</option>
+              <option value="Fournitures">Fournitures & Tirages</option>
+              <option value="Salaire">Salaires & Personnel</option>
+              <option value="Autre">Autre</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Montant (DA) *</label>
+            <input type="number" id="expenseAmount" class="form-control" required>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+          <button type="button" class="btn-secondary" onclick="app.closeModals()">Annuler</button>
+          <button type="submit" class="btn-primary">Enregistrer la Dépense</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Ajouter / Modifier Enseignant -->
+  <div class="modal-overlay" id="modalTeacher">
+    <div class="modal-content" style="max-width: 580px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTeacherTitle">Ajouter un Enseignant</h3>
+        <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="teacherForm" onsubmit="event.preventDefault(); app.saveTeacher();">
+        <input type="hidden" id="teacherId">
+        <div class="form-group" style="margin-bottom: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label class="form-label" style="margin-bottom: 0;">Matricule Enseignant</label>
+            <span style="font-size: 11px; color: var(--text-muted);">Laissez vide pour génération automatique</span>
+          </div>
+          <input type="text" id="teacherMatricule" class="form-control" style="font-family: monospace; font-weight: 700; color: #f97316;" placeholder="Automatique (ex: ENS-004)">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Prénom *</label>
+            <input type="text" id="teacherFirstName" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nom *</label>
+            <input type="text" id="teacherLastName" class="form-control" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Téléphone</label>
+            <input type="text" id="teacherPhone" class="form-control" placeholder="05/06/07...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Matière Enseignée</label>
+            <select id="teacherSubject" class="form-control">
+              <!-- Injected via JS -->
+            </select>
+          </div>
+        </div>
+
+        <div
+          style="background: var(--bg-hover); padding: 14px 16px; border-radius: 10px; margin: 12px 0 16px; border: 1px solid var(--border-color);">
+          <div
+            style="font-size: 13px; font-weight: 700; color: #f97316; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-money-check-dollar"></i>
+            <span>Mode & Paramètres de Rémunération</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Mode par défaut</label>
+            <select id="teacherRemunType" class="form-control" onchange="app.onTeacherRemunTypeChange()">
+              <option value="percent">1. Pourcentage sur encaissements (%)</option>
+              <option value="hourly">2. Tarif horaire (DA / Heure)</option>
+              <option value="per_session">3. Tarif par séance (DA / Séance)</option>
+              <option value="fixed_salary">4. Salaire mensuel fixe (DA)</option>
+              <option value="hourly_per_student">5. Horaire × Nombre d’élèves</option>
+              <option value="session_per_student">6. Séance × Nombre d’élèves</option>
+              <option value="percent_per_student">7. Pourcentage par élève</option>
+              <option value="fixed_per_student">8. Forfait fixe par élève inscrit</option>
+            </select>
+          </div>
+          <div class="form-row" id="teacherRemunInputsRow" style="margin-top: 10px;">
+            <div class="form-group">
+              <label class="form-label">Pourcentage (%)</label>
+              <input type="number" id="teacherRemunRate" class="form-control" value="50">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tarif Horaire (DA/h)</label>
+              <input type="number" id="teacherTarifHeure" class="form-control" value="1200">
+            </div>
+          </div>
+          <div class="form-row" style="margin-top: 8px;">
+            <div class="form-group">
+              <label class="form-label">Tarif / Séance (DA)</label>
+              <input type="number" id="teacherTarifSeance" class="form-control" value="2000">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Salaire Fixe (DA)</label>
+              <input type="number" id="teacherSalaireFixe" class="form-control" value="40000">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tarif / Élève (DA)</label>
+              <input type="number" id="teacherTarifParEleve" class="form-control" value="1000">
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px;">
+          <button type="button" class="btn-secondary" onclick="app.closeModals()">Annuler</button>
+          <button type="submit" class="btn-primary">Enregistrer l'Enseignant</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Créer un Groupe / Séance avec Détection de Conflits -->
+  <div class="modal-overlay" id="modalGroup">
+    <div class="modal-content" style="max-width: 620px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalGroupTitle">Créer un Nouveau Groupe</h3>
+        <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <!-- Live Conflict Alert Banner -->
+      <div id="groupConflictAlert"
+        style="display: none; background: #fef2f2; border: 1.5px solid #ef4444; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; color: #b91c1c; font-size: 13px; line-height: 1.5;">
+        <div style="display: flex; align-items: flex-start; gap: 10px;">
+          <i class="fa-solid fa-triangle-exclamation" style="font-size: 18px; color: #ef4444; margin-top: 2px;"></i>
+          <div style="flex: 1;">
+            <strong style="display: block; font-size: 14px; margin-bottom: 2px;">Conflit d'emploi du temps détecté
+              !</strong>
+            <span id="groupConflictMessage">Cette salle ou cet enseignant est déjà occupé sur ce créneau.</span>
+          </div>
+        </div>
+      </div>
+
+      <form id="groupForm" onsubmit="event.preventDefault(); app.saveGroup();">
+        <input type="hidden" id="groupId">
+        <div class="form-group">
+          <label class="form-label">Nom du Groupe *</label>
+          <input type="text" id="groupName" class="form-control" placeholder="Ex: Groupe BAC Maths - Série A" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Niveau Scolaire *</label>
+            <select id="groupLevel" class="form-control" required>
+              <!-- Injected via JS -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Matière *</label>
+            <select id="groupSubject" class="form-control" required>
+              <!-- Injected via JS -->
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Enseignant *</label>
+            <select id="groupTeacher" class="form-control" required onchange="app.checkGroupFormConflicts()">
+              <!-- Injected via JS -->
+            </select>
+          </div>
+          <div class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <label class="form-label" style="margin-bottom: 0;">Salle de Cours</label>
+              <button type="button" class="btn-link"
+                style="font-size: 11px; padding: 0; color: #3b82f6; text-decoration: underline;"
+                onclick="app.checkModalRoomsAvailability()">
+                <i class="fa-solid fa-door-open"></i> Vérifier Salles
+              </button>
+            </div>
+            <select id="groupRoom" class="form-control" style="margin-top: 6px;"
+              onchange="app.checkGroupFormConflicts()">
+              <!-- Injected via JS -->
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Jour de la Semaine *</label>
+            <select id="groupDay" class="form-control" onchange="app.checkGroupFormConflicts()">
+              <option value="Samedi">Samedi</option>
+              <option value="Dimanche">Dimanche</option>
+              <option value="Lundi">Lundi</option>
+              <option value="Mardi">Mardi</option>
+              <option value="Mercredi">Mercredi</option>
+              <option value="Jeudi">Jeudi</option>
+              <option value="Vendredi">Vendredi</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Heure (Début - Fin) *</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="time" id="groupStartTime" class="form-control" value="14:00"
+                onchange="app.checkGroupFormConflicts()">
+              <input type="time" id="groupEndTime" class="form-control" value="16:00"
+                onchange="app.checkGroupFormConflicts()">
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Prix Mensuel (DA) *</label>
+            <input type="number" id="groupPrice" class="form-control" value="2000" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Capacité Max d'Élèves</label>
+            <input type="number" id="groupMaxStudents" class="form-control" value="25">
+          </div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+          <div>
+            <label id="forceConflictCheckLabel"
+              style="display: none; font-size: 12px; color: #b91c1c; cursor: pointer;">
+              <input type="checkbox" id="forceScheduleConflict"> Forcer l'enregistrement malgré le conflit
+            </label>
+          </div>
+          <div style="display: flex; gap: 12px;">
+            <button type="button" class="btn-secondary" onclick="app.closeModals()">Annuler</button>
+            <button type="submit" class="btn-primary" id="btnSubmitGroup">Enregistrer le Groupe</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Élèves Inscrits au Groupe -->
+  <div class="modal-overlay" id="modalGroupStudents">
+    <div class="modal-content" style="max-width: 720px;">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="modalGroupStudentsTitle">Élèves Inscrits au Groupe</h3>
+          <span style="font-size: 12px; color: var(--text-muted);" id="modalGroupStudentsSubtitle"></span>
+        </div>
+        <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div style="margin-top: 14px; max-height: 400px; overflow-y: auto;">
+        <table class="edumind-table">
+          <thead>
+            <tr>
+              <th>MATRICULE</th>
+              <th>ÉLÈVE</th>
+              <th>CONTACT</th>
+              <th>DATE D'INSCRIPTION</th>
+              <th>REMISE</th>
+              <th>PAIEMENTS</th>
+            </tr>
+          </thead>
+          <tbody id="groupStudentsTableBody">
+            <!-- Injected via JS -->
+          </tbody>
+        </table>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+        <button type="button" class="btn-primary" onclick="app.quickEnrollFromGroupModal()" style="font-size: 13px;">
+          <i class="fa-solid fa-user-plus"></i>
+          <span>Inscrire un élève</span>
+        </button>
+        <button type="button" class="btn-secondary" onclick="app.closeModals()">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Disponibilité des Salles (Room Availability) -->
+  <div class="modal-overlay" id="modalRoomAvailability">
+    <div class="modal-content" style="max-width: 680px;">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <i class="fa-solid fa-door-open" style="color: #3b82f6;"></i>
+          <span>Disponibilité des Salles de Cours</span>
+        </h3>
+        <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <!-- Filter Bar for Room availability -->
+      <div
+        style="background: var(--bg-hover); padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <label style="font-size: 12px; font-weight: 600;">Jour:</label>
+          <select id="availFilterDay" class="form-control" style="width: auto; padding: 4px 8px;"
+            onchange="app.loadRoomsAvailability()">
+            <option value="Samedi">Samedi</option>
+            <option value="Dimanche">Dimanche</option>
+            <option value="Lundi">Lundi</option>
+            <option value="Mardi">Mardi</option>
+            <option value="Mercredi">Mercredi</option>
+            <option value="Jeudi">Jeudi</option>
+            <option value="Vendredi">Vendredi</option>
+          </select>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <label style="font-size: 12px; font-weight: 600;">Horaire:</label>
+          <input type="time" id="availFilterStart" class="form-control" value="14:00"
+            style="width: auto; padding: 4px 8px;" onchange="app.loadRoomsAvailability()">
+          <span>à</span>
+          <input type="time" id="availFilterEnd" class="form-control" value="16:00"
+            style="width: auto; padding: 4px 8px;" onchange="app.loadRoomsAvailability()">
+        </div>
+        <button class="btn-secondary btn-sm" onclick="app.loadRoomsAvailability()" style="margin-left: auto;">
+          <i class="fa-solid fa-rotate"></i> Actualiser
+        </button>
+      </div>
+
+      <div id="roomsAvailabilityGrid"
+        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; max-height: 420px; overflow-y: auto; padding: 4px;">
+        <!-- Injected via JS -->
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; margin-top: 18px;">
+        <button class="btn-secondary" onclick="app.closeModals()">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Règlement des Honoraires Enseignant (8 Modes) -->
+  <div class="modal-overlay" id="modalTeacherPayout">
+    <div class="modal-content" style="max-width: 720px;">
+      <div class="modal-header">
+        <h3 class="modal-title" style="display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-file-invoice-dollar" style="color: #f97316;"></i>
+          <span>Règlement des Honoraires Enseignant</span>
+        </h3>
+        <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div id="teacherPayoutLoading" style="display: none; text-align: center; padding: 30px;">
+        <i class="fa-solid fa-spinner fa-spin" style="font-size: 28px; color: #f97316;"></i>
+        <p style="margin-top: 10px; color: var(--text-muted);">Calcul des honoraires en cours...</p>
+      </div>
+
+      <form id="teacherPayoutForm" onsubmit="event.preventDefault(); app.submitTeacherPayout();">
+        <input type="hidden" id="payoutTeacherId">
+
+        <!-- Teacher Profile Bar & Period -->
+        <div
+          style="background: var(--bg-hover); padding: 14px 18px; border-radius: 10px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <h4 id="payoutTeacherName" style="font-size: 16px; font-weight: 700; margin: 0; color: var(--text-main);">
+              Professeur</h4>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;" id="payoutTeacherMeta">Matière:
+              Mathématiques · Matricule: ENS-001</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <label style="font-size: 12px; font-weight: 600;">Mois concerné:</label>
+            <input type="month" id="payoutPeriod" class="form-control" style="width: auto; padding: 6px 10px;"
+              onchange="app.refreshTeacherPayoutData()">
+          </div>
+        </div>
+
+        <!-- Groups & Collections Summary -->
+        <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 16px;">
+          <div class="stat-card" style="padding: 12px;">
+            <span class="stat-title">Élèves Inscrits</span>
+            <div class="stat-value" id="payoutTotalStudents" style="font-size: 20px;">0</div>
+          </div>
+          <div class="stat-card" style="padding: 12px;">
+            <span class="stat-title">Séances du Mois</span>
+            <div class="stat-value" id="payoutTotalSessions" style="font-size: 20px;">0</div>
+          </div>
+          <div class="stat-card" style="padding: 12px;">
+            <span class="stat-title">Frais Encaissés</span>
+            <div class="stat-value" id="payoutTotalCollected" style="font-size: 20px; color: #10b981;">0 DA</div>
+          </div>
+        </div>
+
+        <!-- 8 Modes Selection Grid -->
+        <div style="margin-bottom: 14px;">
+          <label class="form-label" style="font-weight: 700;">Choisissez le mode de calcul appliqué :</label>
+          <div id="payoutModesGrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <!-- 8 mode cards injected via JS -->
+          </div>
+        </div>
+
+        <!-- Payout Adjustment & Validation Box -->
+        <div
+          style="background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 10px; padding: 14px 18px; margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <span style="font-size: 13px; font-weight: 600; color: #1e40af;">Montant calculé selon le mode
+              sélectionné:</span>
+            <span id="payoutCalculatedAmountBadge" style="font-size: 18px; font-weight: 800; color: #1e40af;">0
+              DA</span>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" style="color: #1e3a8a;">Montant à verser (DA) *</label>
+              <input type="number" id="payoutAmountPaid" class="form-control"
+                style="font-size: 16px; font-weight: 700; color: #1e40af; border-color: #93c5fd;" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" style="color: #1e3a8a;">Mode de règlement</label>
+              <select id="payoutPaymentMethod" class="form-control" style="border-color: #93c5fd;">
+                <option value="espece">Espèces (Caisse)</option>
+                <option value="baridimob">BaridiMob / Virement</option>
+                <option value="cheque">Chèque bancaire</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" style="color: #1e3a8a;">Notes / Observations</label>
+            <input type="text" id="payoutNotes" class="form-control" placeholder="Règlement honoraires du mois..."
+              style="border-color: #93c5fd;">
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 12px; color: var(--text-muted);">
+            <i class="fa-solid fa-circle-info" style="color: #3b82f6;"></i>
+            Ce versement sera automatiquement déduit du <strong>Solde de Caisse</strong>.
+          </span>
+          <div style="display: flex; gap: 10px;">
+            <button type="button" class="btn-secondary" onclick="app.closeModals()">Annuler</button>
+            <button type="submit" class="btn-primary"
+              style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);">
+              <i class="fa-solid fa-check"></i> Valider & Décaisser
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Bulletin de Paie Imprimable (Salary Slip) -->
+  <div class="modal-overlay" id="modalBulletinPaie">
+    <div class="modal-content" style="max-width: 650px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Bulletin de Paie / كشف أتعاب</h3>
+        <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="receipt-container" id="bulletinPaiePrintArea"
+        style="padding: 24px; border: 1.5px solid #cbd5e1; border-radius: 8px; background: #fff; color: #1e293b;">
+        <!-- Header -->
+        <div
+          style="display: flex; justify-content: space-between; border-bottom: 2px solid #f97316; padding-bottom: 12px; margin-bottom: 16px;">
+          <div>
+            <h2 style="font-size: 18px; font-weight: 800; color: #ea580c; margin: 0;" id="bulletinSchoolName">EDUMIND
+              ACADEMY</h2>
+            <div style="font-size: 11px; color: #64748b;" id="bulletinSchoolAddress">Centre de Formation & Soutien
+              Scolaire</div>
+            <div style="font-size: 11px; color: #64748b;" id="bulletinSchoolPhone">Tél: 0550 00 00 00</div>
+          </div>
+          <div style="text-align: right;">
+            <div
+              style="background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 13px; display: inline-block;">
+              BULLETIN D'HONORAIRES
+            </div>
+            <div style="font-size: 11px; color: #64748b; margin-top: 4px;" id="bulletinRefNo">RÉF: PAY-2026-0001</div>
+            <div style="font-size: 11px; color: #64748b;" id="bulletinDate">Date: 09/09/2026</div>
+          </div>
+        </div>
+
+        <!-- Teacher details -->
+        <div
+          style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 14px; margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between;">
+            <div>
+              <span style="font-size: 11px; color: #64748b; text-transform: uppercase;">Enseignant:</span>
+              <strong style="font-size: 14px; display: block; color: #0f172a;" id="bulletinTeacherName">M. Karim
+                Bensalem</strong>
+            </div>
+            <div>
+              <span style="font-size: 11px; color: #64748b; text-transform: uppercase;">Matricule / Spécialité:</span>
+              <div style="font-size: 12px; font-weight: 600;" id="bulletinTeacherMeta">ENS-001 · Mathématiques</div>
+            </div>
+            <div>
+              <span style="font-size: 11px; color: #64748b; text-transform: uppercase;">Période:</span>
+              <strong style="font-size: 13px; display: block; color: #ea580c;" id="bulletinPeriod">Septembre
+                2026</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculation details table -->
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 12px;">
+          <thead>
+            <tr style="background: #f1f5f9; border-bottom: 1.5px solid #cbd5e1;">
+              <th style="padding: 8px 10px; text-align: left;">Désignation</th>
+              <th style="padding: 8px 10px; text-align: center;">Base de calcul</th>
+              <th style="padding: 8px 10px; text-align: center;">Taux / Tarif</th>
+              <th style="padding: 8px 10px; text-align: right;">Total Dû (DA)</th>
+            </tr>
+          </thead>
+          <tbody id="bulletinTableBody">
+            <!-- Row injected via JS -->
+          </tbody>
+        </table>
+
+        <!-- Total Box -->
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; background: #fff7ed; border-left: 4px solid #ea580c; padding: 12px 16px; border-radius: 6px; margin-bottom: 20px;">
+          <div>
+            <div style="font-size: 13px; font-weight: 700; color: #9a3412;">NET PAYÉ À L'ENSEIGNANT:</div>
+            <div style="font-size: 11px; color: #c2410c;" id="bulletinMethod">Règlement en: Espèces</div>
+          </div>
+          <div style="font-size: 22px; font-weight: 900; color: #ea580c;" id="bulletinTotalAmount">
+            0 DA
+          </div>
+        </div>
+
+        <!-- Signature boxes -->
+        <div
+          style="display: flex; justify-content: space-between; margin-top: 30px; padding: 0 10px; font-size: 12px; color: #475569;">
+          <div style="text-align: center;">
+            <p style="margin-bottom: 40px;">Émargement Enseignant</p>
+            <div style="border-top: 1px dashed #cbd5e1; width: 160px;"></div>
+          </div>
+          <div style="text-align: center;">
+            <p style="margin-bottom: 40px;">Cachet & Signature Direction</p>
+            <div style="border-top: 1px dashed #cbd5e1; width: 160px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+        <button type="button" class="btn-secondary" onclick="app.closeModals()">Fermer</button>
+        <button type="button" class="btn-primary" onclick="app.printBulletinPaie()">
+          <i class="fa-solid fa-print"></i>
+          <span>Imprimer le Bulletin de Paie</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Ajouter Mouvement de Caisse (Entrée ou Sortie) -->
+  <div class="modal-overlay" id="modalCaisseMovement">
+    <div class="modal-content" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="caisseModalTitle">Nouveau Mouvement de Caisse</h3>
+        <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="caisseMovementForm" onsubmit="event.preventDefault(); app.saveCaisseMovement();">
+        <input type="hidden" id="caisseMovType" value="sortie">
+
+        <div class="form-group">
+          <label class="form-label">Type de mouvement</label>
+          <div style="display: flex; gap: 10px;">
+            <button type="button" id="btnCaisseTypeEntree" class="btn-secondary"
+              style="flex: 1; border-color: #10b981; color: #10b981;" onclick="app.setCaisseModalType('entree')">
+              <i class="fa-solid fa-arrow-down"></i> Entrée (+)
+            </button>
+            <button type="button" id="btnCaisseTypeSortie" class="btn-primary"
+              style="flex: 1; background: #ef4444; border-color: #ef4444;" onclick="app.setCaisseModalType('sortie')">
+              <i class="fa-solid fa-arrow-up"></i> Sortie (-)
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Désignation / Motif *</label>
+          <input type="text" id="caisseMovTitle" class="form-control"
+            placeholder="Ex: Achat fournitures bureau, Facture internet..." required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Catégorie</label>
+            <select id="caisseMovCategory" class="form-control">
+              <!-- Injected dynamically based on type -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Montant (DA) *</label>
+            <input type="number" id="caisseMovAmount" class="form-control" placeholder="0" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Mode de paiement</label>
+            <select id="caisseMovMethod" class="form-control">
+              <option value="espece">Espèces</option>
+              <option value="baridimob">BaridiMob / Virement</option>
+              <option value="cheque">Chèque bancaire</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Date du mouvement</label>
+            <input type="date" id="caisseMovDate" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">N° Pièce / Référence</label>
+          <input type="text" id="caisseMovRef" class="form-control" placeholder="Ex: FACT-2026-45, BON-012...">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+          <button type="button" class="btn-secondary" onclick="app.closeModals()">Annuler</button>
+          <button type="submit" class="btn-primary" id="btnSaveCaisseMov">Enregistrer le mouvement</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Ajouter / Modifier Niveau -->
+  <div class="modal-overlay" id="modalLevel">
+    <div class="modal-content" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalLevelTitle">Ajouter un Niveau</h3>
+        <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="levelForm" onsubmit="event.preventDefault(); app.saveLevel();">
+        <input type="hidden" id="levelId">
+        <div class="form-group">
+          <label class="form-label">Intitulé du Niveau *</label>
+          <input type="text" id="levelName" class="form-control" placeholder="Ex: 3ème Année Moyenne (3AM)" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Catégorie / Cycle</label>
+          <select id="levelCategory" class="form-control">
+            <option value="Primaire">Primaire</option>
+            <option value="CEM">CEM (Moyen)</option>
+            <option value="Lycee">Lycée (Secondaire)</option>
+            <option value="Langues">Langues & Formations</option>
+            <option value="Autre">Autre</option>
+          </select>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+          <button type="button" class="btn-secondary" onclick="app.closeModals()">Annuler</button>
+          <button type="submit" class="btn-primary">Enregistrer le Niveau</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Ajouter / Modifier Salle -->
+  <div class="modal-overlay" id="modalRoom">
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalRoomTitle">Ajouter une Salle</h3>
+        <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="roomForm" onsubmit="event.preventDefault(); app.saveRoom();">
+        <input type="hidden" id="roomId">
+        <div class="form-group">
+          <label class="form-label" data-i18n="lbl_room_name">Nom de la Salle *</label>
+          <input type="text" id="roomName" class="form-control" placeholder="Ex: Salle Ibn Khaldoun (01)" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" data-i18n="lbl_room_capacity">Capacité (Places) *</label>
+            <input type="number" id="roomCapacity" class="form-control" value="25" min="1" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="lbl_room_projector">Vidéoprojecteur</label>
+            <select id="roomProjector" class="form-control">
+              <option value="1">Oui, disponible</option>
+              <option value="0">Non</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="lbl_room_notes">Équipements & Remarques / Emplacement</label>
+          <input type="text" id="roomNotes" class="form-control"
+            placeholder="Ex: Climatisée, Labo Informatique, 1er étage...">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+          <button type="button" class="btn-secondary" onclick="app.closeModals()"
+            data-i18n="btn_cancel">Annuler</button>
+          <button type="submit" class="btn-primary" data-i18n="btn_save_room">Enregistrer la Salle</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Emploi du Temps de la Salle (Room Weekly Timetable) -->
+  <div class="modal-overlay" id="modalRoomTimetable">
+    <div class="modal-content" style="max-width: 950px; width: 95%;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div class="room-icon-box" style="width: 38px; height: 38px; font-size: 18px;">
+            <i class="fa-solid fa-door-open"></i>
+          </div>
+          <div>
+            <h3 class="modal-title" id="roomTimetableTitle">Emploi du Temps — Salle</h3>
+            <span style="font-size: 12.5px; color: var(--text-muted);" id="roomTimetableSubtitle">Planning hebdomadaire
+              d'occupation de la salle</span>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button type="button" class="btn-primary" onclick="app.printRoomTimetable()"
+            style="padding: 6px 14px; font-size: 12.5px;">
+            <i class="fa-solid fa-print"></i> <span data-i18n="btn_print_schedule">Imprimer</span>
+          </button>
+          <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+
+      <!-- Room Timetable Meta Info Box -->
+      <div class="room-timetable-header-box">
+        <div class="room-timetable-meta">
+          <div class="room-timetable-meta-item">
+            <i class="fa-solid fa-users" style="color: #10b981;"></i>
+            <span id="roomTimetableCapBadge">Capacité: 25 places</span>
+          </div>
+          <div class="room-timetable-meta-item">
+            <i class="fa-solid fa-video" style="color: #f59e0b;"></i>
+            <span id="roomTimetableProjBadge">Projecteur: Oui</span>
+          </div>
+          <div class="room-timetable-meta-item">
+            <i class="fa-solid fa-layer-group" style="color: #a855f7;"></i>
+            <span id="roomTimetableGroupsBadge">0 groupe programmé</span>
+          </div>
+        </div>
+        <div id="roomTimetableEquipNotes" style="font-size: 12px; color: var(--text-muted);">
+          <!-- Notes -->
+        </div>
+      </div>
+
+      <!-- Weekly 7-Day Grid Container -->
+      <div class="room-timetable-days-container" id="roomTimetableDaysGrid">
+        <!-- Injected via JS for each day (Samedi -> Vendredi) -->
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+        <button type="button" class="btn-secondary" onclick="app.closeModals()" data-i18n="btn_close">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Ajouter / Modifier Matière -->
+  <div class="modal-overlay" id="modalSubject">
+    <div class="modal-content" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalSubjectTitle">Ajouter une Matière</h3>
+        <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="subjectForm" onsubmit="event.preventDefault(); app.saveSubject();">
+        <input type="hidden" id="subjectId">
+        <div class="form-group">
+          <label class="form-label">Nom de la Matière *</label>
+          <input type="text" id="subjectName" class="form-control" placeholder="Ex: Histoire-Géographie" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Code Court</label>
+            <input type="text" id="subjectCode" class="form-control" placeholder="Ex: HIST">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Couleur Distinctive</label>
+            <input type="color" id="subjectColor" class="form-control" value="#3b82f6"
+              style="height: 42px; padding: 2px;">
+          </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+          <button type="button" class="btn-secondary" onclick="app.closeModals()">Annuler</button>
+          <button type="submit" class="btn-primary">Enregistrer la Matière</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Grille Complète des Séances & Assiduité -->
+  <div class="modal-overlay" id="modalAttendanceMatrix">
+    <div class="modal-content" style="max-width: 95vw; width: 1100px; max-height: 92vh;">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" style="display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-table-cells" style="color: #8b5cf6;"></i>
+            <span id="matrixModalGroupTitle">Grille Complète des Séances & Présences</span>
+          </h3>
+          <p style="color: var(--text-muted); font-size: 13px; margin-top: 4px;" id="matrixModalGroupSubtitle">
+            Tableau récapitulatif de toutes les séances et de l'assiduité des élèves.
+          </p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <button type="button" class="btn-secondary" onclick="app.printAttendanceMatrix()"
+            style="padding: 6px 14px; font-size: 13px;">
+            <i class="fa-solid fa-print"></i>
+            <span data-i18n="btn_print_matrix">Imprimer la Grille</span>
+          </button>
+          <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+      <!-- Matrix Filter Toolbar: Month Selection & Student Search -->
+      <div
+        style="display: flex; gap: 14px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: 14px; padding: 12px 16px; background: var(--bg-card-subtle); border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+          <label
+            style="font-size: 13px; font-weight: 700; color: #60a5fa; display: flex; align-items: center; gap: 6px;">
+            <i class="fa-regular fa-calendar"></i>
+            <span data-i18n="lbl_filter_month">تصفية حسب الشهر:</span>
+          </label>
+          <select id="matrixFilterMonth" class="form-control"
+            style="width: auto; min-width: 220px; height: 38px; font-size: 13px; font-weight: 700;"
+            onchange="app.onAttendanceMatrixMonthChange(this.value)">
+            <option value="all" data-i18n="all_months">جميع الأشهر (كامل الحصص)</option>
+          </select>
+
+          <div style="position: relative; width: 220px;">
+            <i class="fa-solid fa-magnifying-glass"
+              style="position: absolute; left: 10px; top: 11px; color: var(--text-muted); font-size: 12px;"></i>
+            <input type="text" id="matrixSearchStudent" class="form-control"
+              style="padding-left: 32px; height: 38px; font-size: 12px;" placeholder="بحث عن تلميذ..."
+              oninput="app.filterMatrixStudents(this.value)">
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 16px; align-items: center; font-size: 13px;">
+          <div style="color: var(--text-muted);">
+            <strong style="color: var(--text-heading); font-size: 15px;" id="matrixCountSessions">0</strong> <span
+              data-i18n="lbl_seances_count">حصص معروضة</span>
+          </div>
+          <div style="color: var(--text-muted);">
+            <strong style="color: #10b981; font-size: 15px;" id="matrixAvgAttendance">0%</strong> <span
+              data-i18n="lbl_avg_presence">معدل الحضور</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Matrix Legend -->
+      <div
+        style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; padding: 10px 14px; background: var(--bg-input); border-radius: var(--radius-md); font-size: 12px; font-weight: 600;">
+        <span style="color: var(--text-muted);" data-i18n="lbl_legend">Légende:</span>
+        <span style="display: inline-flex; align-items: center; gap: 6px;"><span
+            class="att-matrix-badge present">P</span> <span data-i18n="status_present">Présent</span></span>
+        <span style="display: inline-flex; align-items: center; gap: 6px;"><span
+            class="att-matrix-badge absent">A</span> <span data-i18n="status_absent">Absent</span></span>
+        <span style="display: inline-flex; align-items: center; gap: 6px;"><span class="att-matrix-badge late">R</span>
+          <span data-i18n="status_late">Retard</span></span>
+        <span style="display: inline-flex; align-items: center; gap: 6px;"><span
+            class="att-matrix-badge excused">J</span> <span data-i18n="status_excused">Justifié</span></span>
+      </div>
+
+      <div class="table-responsive" style="max-height: 55vh; overflow-y: auto;">
+        <table class="att-matrix-table" id="attendanceMatrixTable">
+          <!-- Injected via JS -->
+        </table>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+        <button type="button" class="btn-secondary" onclick="app.closeModals()">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Confirmation Clôture Séance & Marquage des Absents -->
+  <div class="modal-overlay" id="modalConfirmCloseSession">
+    <div class="modal-content" style="max-width: 520px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <i class="fa-solid fa-triangle-exclamation" style="color: #ef4444; font-size: 22px;"></i>
+          <h3 class="modal-title" style="color: #ef4444; font-size: 17px;" data-i18n="title_modal_close_session">Clôture
+            de la séance & Marquage des Absents</h3>
+        </div>
+        <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body" style="padding: 16px 0;">
+        <div id="closeSessionSummaryText" style="font-size: 14px; line-height: 1.7; color: var(--text-color);">
+          <!-- Summary injected via JS -->
+        </div>
+
+        <div
+          style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 8px; padding: 12px 14px; margin-top: 16px; font-size: 13px; color: #f87171; display: flex; gap: 10px; align-items: flex-start;">
+          <i class="fa-solid fa-circle-info" style="font-size: 16px; margin-top: 2px;"></i>
+          <span data-i18n="note_modal_close_session">
+            Tous les élèves inscrits qui n'ont pas encore été pointés présents seront automatiquement enregistrés avec
+            le statut <strong>Absent</strong> pour cette séance.
+          </span>
+        </div>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+        <button type="button" class="btn-secondary" onclick="app.closeModals()" data-i18n="btn_cancel">Annuler</button>
+        <button type="button" class="btn-primary" id="btnExecuteCloseSession"
+          onclick="app.executeCloseAttendanceSession()"
+          style="background: #ef4444; border-color: #ef4444; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);">
+          <i class="fa-solid fa-check"></i>
+          <span data-i18n="btn_confirm_close_absent">Confirmer & Marquer les Absents</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden Printable Area for Attendance Sheet -->
+  <div id="attendancePrintSheet" class="printable-area" style="display: none;"></div>
+  <!-- Hidden Printable Area for Attendance Matrix -->
+  <div id="attendancePrintMatrix" class="printable-area" style="display: none;"></div>
+
+  <script src="/js/app.js?v=2.4"></script>
+</body>
+
+</html>
