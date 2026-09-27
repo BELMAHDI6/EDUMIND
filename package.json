@@ -1,12 +1,16 @@
 {
   "name": "edumind",
-  "version": "1.0.0",
+  "productName": "EDUMIND",
+  "version": "1.0.3",
   "description": "EDUMIND - Système de Gestion d'Écoles Privées & Cours de Soutien",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
+    "desktop": "electron .",
     "dev": "electron .",
-    "server": "node server.js"
+    "server": "node server.js",
+    "shortcut": "node create_desktop_shortcut.js",
+    "test:api": "node test_all_apis.js"
   },
   "keywords": [
     "school-management",
@@ -20,6 +24,9 @@
   "dependencies": {
     "cors": "^2.8.6",
     "express": "^4.22.2",
+    "html2pdf.js": "^0.14.0",
+    "jsbarcode": "^3.12.3",
+    "qrcode": "^1.5.4",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {

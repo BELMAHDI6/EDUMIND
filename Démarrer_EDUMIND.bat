@@ -1,10 +1,10 @@
 @echo off
-title EDUMIND - Demarrage du systeme
-echo ===================================================
+title EDUMIND - Application Desktop
+cd /d "%~dp0"
+echo ========================================================
 echo     EDUMIND - Systeme de Gestion Scolaire Pro
-echo ===================================================
+echo                 Version Desktop
+echo ========================================================
 echo.
-echo Lancement du serveur local...
-start "" http://localhost:3000
-node server.js
-pause
+echo Lancement de la fenetre Desktop EDUMIND...
+start "" ".\node_modules\electron\dist\electron.exe" .

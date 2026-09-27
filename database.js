@@ -1,14 +1,75 @@
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 
-// Use Node's built-in sqlite module (Node 22+) or sqlite3
+// ==========================================================================
+// DATA ISOLATION (AppData / Local Data Store)
+// ==========================================================================
+function getDataDirectory() {
+  if (process.env.EDUMIND_DATA_DIR) {
+    return path.resolve(process.env.EDUMIND_DATA_DIR);
+  }
+  const base = process.env.APPDATA || process.env.LOCALAPPDATA || (
+    process.platform === 'darwin'
+      ? path.join(os.homedir(), 'Library', 'Application Support')
+      : os.homedir()
+  );
+  return path.join(base, 'EDUMIND', 'data');
+}
+
+function getBackupDirectory() {
+  const backupDir = path.join(getDataDirectory(), 'backups');
+  if (!fs.existsSync(backupDir)) {
+    fs.mkdirSync(backupDir, { recursive: true });
+  }
+  return backupDir;
+}
+
+function getDatabasePath() {
+  const dataDir = getDataDirectory();
+  if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
+  }
+
+  const targetDb = path.join(dataDir, 'edumind.sqlite');
+  const legacyLocalDb = path.join(__dirname, 'edumind.sqlite');
+
+  // Automatic one-time migration:
+  // If safe isolated DB does not exist yet, but local edumind.sqlite exists in project folder:
+  if (!fs.existsSync(targetDb) && fs.existsSync(legacyLocalDb)) {
+    try {
+      console.log('📦 [Data Isolation] Migration de la base de données vers le stockage sécurisé AppData...');
+      fs.copyFileSync(legacyLocalDb, targetDb);
+
+      // Also migrate existing backup archives if any
+      const legacyBackups = path.join(__dirname, 'backups');
+      const safeBackups = path.join(dataDir, 'backups');
+      if (fs.existsSync(legacyBackups) && !fs.existsSync(safeBackups)) {
+        fs.cpSync(legacyBackups, safeBackups, { recursive: true });
+      }
+      console.log('✅ [Data Isolation] Données migrées avec succès vers :', targetDb);
+    } catch (e) {
+      console.error('⚠️ [Data Isolation] Erreur de migration vers AppData, utilisation du dossier local :', e.message);
+      return legacyLocalDb;
+    }
+  }
+
+  return targetDb;
+}
+
+// Use Node's built-in sqlite module (Node 22+)
 let db;
+const dbPath = getDatabasePath();
 try {
   const { DatabaseSync } = require('node:sqlite');
-  const dbPath = path.join(__dirname, 'edumind.sqlite');
   db = new DatabaseSync(dbPath);
-  // Enable foreign keys and WAL mode for maximum performance and reliability
+  // High performance PRAGMAs for concurrency and speed
   db.exec('PRAGMA journal_mode = WAL;');
+  db.exec('PRAGMA synchronous = NORMAL;');
+  db.exec('PRAGMA busy_timeout = 5000;');
+  db.exec('PRAGMA cache_size = -32000;'); // 32MB in-memory cache
+  db.exec('PRAGMA temp_store = MEMORY;');
+  db.exec('PRAGMA mmap_size = 268435456;'); // 256MB memory mapped I/O
   db.exec('PRAGMA foreign_keys = ON;');
   console.log('✅ SQLite Database connected via node:sqlite at:', dbPath);
 } catch (err) {
@@ -66,10 +127,7 @@ function cleanupOldBackups(backupDir, maxKeep = 7) {
 
 function performAutoBackup(maxKeep = 7) {
   try {
-    const backupDir = path.join(__dirname, 'backups');
-    if (!fs.existsSync(backupDir)) {
-      fs.mkdirSync(backupDir, { recursive: true });
-    }
+    const backupDir = getBackupDirectory();
 
     const today = new Date().toISOString().split('T')[0];
     const targetBackupFile = path.join(backupDir, `edumind_backup_${today}.sqlite`);
@@ -86,6 +144,87 @@ function performAutoBackup(maxKeep = 7) {
     cleanupOldBackups(backupDir, maxKeep);
   } catch (err) {
     console.error('⚠️ [Backup] Erreur lors de la sauvegarde automatique :', err.message);
+  }
+}
+
+function restoreDatabase(incomingFilePath) {
+  try {
+    if (!fs.existsSync(incomingFilePath)) {
+      return { success: false, error: 'Fichier de sauvegarde introuvable.' };
+    }
+
+    // 1. Validate SQLite header: "SQLite format 3\0"
+    const fd = fs.openSync(incomingFilePath, 'r');
+    const headerBuf = Buffer.alloc(16);
+    fs.readSync(fd, headerBuf, 0, 16, 0);
+    fs.closeSync(fd);
+    if (!headerBuf.toString('utf8').startsWith('SQLite format 3')) {
+      try { fs.unlinkSync(incomingFilePath); } catch (e) {}
+      return { success: false, error: 'Le fichier fourni n\'est pas un fichier SQLite valide.' };
+    }
+
+    // 2. Perform integrity quick_check on incoming file
+    const { DatabaseSync } = require('node:sqlite');
+    try {
+      const testDb = new DatabaseSync(incomingFilePath);
+      const check = testDb.prepare('PRAGMA quick_check;').get();
+      testDb.close();
+      if (!check || Object.values(check)[0] !== 'ok') {
+        try { fs.unlinkSync(incomingFilePath); } catch (e) {}
+        return { success: false, error: 'La base de données sélectionnée semble corrompue.' };
+      }
+    } catch (verr) {
+      try { fs.unlinkSync(incomingFilePath); } catch (e) {}
+      return { success: false, error: 'Impossible de lire le fichier SQLite : ' + verr.message };
+    }
+
+    // 3. Create an automatic safety backup of current data before overwriting
+    const backupDir = getBackupDirectory();
+    const safetyBackup = path.join(backupDir, `edumind_pre_restore_backup_${Date.now()}.sqlite`);
+    try {
+      createInstantBackup(safetyBackup);
+      console.log('🛡️ [Backup] Sauvegarde de sécurité créée avant restauration :', safetyBackup);
+    } catch (bErr) {
+      console.warn('⚠️ Impossible de créer la sauvegarde pré-restauration :', bErr.message);
+    }
+
+    // 4. Safely close active database connection
+    const currentDbPath = getDatabasePath();
+    try {
+      db.close();
+    } catch (cErr) {
+      console.warn('Fermeture connexion db précédente :', cErr.message);
+    }
+
+    // 5. Replace edumind.sqlite with the restored file
+    fs.copyFileSync(incomingFilePath, currentDbPath);
+    try { fs.unlinkSync(incomingFilePath); } catch (e) {}
+
+    // Clean up wal / shm files from previous db instance
+    const walPath = currentDbPath + '-wal';
+    const shmPath = currentDbPath + '-shm';
+    if (fs.existsSync(walPath)) try { fs.unlinkSync(walPath); } catch (e) {}
+    if (fs.existsSync(shmPath)) try { fs.unlinkSync(shmPath); } catch (e) {}
+
+    // 6. Re-open connection to restored database
+    db = new DatabaseSync(currentDbPath);
+    db.exec('PRAGMA journal_mode = WAL;');
+    db.exec('PRAGMA foreign_keys = ON;');
+    DB.raw = db;
+
+    console.log('✅ [Restore] Base de données SQLite restaurée avec succès depuis :', incomingFilePath);
+    return { success: true };
+  } catch (err) {
+    console.error('❌ [Restore] Erreur restauration base SQLite :', err);
+    // Ensure db is connected even if error occurred
+    try {
+      const fallbackDbPath = getDatabasePath();
+      db = new DatabaseSync(fallbackDbPath);
+      db.exec('PRAGMA journal_mode = WAL;');
+      db.exec('PRAGMA foreign_keys = ON;');
+      DB.raw = db;
+    } catch (reErr) {}
+    return { success: false, error: err.message };
   }
 }
 
@@ -107,7 +246,11 @@ const DB = {
   raw: db,
   createInstantBackup,
   cleanupOldBackups,
-  performAutoBackup
+  performAutoBackup,
+  restoreDatabase,
+  getDataDirectory,
+  getBackupDirectory,
+  getDatabasePath
 };
 
 // Initialize All Database Tables
@@ -318,9 +461,30 @@ function initDatabase() {
       FOREIGN KEY (teacher_id) REFERENCES teachers(id)
     );
 
+    -- High Performance Composite Indexes
     CREATE INDEX IF NOT EXISTS idx_students_matricule_nocase ON students(matricule COLLATE NOCASE);
     CREATE INDEX IF NOT EXISTS idx_students_qr_code_nocase ON students(qr_code COLLATE NOCASE);
+    CREATE INDEX IF NOT EXISTS idx_students_active_level ON students(active, level_id);
+    CREATE INDEX IF NOT EXISTS idx_students_names ON students(last_name, first_name);
+
+    CREATE INDEX IF NOT EXISTS idx_enrollments_student_status ON enrollments(student_id, status);
+    CREATE INDEX IF NOT EXISTS idx_enrollments_group_status ON enrollments(group_id, status);
+    CREATE INDEX IF NOT EXISTS idx_enrollments_school_year ON enrollments(school_year);
+
+    CREATE INDEX IF NOT EXISTS idx_payments_student_id ON payments(student_id);
+    CREATE INDEX IF NOT EXISTS idx_payments_group_id ON payments(group_id);
+    CREATE INDEX IF NOT EXISTS idx_payments_month_period ON payments(month_period);
+    CREATE INDEX IF NOT EXISTS idx_payments_student_group_month ON payments(student_id, group_id, month_period);
+    CREATE INDEX IF NOT EXISTS idx_payments_date ON payments(payment_date);
+
+    CREATE INDEX IF NOT EXISTS idx_attendance_student_session ON attendance(student_id, session_date);
+    CREATE INDEX IF NOT EXISTS idx_attendance_group_date ON attendance(group_id, session_date);
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_attendance_student_group_date ON attendance(student_id, group_id, session_date);
+
     CREATE INDEX IF NOT EXISTS idx_teachers_matricule_nocase ON teachers(matricule COLLATE NOCASE);
+    CREATE INDEX IF NOT EXISTS idx_teachers_active ON teachers(active);
+    CREATE INDEX IF NOT EXISTS idx_groups_active ON groups(active);
+    CREATE INDEX IF NOT EXISTS idx_group_sessions_group_date ON group_sessions(group_id, session_date);
   `);
 
   // Data consistency repair: ensure all students have qr_code synchronized with matricule
@@ -396,39 +560,8 @@ function initDatabase() {
     `);
   }
 
-  // Populate Sample Teachers & Demo Data if teachers empty
-  const teachersCount = DB.queryOne("SELECT COUNT(*) as count FROM teachers");
-  if (teachersCount.count === 0) {
-    db.exec(`
-      INSERT INTO teachers (matricule, first_name, last_name, phone, email, subject_id, remuneration_type, remuneration_rate) VALUES
-      ('ENS-001', 'Karim', 'Bensalem', '0661 12 34 56', 'k.bensalem@email.com', 1, 'percent', 50.0),
-      ('ENS-002', 'Fatima', 'Amrani', '0555 98 76 54', 'f.amrani@email.com', 2, 'percent', 50.0),
-      ('ENS-003', 'Rachid', 'Messaoudi', '0770 45 67 89', 'r.messaoudi@email.com', 5, 'percent', 60.0);
+  // Salles de classe par défaut initialisées avec succès.
 
-      INSERT INTO groups (name, level_id, subject_id, teacher_id, room_id, school_year, day_of_week, start_time, end_time, price_monthly, max_students) VALUES
-      ('Groupe BAC Maths - Mathématiques', 12, 1, 1, 1, '2025-2026', 'Mardi', '16:30', '18:30', 2500, 25),
-      ('Groupe 4AM BEM - Physique', 9, 2, 2, 2, '2025-2026', 'Mercredi', '14:00', '16:00', 2000, 20),
-      ('Groupe Anglais A1 - Conversation', 13, 5, 3, 3, '2025-2026', 'Samedi', '10:00', '12:00', 3000, 15);
-
-      INSERT INTO students (matricule, first_name, last_name, gender, birth_date, phone, parent_name, parent_phone, address, level_id, qr_code) VALUES
-      ('ETU-2026-001', 'Yacine', 'Brahimi', 'M', '2008-05-14', '0551 11 22 33', 'Ahmed Brahimi', '0661 44 55 66', 'Kouba, Alger', 12, 'ETU-2026-001'),
-      ('ETU-2026-002', 'Amina', 'Zitouni', 'F', '2009-08-22', '0552 22 33 44', 'Omar Zitouni', '0662 55 66 77', 'Hussein Dey, Alger', 12, 'ETU-2026-002'),
-      ('ETU-2026-003', 'Mehdi', 'Belkacem', 'M', '2011-03-10', '0553 33 44 55', 'Salim Belkacem', '0663 66 77 88', 'Belouizdad, Alger', 9, 'ETU-2026-003'),
-      ('ETU-2026-004', 'Sarah', 'Khelifi', 'F', '2005-11-04', '0554 44 55 66', 'Nasser Khelifi', '0664 77 88 99', 'El Harrach, Alger', 13, 'ETU-2026-004');
-
-      INSERT INTO enrollments (student_id, group_id, school_year, registration_date, discount_amount, status) VALUES
-      (1, 1, '2025-2026', '2026-09-01', 0, 'active'),
-      (2, 1, '2025-2026', '2026-09-02', 0, 'active'),
-      (3, 2, '2025-2026', '2026-09-03', 0, 'active'),
-      (4, 3, '2025-2026', '2026-09-04', 0, 'active');
-
-      -- Payments demo
-      INSERT INTO payments (receipt_no, student_id, group_id, month_period, base_amount, discount, paid_amount, remaining_amount, payment_method, payment_date) VALUES
-      ('REC-2026-0001', 1, 1, 'Septembre 2026', 2500, 0, 2500, 0, 'espece', '2026-09-05 10:30:00'),
-      ('REC-2026-0002', 2, 1, 'Septembre 2026', 2500, 0, 2500, 0, 'baridimob', '2026-09-06 14:15:00'),
-      ('REC-2026-0003', 4, 3, 'Septembre 2026', 3000, 500, 2500, 0, 'espece', '2026-09-08 11:00:00');
-    `);
-  }
 
   // Dynamic column migrations helper
   function addColumnIfNotExists(table, col, definition) {
@@ -476,6 +609,25 @@ function initDatabase() {
         UNIQUE(group_id, session_date)
       );
       CREATE UNIQUE INDEX IF NOT EXISTS idx_attendance_student_group_date ON attendance(student_id, group_id, session_date);
+
+      -- Critical Performance Indexes
+      CREATE INDEX IF NOT EXISTS idx_students_matricule ON students(matricule);
+      CREATE INDEX IF NOT EXISTS idx_students_active ON students(active);
+      CREATE INDEX IF NOT EXISTS idx_students_level_id ON students(level_id);
+      CREATE INDEX IF NOT EXISTS idx_enrollments_student_id ON enrollments(student_id);
+      CREATE INDEX IF NOT EXISTS idx_enrollments_group_id ON enrollments(group_id);
+      CREATE INDEX IF NOT EXISTS idx_enrollments_status ON enrollments(status);
+      CREATE INDEX IF NOT EXISTS idx_payments_student_id ON payments(student_id);
+      CREATE INDEX IF NOT EXISTS idx_payments_group_id ON payments(group_id);
+      CREATE INDEX IF NOT EXISTS idx_payments_date ON payments(payment_date);
+      CREATE INDEX IF NOT EXISTS idx_attendance_student_id ON attendance(student_id);
+      CREATE INDEX IF NOT EXISTS idx_attendance_group_id ON attendance(group_id);
+      CREATE INDEX IF NOT EXISTS idx_attendance_session_date ON attendance(session_date);
+      CREATE INDEX IF NOT EXISTS idx_teachers_matricule ON teachers(matricule);
+      CREATE INDEX IF NOT EXISTS idx_teachers_active ON teachers(active);
+      CREATE INDEX IF NOT EXISTS idx_groups_teacher_id ON groups(teacher_id);
+      CREATE INDEX IF NOT EXISTS idx_groups_subject_id ON groups(subject_id);
+      CREATE INDEX IF NOT EXISTS idx_groups_active ON groups(active);
     `);
   } catch (e) {
     console.warn('Attendance index/table migration:', e.message);

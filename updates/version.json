@@ -1,0 +1,7 @@
+{
+  "version": "1.0.3",
+  "releaseDate": "2026-09-27",
+  "zipUrl": "https://github.com/BELMAHDI6/EDUMIND/releases/download/v1.0.3/edumind_patch_v1.0.3.zip",
+  "notes": "Optimisations majeures de performance, indexation SQLite, et fluidite d'interface",
+  "notes_ar": "Optimisations majeures de performance, indexation SQLite, et fluidite d'interface"
+}

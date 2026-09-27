@@ -6,11 +6,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EDUMIND — Système de Gestion Scolaire & Cours de Soutien</title>
   <link rel="icon" type="image/png" href="/img/logo-icon.png">
-  <link rel="stylesheet" href="/css/style.css?v=2.3">
+  <link rel="stylesheet" href="/css/style.css?v=2.6">
   <!-- Chart.js for 12-Month Financial Curves -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- JsBarcode for Student ID Card Barcode Generation -->
-  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+  <!-- JsBarcode for Student ID Card Barcode Generation (Local & Offline) -->
+  <script src="/js/JsBarcode.all.min.js"></script>
+  <!-- html2pdf for Client-Side PDF Generation (Local & Offline) -->
+  <script src="/js/html2pdf.bundle.min.js"></script>
   <!-- QRCode.js for QR Generation -->
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <!-- FontAwesome Icons -->
@@ -23,7 +25,7 @@
   <div id="loginScreen" class="login-screen-overlay active">
     <div class="login-background-glow glow-1"></div>
     <div class="login-background-glow glow-2"></div>
-    
+
     <div class="login-container">
       <div class="login-card">
         <!-- Brand Header -->
@@ -47,7 +49,8 @@
                 </div>
                 <div class="login-role-info">
                   <span class="login-role-name" data-i18n="login_role_admin">Administrateur</span>
-                  <span class="login-role-status"><i class="fa-solid fa-circle-check"></i> <span data-i18n="login_role_auto">Sélectionné automatiquement</span></span>
+                  <span class="login-role-status"><i class="fa-solid fa-circle-check"></i> <span
+                      data-i18n="login_role_auto">Sélectionné automatiquement</span></span>
                 </div>
               </div>
               <input type="hidden" id="loginRole" value="admin">
@@ -57,28 +60,17 @@
           <!-- Password Field (Mandatory) -->
           <div class="login-field-group">
             <div class="login-label-row">
-              <label class="login-label" for="loginPassword" data-i18n="login_lbl_password">Mot de passe <span class="required-star">*</span></label>
+              <label class="login-label" for="loginPassword" data-i18n="login_lbl_password">Mot de passe <span
+                  class="required-star">*</span></label>
               <span class="login-mandatory-badge" data-i18n="login_mandatory">Obligatoire</span>
             </div>
             <div class="login-input-wrapper">
               <span class="login-input-icon"><i class="fa-solid fa-lock"></i></span>
-              <input 
-                type="password" 
-                id="loginPassword" 
-                class="login-input" 
-                placeholder="Entrez votre mot de passe..." 
-                required 
-                autocomplete="current-password"
-                autofocus
-              >
-              <button 
-                type="button" 
-                class="btn-toggle-password" 
-                id="btnToggleLoginPass" 
-                onclick="app.toggleLoginPasswordVisibility()" 
-                title="Afficher/Masquer le mot de passe"
-                aria-label="Toggle password visibility"
-              >
+              <input type="password" id="loginPassword" class="login-input" placeholder="Entrez votre mot de passe..."
+                required autocomplete="current-password" autofocus>
+              <button type="button" class="btn-toggle-password" id="btnToggleLoginPass"
+                onclick="app.toggleLoginPasswordVisibility()" title="Afficher/Masquer le mot de passe"
+                aria-label="Toggle password visibility">
                 <i class="fa-regular fa-eye" id="eyeIconLogin"></i>
               </button>
             </div>
@@ -94,7 +86,8 @@
           <button type="submit" class="btn-login-submit" id="btnLoginSubmit">
             <span class="btn-login-text" data-i18n="login_btn_submit">Se connecter</span>
             <i class="fa-solid fa-arrow-right-to-bracket btn-login-icon"></i>
-            <span class="btn-login-spinner" style="display: none;"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
+            <span class="btn-login-spinner" style="display: none;"><i
+                class="fa-solid fa-circle-notch fa-spin"></i></span>
           </button>
         </form>
 
@@ -111,6 +104,175 @@
             <span data-i18n="login_secured">Accès sécurisé & chiffré</span>
           </div>
         </div>
+
+        <!-- Developer Credit (Veloce Craft) -->
+        <div class="login-developer-credit">
+          <div class="login-dev-info">
+            <i class="fa-solid fa-code dev-icon"></i>
+            <span data-i18n="dev_credit_label">Programme réalisé par</span>
+            <strong class="dev-name">Veloce Craft</strong>
+          </div>
+          <a href="tel:0552225150" class="login-dev-phone" title="0552225150">
+            <i class="fa-solid fa-phone"></i>
+            <span>0552225150</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== LICENSE LOCK OVERLAY ==================== -->
+  <div id="licenseModal" class="license-modal-overlay" style="display: none;">
+    <div class="license-modal-glow glow-1"></div>
+    <div class="license-modal-glow glow-2"></div>
+
+    <div class="license-container">
+      <div class="license-card">
+        <!-- Brand Header -->
+        <div class="license-brand">
+          <div class="license-logo-wrap">
+            <img src="/img/logo-icon.png" alt="EDUMIND" class="license-logo-img">
+          </div>
+          <h2 class="license-title">EDUMIND <span class="license-badge-pro">PRO</span></h2>
+          <p class="license-subtitle" data-i18n="license_subtitle">Protection du logiciel & Licence — Veloce Craft</p>
+        </div>
+
+        <!-- Alert / Status Notice -->
+        <div class="license-alert" id="licenseAlertBox">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span id="licenseAlertMsg" data-i18n="license_alert_trial_expired">
+            La période d'essai de 7 jours est terminée. Ce logiciel nécessite une clé de licence pour fonctionner sur
+            cet ordinateur.
+          </span>
+        </div>
+
+        <!-- Machine Hardware ID Display -->
+        <div class="hwid-container">
+          <label class="hwid-label" data-i18n="hwid_label">
+            <i class="fa-solid fa-microchip"></i> Identifiant matériel unique de cet ordinateur (HWID) :
+          </label>
+          <div class="hwid-box">
+            <code id="hwidDisplay">EDUM-XXXX-XXXX-XXXX-XXXX</code>
+            <button type="button" class="btn-copy-hwid" onclick="app.copyHWID()" id="btnCopyHWID"
+              title="Copier l'identifiant">
+              <i class="fa-solid fa-copy"></i>
+              <span data-i18n="btn_copy">Copier</span>
+            </button>
+          </div>
+          <p class="hwid-hint" data-i18n="hwid_hint">
+            Transmettez cet identifiant au développeur Veloce Craft pour obtenir votre clé d'activation permanente.
+          </p>
+        </div>
+
+        <!-- Developer Contact Section -->
+        <div class="license-contact-card">
+          <div class="license-contact-author">
+            <i class="fa-solid fa-laptop-code"></i>
+            <span>Veloce Craft — Support & Licences</span>
+          </div>
+          <div class="license-contact-links">
+            <a href="tel:0552225150" class="license-link-phone" title="Appeler le 0552225150">
+              <i class="fa-solid fa-phone"></i> 0552225150
+            </a>
+            <a id="btnWhatsappLic" href="https://wa.me/213552225150" target="_blank" rel="noopener"
+              class="license-link-wa" title="WhatsApp">
+              <i class="fa-brands fa-whatsapp"></i> WhatsApp
+            </a>
+          </div>
+        </div>
+
+        <!-- Key Activation Form -->
+        <form id="formActivation" class="license-form" onsubmit="event.preventDefault(); app.submitActivation();">
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label class="license-label" for="inputLicenseKey" data-i18n="license_key_label">Entrez votre clé
+              d'activation (License Key) :</label>
+            <textarea id="inputLicenseKey" class="license-input-key" placeholder="EDUMIND-V1.ey..." rows="2" required
+              autocomplete="off" spellcheck="false"></textarea>
+          </div>
+
+          <div id="activationErrorAlert" class="login-error-alert" style="display: none; margin-bottom: 14px;">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span id="activationErrorMsg">Clé de licence invalide</span>
+          </div>
+
+          <div class="license-actions">
+            <button type="submit" class="btn-license-submit" id="btnSubmitActivation">
+              <i class="fa-solid fa-key"></i>
+              <span data-i18n="btn_activate">Activer la licence</span>
+            </button>
+            <button type="button" class="btn-license-cancel" id="btnCancelActivation"
+              onclick="app.closeActivationModal()" style="display: none;">
+              <span data-i18n="btn_close">Fermer</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== CLOUD UPDATE MODAL ==================== -->
+  <div id="cloudUpdateModal" class="license-modal-overlay" style="display: none; z-index: 999999;">
+    <div class="license-container" style="max-width: 520px;">
+      <div class="license-card" style="border: 1px solid rgba(56, 189, 248, 0.4); box-shadow: 0 20px 60px rgba(14, 165, 233, 0.25);">
+        <!-- Header -->
+        <div class="license-brand">
+          <div class="license-logo-wrap" style="background: linear-gradient(135deg, #0ea5e9, #2563eb);">
+            <i class="fa-solid fa-cloud-arrow-down" style="font-size: 26px; color: #fff;"></i>
+          </div>
+          <h2 class="license-title">EDUMIND <span class="license-badge-pro" style="background: #0ea5e9;">UPDATE</span></h2>
+          <p class="license-subtitle" data-i18n="update_modal_subtitle">Mise à jour Cloud Automatique & Sécurisée</p>
+        </div>
+
+        <!-- Update details box -->
+        <div id="updateInfoContainer" style="margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.04); padding: 12px 16px; border-radius: 12px; margin-bottom: 14px; border: 1px solid rgba(255,255,255,0.08);">
+            <div>
+              <span style="font-size: 12px; color: var(--text-muted); display: block;" data-i18n="update_current_ver">Version actuelle</span>
+              <strong style="font-size: 15px; color: #94a3b8;" id="updCurrentVer">v1.0.0</strong>
+            </div>
+            <div style="font-size: 20px; color: #38bdf8;">
+              <i class="fa-solid fa-arrow-right"></i>
+            </div>
+            <div style="text-align: right;">
+              <span style="font-size: 12px; color: var(--text-muted); display: block;" data-i18n="update_new_ver">Nouvelle version</span>
+              <strong style="font-size: 16px; color: #10b981;" id="updNewVer">v1.0.1</strong>
+            </div>
+          </div>
+
+          <div style="background: rgba(14, 165, 233, 0.08); border: 1px solid rgba(14, 165, 233, 0.2); border-radius: 12px; padding: 14px; margin-bottom: 14px;">
+            <h5 style="margin: 0 0 6px 0; font-size: 13px; color: #38bdf8; display: flex; align-items: center; gap: 6px;">
+              <i class="fa-solid fa-sparkles"></i> <span data-i18n="update_notes_title">Nouveautés & Corrections :</span>
+            </h5>
+            <p id="updChangelogText" style="margin: 0; font-size: 13px; color: var(--text-color); line-height: 1.5;">
+              -
+            </p>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #10b981; background: rgba(16, 185, 129, 0.08); padding: 8px 12px; border-radius: 8px;">
+            <i class="fa-solid fa-shield-check"></i>
+            <span data-i18n="update_safety_note">Vos données (élèves, paiements, caisse) et votre licence sont 100% conservées.</span>
+          </div>
+        </div>
+
+        <!-- Progress Box (hidden initially) -->
+        <div id="updateProgressBox" style="display: none; margin-bottom: 20px; text-align: center;">
+          <div style="margin-bottom: 12px; font-size: 14px; font-weight: 600; color: #38bdf8;" id="updateProgressStatusText">
+            <i class="fa-solid fa-circle-notch fa-spin"></i> Téléchargement de la mise à jour...
+          </div>
+          <div style="background: rgba(255,255,255,0.1); border-radius: 10px; height: 10px; overflow: hidden; position: relative;">
+            <div id="updateProgressBar" style="background: linear-gradient(90deg, #0ea5e9, #10b981); height: 100%; width: 50%; transition: width 0.4s ease; border-radius: 10px;"></div>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+          <button type="button" class="btn-secondary" id="btnCancelUpdate" onclick="app.closeUpdateModal()" style="border-radius: 10px; padding: 10px 18px;">
+            <span data-i18n="btn_cancel">Fermer</span>
+          </button>
+          <button type="button" class="btn-primary" id="btnStartCloudUpdate" onclick="app.applyCloudUpdate()" style="background: linear-gradient(135deg, #0ea5e9, #2563eb); border-radius: 10px; padding: 10px 20px; font-weight: 700; box-shadow: 0 4px 14px rgba(14, 165, 233, 0.4);">
+            <i class="fa-solid fa-download"></i> <span data-i18n="btn_install_update">Installer maintenant</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -122,7 +284,8 @@
   <aside class="sidebar" id="appSidebar">
     <div class="sidebar-header">
       <div class="brand-logo" id="brandLogoTrigger" title="EDUMIND">
-        <img src="/img/logo-icon.png" alt="EDUMIND" class="brand-logo-img" style="width: 36px; height: 36px; object-fit: contain; display: block;">
+        <img src="/img/logo-icon.png" alt="EDUMIND" class="brand-logo-img"
+          style="width: 36px; height: 36px; object-fit: contain; display: block;">
       </div>
       <div class="brand-info">
         <h2>EDUMIND</h2>
@@ -205,12 +368,52 @@
     </ul>
 
     <div class="sidebar-footer">
+      <div class="sidebar-dev-credit">
+        <div class="sidebar-dev-top">
+          <i class="fa-solid fa-code"></i>
+          <span data-i18n="dev_credit_label">Programme réalisé par</span>
+          <strong class="sidebar-dev-author">Veloce Craft</strong>
+        </div>
+        <a href="tel:0552225150" class="sidebar-dev-phone" title="0552225150">
+          <i class="fa-solid fa-phone"></i>
+          <span>0552225150</span>
+        </a>
+      </div>
       <span class="sidebar-version-badge">EDUMIND v1.0.0</span>
     </div>
   </aside>
 
   <!-- ==================== MAIN CONTENT WRAPPER ==================== -->
   <main class="main-wrapper">
+    <!-- Cloud Update Available Notification Banner -->
+    <div id="updateAvailableBanner" class="update-banner" style="display: none;">
+      <div class="update-banner-content">
+        <i class="fa-solid fa-cloud-arrow-down update-icon"></i>
+        <span id="updateBannerText">Nouvelle mise à jour disponible !</span>
+      </div>
+      <div class="update-banner-actions">
+        <button type="button" class="btn-update-banner" onclick="app.openUpdateModal()">
+          <i class="fa-solid fa-bolt"></i>
+          <span data-i18n="btn_view_update">Mettre à jour maintenant</span>
+        </button>
+        <button type="button" class="btn-dismiss-update" onclick="document.getElementById('updateAvailableBanner').style.display='none'" title="Fermer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Trial Period Indicator Banner -->
+    <div id="trialWarningBanner" class="trial-banner" style="display: none;">
+      <div class="trial-banner-content">
+        <i class="fa-solid fa-hourglass-half trial-icon"></i>
+        <span id="trialBannerText">Version d'essai gratuite : reste 7 jours</span>
+      </div>
+      <button type="button" class="btn-activate-trial" onclick="app.openActivationModal(true)">
+        <i class="fa-solid fa-key"></i>
+        <span data-i18n="btn_enter_license">Activer la licence permanente</span>
+      </button>
+    </div>
+
     <!-- Top Header -->
     <header class="top-header">
       <div class="header-left">
@@ -246,7 +449,8 @@
         </button>
 
         <!-- Logout Button -->
-        <button class="btn-logout-header" id="btnLogout" onclick="app.logout()" title="Déconnexion / تسجيل الخروج" aria-label="Déconnexion">
+        <button class="btn-logout-header" id="btnLogout" onclick="app.logout()" title="Déconnexion / تسجيل الخروج"
+          aria-label="Déconnexion">
           <i class="fa-solid fa-arrow-right-from-bracket"></i>
           <span data-i18n="btn_logout">Déconnexion</span>
         </button>
@@ -432,7 +636,7 @@
             <div class="schoolaris-search-box">
               <i class="fa-solid fa-magnifying-glass"></i>
               <input type="text" id="searchStudentInput" class="schoolaris-search-input"
-                placeholder="Nom, matricule, téléphone..." oninput="app.loadStudents()">
+                placeholder="Nom, matricule, téléphone...">
             </div>
             <select id="filterStudentStatus" class="schoolaris-select" style="max-width: 140px;"
               onchange="app.loadStudents()">
@@ -450,9 +654,9 @@
               <option value="unpaid">En retard / Dette</option>
             </select>
             <div style="display: flex; gap: 10px; margin-left: auto;">
-              <button class="btn-badges-header" onclick="app.printAllBadges()" title="Imprimer les badges">
+              <button class="btn-badges-header" onclick="app.openBatchBadgesModal()" title="Imprimer les badges (Impression groupée)">
                 <i class="fa-solid fa-id-card"></i>
-                <span>Badges</span>
+                <span data-i18n="btn_batch_badges">Badges</span>
               </button>
               <button class="btn-excel" onclick="app.exportStudentsToExcel()" title="Exporter en Excel">
                 <i class="fa-solid fa-download"></i>
@@ -468,6 +672,9 @@
             <table class="schoolaris-table">
               <thead>
                 <tr>
+                  <th style="width: 44px; text-align: center;">
+                    <input type="checkbox" id="selectAllStudentsCheckbox" class="edumind-chk" onchange="app.toggleSelectAllStudents(this.checked)" title="تحديد الكل / Tout sélectionner">
+                  </th>
                   <th style="width: 140px;">MATRICULE</th>
                   <th data-i18n="th_nom">NOM</th>
                   <th data-i18n="th_prenom">PRÉNOM</th>
@@ -485,6 +692,24 @@
                 <!-- Injected via JS -->
               </tbody>
             </table>
+          </div>
+        </div>
+
+        <!-- Floating Batch Action Bar for Multiple Selected Students -->
+        <div id="studentsBatchActionBar" class="students-batch-bar" style="display: none;">
+          <div class="batch-bar-info">
+            <span class="batch-bar-badge" id="batchSelectedCount">0</span>
+            <span id="batchSelectedText">تلميذ محدد</span>
+          </div>
+          <div class="batch-bar-actions">
+            <button type="button" class="btn-primary batch-btn-print" onclick="app.printSelectedBadges()">
+              <i class="fa-solid fa-id-card"></i>
+              <span id="batchPrintBtnText">طباعة البطاقات</span>
+            </button>
+            <button type="button" class="btn-secondary batch-btn-clear" onclick="app.clearSelectedStudents()">
+              <i class="fa-solid fa-xmark"></i>
+              <span>إلغاء</span>
+            </button>
           </div>
         </div>
       </div>
@@ -1033,22 +1258,45 @@
 
     <!-- ==================== 4. PAIEMENTS & REÇUS VIEW ==================== -->
     <section class="view-container" id="view-paiements">
-      <div class="card-header" style="margin-bottom: 20px;">
+      <div class="card-header" style="margin-bottom: 16px;">
         <div class="card-title" style="font-size: 22px;">
           <i class="fa-solid fa-credit-card" style="color: #10b981;"></i>
           <span data-i18n="title_paiements">Gestion des Paiements & Reçus</span>
         </div>
-        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-          <div class="schoolaris-search-box" style="width: 320px; min-width: 220px;">
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <div class="schoolaris-search-box" style="width: 250px; min-width: 180px;">
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="text" id="searchPaymentInput" class="schoolaris-search-input"
-              placeholder="Rechercher élève, N° reçu, groupe..."
-              oninput="app.filterPayments(this.value)">
+              placeholder="Rechercher élève, N° reçu, groupe..." oninput="app.filterPayments(this.value)">
           </div>
+          <select id="paymentMonthFilter" class="form-control" style="width: 175px; padding: 7px 12px; font-size: 13px;"
+            onchange="app.onPaymentMonthFilterChange(this.value)" title="Filtrer par mois">
+            <option value="all">Tous les mois (الكل)</option>
+          </select>
+          <button class="btn-excel" onclick="app.openExportPaymentsModal()"
+            title="تحميل وتصدير سجل المدفوعات لشهر أو عدة أشهر">
+            <i class="fa-solid fa-file-arrow-down"></i>
+            <span data-i18n="btn_export_payments">تحميل المدفوعات</span>
+          </button>
           <button class="btn-primary" onclick="app.openModalPayment()">
             <i class="fa-solid fa-plus"></i>
             <span data-i18n="btn_new_payment">Encaisser un Paiement</span>
           </button>
+        </div>
+      </div>
+
+      <div id="paymentsSummaryBar"
+        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding: 10px 16px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 10px; font-size: 13px; flex-wrap: wrap; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <span style="color: var(--text-muted);"><i class="fa-solid fa-receipt" style="color: #10b981;"></i> <strong
+              id="paymentsFilteredCount">0</strong> <span data-i18n="lbl_payments_count">opérations
+              affichées</span></span>
+          <span style="color: var(--border-color);">|</span>
+          <span><span data-i18n="lbl_total_collected">Total collecté</span> : <strong id="paymentsFilteredTotal"
+              style="color: #10b981; font-size: 15px;">0 DA</strong></span>
+        </div>
+        <div id="paymentsActiveFilterBadge" style="font-size: 12px; color: var(--text-muted);">
+          <!-- Dynamic Filter Tag -->
         </div>
       </div>
 
@@ -1111,7 +1359,12 @@
           <i class="fa-solid fa-cash-register" style="color: #f59e0b;"></i>
           <span data-i18n="title_caisse">Trésorerie & Journal de Caisse</span>
         </div>
-        <div style="display: flex; gap: 10px;">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button class="btn-excel" onclick="app.openExportCaisseModal()"
+            title="تحميل وتصدير سجل حركات الخزينة والصندوق">
+            <i class="fa-solid fa-file-arrow-down"></i>
+            <span data-i18n="btn_export_caisse">تحميل سجل الخزينة</span>
+          </button>
           <button class="btn-primary" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"
             onclick="app.openModalCaisseMovement('entree')">
             <i class="fa-solid fa-plus"></i>
@@ -1151,7 +1404,7 @@
       </div>
 
       <!-- Caisse Filter Bar -->
-      <div class="card" style="margin-bottom: 18px; padding: 14px 18px;">
+      <div class="card" style="margin-bottom: 14px; padding: 14px 18px;">
         <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
           <div style="display: flex; align-items: center; gap: 6px;">
             <label style="font-size: 12px; font-weight: 600; color: var(--text-muted);">Type:</label>
@@ -1195,6 +1448,32 @@
         </div>
       </div>
 
+      <!-- Live Filter Summary Bar -->
+      <div id="caisseSummaryBar"
+        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding: 10px 16px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 10px; font-size: 13px; flex-wrap: wrap; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <span style="color: var(--text-muted);"><i class="fa-solid fa-list-check" style="color: #f59e0b;"></i> <strong
+              id="caisseFilteredCount">0</strong> <span data-i18n="lbl_caisse_movements_count">حركات
+              معروضة</span></span>
+          <span style="color: var(--border-color);">|</span>
+          <span><span data-i18n="lbl_total_entrees">المداخيل</span> : <strong id="caisseFilteredIn"
+              style="color: #10b981; font-size: 14px;">0 DA</strong></span>
+          <span style="color: var(--border-color);">|</span>
+          <span><span data-i18n="lbl_total_sorties">المصاريف</span> : <strong id="caisseFilteredOut"
+              style="color: #ef4444; font-size: 14px;">0 DA</strong></span>
+          <span style="color: var(--border-color);">|</span>
+          <span><span data-i18n="lbl_solde_net">الرصيد الصافي</span> : <strong id="caisseFilteredNet"
+              style="color: #3b82f6; font-size: 14px;">0 DA</strong></span>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button type="button" class="btn-excel" style="padding: 5px 12px; font-size: 12px;"
+            onclick="app.quickExportCaisseTable()" title="تحميل وتصدير الجدول المعروض حالياً بصيغة Excel">
+            <i class="fa-solid fa-file-excel"></i>
+            <span data-i18n="btn_quick_excel">Excel السريع</span>
+          </button>
+        </div>
+      </div>
+
       <!-- Caisse Movements Table -->
       <div class="card">
         <div class="table-responsive">
@@ -1230,8 +1509,7 @@
           <div class="schoolaris-search-box" style="width: 320px; min-width: 220px;">
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="text" id="searchTeacherInput" class="schoolaris-search-input"
-              placeholder="Rechercher par nom d'enseignant, matière..."
-              oninput="app.filterTeachers(this.value)">
+              placeholder="Rechercher par nom d'enseignant, matière...">
           </div>
           <button class="btn-primary" onclick="app.openModalTeacher()">
             <i class="fa-solid fa-plus"></i>
@@ -1628,37 +1906,106 @@
       </div>
     </section>
 
-    <!-- ==================== 10. INSCRIPTIONS VIEW ==================== -->
+    <!-- ==================== 10. INSCRIPTIONS VIEW (STYLE SCHOOLARIS) ==================== -->
     <section class="view-container" id="view-inscriptions">
-      <div class="card-header" style="margin-bottom: 20px;">
-        <div class="card-title" style="font-size: 22px;">
-          <i class="fa-solid fa-clipboard-check" style="color: #06b6d4;"></i>
-          <span>Inscrire un Élève dans un Groupe</span>
+      <!-- Top Schoolaris Header -->
+      <div class="schoolaris-header" style="margin-bottom: 24px;">
+        <div>
+          <h2 class="schoolaris-title" data-i18n="title_inscriptions">Inscriptions aux Groupes</h2>
+          <div style="display: flex; gap: 8px; align-items: center; margin-top: 6px; flex-wrap: wrap;">
+            <span id="enrollmentsTotalBadge" class="badge-pill badge-blue" style="font-weight: 600;">0 Inscription(s)</span>
+            <span id="enrollmentsActiveBadge" class="badge-pill badge-green" style="font-weight: 600;">0 Active(s)</span>
+            <span id="enrollmentsRevenueBadge" class="badge-pill badge-cyan" style="font-weight: 600;">0 DA / mois</span>
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <button type="button" class="btn-primary" onclick="app.openEnrollmentWizard()" id="btnOpenEnrollWizard"
+            style="box-shadow: 0 4px 14px rgba(6, 182, 212, 0.35); background: linear-gradient(135deg, #0284c7, #06b6d4); font-size: 14.5px; padding: 11px 22px; font-weight: 700; border-radius: 10px;">
+            <i class="fa-solid fa-user-plus" style="margin-left: 6px;"></i>
+            <span data-i18n="btn_new_enrollment">تسجيل تلميذ جديد</span>
+          </button>
         </div>
       </div>
-      <div class="card" style="max-width: 650px; margin: 0 auto;">
-        <form id="enrollmentForm" onsubmit="event.preventDefault(); app.saveEnrollment();">
-          <div class="form-group">
-            <label class="form-label">Sélectionner l'Élève</label>
-            <select id="enrollStudentSelect" class="form-control" required>
-              <option value="">-- Choisir un élève --</option>
-            </select>
+
+      <!-- ==================== TABLE OF ENROLLMENTS (RÉPERTOIRE DES INSCRIPTIONS) ==================== -->
+      <div class="schoolaris-card">
+        <!-- Filter and Search Bar -->
+        <div class="schoolaris-filter-bar"
+          style="border-bottom: 1px solid var(--border-color, #1e293b); padding-bottom: 16px; margin-bottom: 16px;">
+          <!-- Live Manual Table Search -->
+          <div class="schoolaris-search-box" style="flex: 1; min-width: 240px;">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchEnrollmentsTableInput" class="schoolaris-search-input"
+              placeholder="Rechercher par élève, matricule, tél, groupe, matière, prof..."
+              oninput="app.filterEnrollmentsTable()">
           </div>
-          <div class="form-group">
-            <label class="form-label">Sélectionner le Groupe / Cours</label>
-            <select id="enrollGroupSelect" class="form-control" required>
-              <option value="">-- Choisir un groupe --</option>
-            </select>
+
+          <!-- Month Filter (Styled exactly like payments dropdown) -->
+          <select id="filterEnrollmentMonth" class="form-control" style="width: 185px; padding: 7px 12px; font-size: 13px;"
+            onchange="app.filterEnrollmentsTable()" title="Filtrer par mois">
+            <option value="all">Tous les mois (الكل)</option>
+          </select>
+
+          <!-- Group Filter -->
+          <select id="filterEnrollmentGroup" class="schoolaris-select" style="min-width: 170px;"
+            onchange="app.filterEnrollmentsTable()">
+            <option value="all">Tous les groupes</option>
+          </select>
+
+          <!-- Status Filter -->
+          <select id="filterEnrollmentStatus" class="schoolaris-select" style="max-width: 140px;"
+            onchange="app.filterEnrollmentsTable()">
+            <option value="all">Tous statuts</option>
+            <option value="active" selected>Actifs</option>
+            <option value="cancelled">Annulés</option>
+          </select>
+
+          <!-- Action Buttons -->
+          <div style="display: flex; gap: 8px; margin-left: auto;">
+            <button type="button" class="btn-secondary" onclick="app.loadInscriptionsList()"
+              title="Actualiser la liste">
+              <i class="fa-solid fa-arrows-rotate"></i>
+            </button>
+            <button type="button" class="btn-excel" onclick="app.exportEnrollmentsToExcel()" title="Exporter en Excel">
+              <i class="fa-solid fa-file-excel"></i>
+              <span>Excel</span>
+            </button>
+            <button type="button" class="btn-badges-header" onclick="app.printEnrollmentsReport()"
+              title="Imprimer la liste">
+              <i class="fa-solid fa-print"></i>
+              <span>Imprimer</span>
+            </button>
           </div>
-          <div class="form-group">
-            <label class="form-label">Remise Mensuelle (DA) (Optionnel)</label>
-            <input type="number" id="enrollDiscount" class="form-control" placeholder="0" value="0">
-          </div>
-          <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 12px;">
-            <i class="fa-solid fa-check"></i>
-            <span>Valider l'Inscription</span>
-          </button>
-        </form>
+        </div>
+
+        <!-- Enrollments Table -->
+        <div class="table-responsive">
+          <table class="schoolaris-table" id="inscriptionsTable">
+            <thead>
+              <tr>
+                <th style="width: 45px;">#</th>
+                <th style="width: 110px;" data-i18n="th_date">DATE</th>
+                <th data-i18n="th_eleve">ÉLÈVE</th>
+                <th style="width: 130px;" data-i18n="th_matricule">MATRICULE</th>
+                <th data-i18n="th_groupe_cours">GROUPE / COURS</th>
+                <th data-i18n="th_matiere_prof">MATIÈRE & ENSEIGNANT</th>
+                <th style="text-align: right; width: 130px;" data-i18n="th_tarif">TARIF (DA)</th>
+                <th style="text-align: center; width: 100px;" data-i18n="th_statut">STATUT</th>
+                <th style="text-align: center; width: 120px;" data-i18n="th_actions">ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody id="inscriptionsTableBody">
+              <!-- Injected dynamically via JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Table Summary / Footer -->
+        <div id="inscriptionsTableFooter"
+          style="display: flex; justify-content: space-between; align-items: center; padding-top: 14px; margin-top: 14px; border-top: 1px solid var(--border-color, #1e293b); font-size: 13px; color: var(--text-muted); flex-wrap: wrap; gap: 10px;">
+          <div id="inscriptionsCountInfo">Affichage de 0 inscriptions</div>
+          <div id="inscriptionsTotalRevenue" style="font-weight: 600; color: #38bdf8;"></div>
+        </div>
       </div>
     </section>
 
@@ -1703,6 +2050,12 @@
             onclick="app.switchSettingsTab('administration')">
             <i class="fa-solid fa-shield"></i>
             <span data-i18n="tab_administration">Administration</span>
+          </button>
+
+          <button type="button" class="settings-nav-btn item-about" data-settings-tab="apropos"
+            onclick="app.switchSettingsTab('apropos')">
+            <i class="fa-solid fa-circle-info"></i>
+            <span data-i18n="tab_apropos">À propos & Support</span>
           </button>
         </aside>
 
@@ -1967,12 +2320,19 @@
                 restent 100% sécurisées dans <code>edumind.sqlite</code>.
               </p>
 
-              <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
+              <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; align-items: center;">
                 <a href="/api/backup/download" class="btn-primary"
                   style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
                   <i class="fa-solid fa-download"></i>
-                  <span>Télécharger la Sauvegarde Instantanée (.sqlite)</span>
+                  <span data-i18n="btn_backup_download">Télécharger la Sauvegarde Instantanée (.sqlite)</span>
                 </a>
+                <input type="file" id="sqliteRestoreFileInput" accept=".sqlite,.db" style="display: none;" onchange="app.handleSqliteRestoreUpload(event)">
+                <button type="button" class="btn-secondary" onclick="document.getElementById('sqliteRestoreFileInput').click()"
+                  style="display: inline-flex; align-items: center; gap: 8px; border: 1px solid #f59e0b; color: #f59e0b; background: rgba(245, 158, 11, 0.1); font-weight: 600; padding: 10px 18px; border-radius: 8px; cursor: pointer;"
+                  title="Restaurer une base de données SQLite depuis votre ordinateur">
+                  <i class="fa-solid fa-upload"></i>
+                  <span data-i18n="btn_restore_sqlite">Restaurer une base (.sqlite)</span>
+                </button>
               </div>
 
               <div style="border-top: 1px solid var(--border-color); padding-top: 18px;">
@@ -2003,6 +2363,16 @@
                   <span class="admin-value" style="color: #10b981;"><i class="fa-solid fa-circle"
                       style="font-size: 8px; margin-right: 6px;"></i> Opérationnel</span>
                 </div>
+                <div class="admin-info-item">
+                  <span class="admin-label" data-i18n="admin_developer_lbl">Développé par</span>
+                  <span class="admin-value" style="color: #60a5fa; font-weight: 700;">Veloce Craft</span>
+                </div>
+                <div class="admin-info-item">
+                  <span class="admin-label" data-i18n="admin_phone_lbl">Téléphone Support</span>
+                  <span class="admin-value"><a href="tel:0552225150"
+                      style="color: #10b981; font-weight: 700; text-decoration: none;"><i class="fa-solid fa-phone"
+                        style="font-size: 11px; margin-right: 4px;"></i> 0552225150</a></span>
+                </div>
               </div>
 
               <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-color);">
@@ -2016,6 +2386,134 @@
                     <i class="fa-solid fa-arrows-rotate"></i> Actualiser l'interface & Vider le cache
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 7. TAB: À PROPOS & DÉVELOPPEUR -->
+          <div class="settings-tab-panel" id="settingsTab-apropos">
+            <h3 class="settings-panel-title" data-i18n="about_title" style="color: var(--accent-blue);">À propos
+              d'EDUMIND & Développeur</h3>
+
+            <div class="settings-card about-dev-card">
+              <div class="about-card-hero">
+                <div class="about-hero-logo">
+                  <img src="/img/logo-icon.png" alt="EDUMIND">
+                </div>
+                <div class="about-hero-info">
+                  <h4 class="about-hero-title">EDUMIND <span class="about-tag">v1.0.0 Pro</span></h4>
+                  <p class="about-hero-desc" data-i18n="about_desc">Système professionnel complet pour la gestion
+                    scolaire, cours de soutien, élèves, paiements et présences.</p>
+                </div>
+              </div>
+
+              <div class="about-dev-section">
+                <div class="about-dev-highlight">
+                  <div class="about-dev-avatar">
+                    <i class="fa-solid fa-laptop-code"></i>
+                  </div>
+                  <div class="about-dev-meta">
+                    <span class="about-dev-role" data-i18n="dev_credit_label">Programme réalisé par</span>
+                    <h3 class="about-dev-name">Veloce Craft</h3>
+                  </div>
+                </div>
+
+                <div class="about-contact-banner">
+                  <div class="about-phone-box">
+                    <div class="about-phone-icon">
+                      <i class="fa-solid fa-phone-volume"></i>
+                    </div>
+                    <div class="about-phone-details">
+                      <span class="about-phone-label" data-i18n="dev_phone_label">Téléphone / Support</span>
+                      <a href="tel:0552225150" class="about-phone-number">0552225150</a>
+                    </div>
+                  </div>
+                  <div class="about-quick-actions">
+                    <a href="tel:0552225150" class="btn-about-action call-btn">
+                      <i class="fa-solid fa-phone"></i>
+                      <span data-i18n="about_contact_btn">Appeler</span>
+                    </a>
+                    <a href="https://wa.me/213552225150" target="_blank" rel="noopener" class="btn-about-action wa-btn">
+                      <i class="fa-brands fa-whatsapp"></i>
+                      <span data-i18n="about_whatsapp_btn">WhatsApp</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- License Status Details Card -->
+            <div class="settings-card settings-lic-card" style="margin-top: 20px;">
+              <div class="settings-lic-header">
+                <div>
+                  <h4 style="font-size: 16px; font-weight: 800; color: var(--text-heading); margin-bottom: 4px;"
+                    data-i18n="setting_lic_title">
+                    État de la Licence du Logiciel
+                  </h4>
+                  <p style="color: var(--text-muted); font-size: 13px; margin: 0;">
+                    Licence liée au matériel physique de cet ordinateur (HWID).
+                  </p>
+                </div>
+                <span id="settingLicStatusBadge" class="badge-license trial">
+                  <i class="fa-solid fa-hourglass-half"></i> Période d'essai
+                </span>
+              </div>
+
+              <div class="admin-info-grid" style="margin-top: 18px;">
+                <div class="admin-info-item">
+                  <span class="admin-label" data-i18n="setting_lic_hwid">Identifiant Machine (HWID)</span>
+                  <span class="admin-value" style="font-family: monospace; color: #38bdf8; font-weight: 700;"
+                    id="settingLicHwid">EDUM-XXXX-XXXX-XXXX-XXXX</span>
+                </div>
+                <div class="admin-info-item">
+                  <span class="admin-label" data-i18n="setting_lic_type">Type de licence</span>
+                  <span class="admin-value" id="settingLicType" style="font-weight: 700;">Permanente (À vie /
+                    دائم)</span>
+                </div>
+                <div class="admin-info-item">
+                  <span class="admin-label" data-i18n="setting_lic_expiry">Date d'expiration</span>
+                  <span class="admin-value" id="settingLicExpiry" style="font-weight: 700; color: #10b981;">Illimité
+                    (دائم)</span>
+                </div>
+                <div class="admin-info-item">
+                  <span class="admin-label">Support Technique</span>
+                  <span class="admin-value"><strong style="color: #10b981;">0552225150</strong> (Veloce Craft)</span>
+                </div>
+              </div>
+
+              <div
+                style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end;">
+                <button type="button" class="btn-primary" onclick="app.openActivationModal(true)">
+                  <i class="fa-solid fa-key"></i>
+                  <span data-i18n="setting_lic_btn_renew">Entrer une nouvelle clé</span>
+                </button>
+            </div>
+
+            <!-- Cloud Auto-Update Card -->
+            <div class="settings-card settings-update-card" style="margin-top: 20px; border: 1px solid rgba(14, 165, 233, 0.25);">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+                <div>
+                  <h4 style="font-size: 16px; font-weight: 800; color: var(--text-heading); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-cloud-arrow-down" style="color: #38bdf8;"></i>
+                    <span data-i18n="settings_update_title">Mises à jour Cloud Automatiques</span>
+                  </h4>
+                  <p style="color: var(--text-muted); font-size: 13px; margin: 0;" data-i18n="settings_update_subtitle">
+                    Recevez automatiquement les dernières améliorations sans jamais perdre vos données ni réinstaller le programme.
+                  </p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <span id="settingCurrentVersionBadge" style="background: rgba(14, 165, 233, 0.15); color: #38bdf8; font-weight: 700; padding: 6px 14px; border-radius: 20px; font-size: 13px;">
+                    v1.0.0
+                  </span>
+                  <button type="button" class="btn-secondary" id="btnManualCheckUpdate" onclick="app.checkForCloudUpdates(false)" style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 8px; font-weight: 600;">
+                    <i class="fa-solid fa-rotate"></i>
+                    <span data-i18n="btn_check_update">Vérifier les mises à jour</span>
+                  </button>
+                </div>
+              </div>
+
+              <div id="settingUpdateResultArea" style="display: none; padding: 14px; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); margin-top: 10px;">
+                <!-- Dynamically populated status -->
               </div>
             </div>
           </div>
@@ -2143,7 +2641,9 @@
             <label class="form-label" style="margin-bottom: 0;">Matricule (Numéro de Carte / Code-barres)</label>
             <span style="font-size: 11px; color: var(--text-muted);">Laissez vide pour génération automatique</span>
           </div>
-          <input type="text" id="studentMatricule" class="form-control" style="font-family: monospace; font-weight: 700; color: #38bdf8;" placeholder="Automatique (ex: EDU-2026-0024)">
+          <input type="text" id="studentMatricule" class="form-control"
+            style="font-family: monospace; font-weight: 700; color: #38bdf8;"
+            placeholder="Automatique (ex: EDU-2026-0024)">
         </div>
         <div class="form-row">
           <div class="form-group">
@@ -2196,47 +2696,225 @@
     </div>
   </div>
 
-  <!-- Modal: Imprimer Carte d'Élève (Student Card with QR/Barcode) -->
+  <!-- Modal: Imprimer Carte d'Élève (Student Card with High-Density Barcode) -->
   <div class="modal-overlay" id="modalStudentCard">
-    <div class="modal-content" style="max-width: 440px; text-align: center;">
+    <div class="modal-content" style="max-width: 490px; text-align: center;">
       <div class="modal-header">
-        <h3 class="modal-title">Carte Scolaire de l'Élève</h3>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-id-card-clip" style="color: #3b82f6; font-size: 20px;"></i>
+          <h3 class="modal-title" data-i18n="modal_card_title">بطاقة التلميذ المدرسية • Carte Scolaire</h3>
+        </div>
         <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
-      <div id="printableCard" class="student-card-preview printable-area">
-        <div class="card-school-brand">
-          <div class="brand-logo" style="width: 32px; height: 32px; background: transparent; box-shadow: none;">
-            <img src="/img/logo-icon.png" alt="EDUMIND" style="width: 28px; height: 28px; object-fit: contain;">
-          </div>
-          <div style="text-align: left;">
-            <h4 style="font-size: 13px; font-weight: 800;" id="cardSchoolName">EDUMIND ACADEMY</h4>
-            <span style="font-size: 10px; color: #94a3b8;">CARTE SCOLAIRE OFFICIELLE</span>
-          </div>
-        </div>
+      <!-- Theme Selector Pills -->
+      <div class="student-card-theme-bar">
+        <button type="button" class="btn-card-theme active" id="btnThemeBlue" onclick="app.setStudentCardTheme('blue')"
+          title="Bleu Royal">
+          <span
+            style="width: 12px; height: 12px; border-radius: 50%; background: #2563eb; display: inline-block;"></span>
+          <span>أزرق ملكي</span>
+        </button>
+        <button type="button" class="btn-card-theme" id="btnThemeEmerald" onclick="app.setStudentCardTheme('emerald')"
+          title="Vert Émeraude">
+          <span
+            style="width: 12px; height: 12px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
+          <span>زمردي</span>
+        </button>
+        <button type="button" class="btn-card-theme" id="btnThemeGold" onclick="app.setStudentCardTheme('gold')"
+          title="Noir & Or">
+          <span
+            style="width: 12px; height: 12px; border-radius: 50%; background: #f59e0b; display: inline-block;"></span>
+          <span>ذهبي فاخر</span>
+        </button>
+        <button type="button" class="btn-card-theme" id="btnThemeWhite" onclick="app.setStudentCardTheme('white')"
+          title="Blanc économique">
+          <span
+            style="width: 12px; height: 12px; border-radius: 50%; background: #ffffff; border: 1px solid #94a3b8; display: inline-block;"></span>
+          <span>أبيض ناصع</span>
+        </button>
+      </div>
 
-        <div class="student-card-body">
-          <div class="student-avatar-box">
-            <i class="fa-solid fa-user"></i>
+      <!-- Student Card Preview Wrapper -->
+      <div class="student-card-wrapper">
+        <div id="printableCard" class="student-card-preview theme-blue">
+          <!-- Card Header / Brand -->
+          <div class="card-header-bar">
+            <div class="card-brand-left">
+              <div class="card-logo-box">
+                <img id="cardSchoolLogo" src="/img/logo-icon.png" alt="Logo">
+              </div>
+              <div class="card-school-info">
+                <div class="card-school-title" id="cardSchoolName">EDUMIND ACADEMY</div>
+                <div class="card-school-sub">COURS DE SOUTIEN & FORMATION</div>
+              </div>
+            </div>
+            <div class="card-badge-right">
+              <span class="card-official-tag">OFFICIEL • نظامي</span>
+              <span class="card-year-badge" id="cardSchoolYear">2025/2026</span>
+            </div>
           </div>
-          <div class="student-card-details" style="text-align: left;">
-            <h4 id="cardStudentName">Yacine Brahimi</h4>
-            <p><strong style="color: #60a5fa;" id="cardStudentMatricule">ETU-2026-001</strong></p>
-            <p id="cardStudentLevel">3AS - BAC Maths</p>
-            <p id="cardStudentPhone">Tél: 0551 11 22 33</p>
-          </div>
-        </div>
 
-        <div class="card-qr-container">
-          <svg id="cardBarcodeSvg"></svg>
+          <!-- Card Body: Avatar & Information -->
+          <div class="card-main-body">
+            <div class="card-avatar-wrapper">
+              <div class="card-avatar-frame" id="cardAvatarContainer">
+                <i class="fa-solid fa-user" style="font-size: 36px; opacity: 0.6;"></i>
+              </div>
+              <span class="card-verified-ribbon"><i class="fa-solid fa-circle-check"></i> رسمي</span>
+            </div>
+            <div class="card-info-col">
+              <h3 class="card-name-text" id="cardStudentName">Nom de l'élève</h3>
+              <div class="card-matricule-badge" title="Matricule de pointage">
+                <i class="fa-solid fa-fingerprint"></i>
+                <strong id="cardStudentMatricule">ETU-2026-0001</strong>
+              </div>
+              <div class="card-data-row">
+                <span class="card-info-lbl">المستوى / Niveau:</span>
+                <strong class="card-info-val" id="cardStudentLevel">3AS - BAC</strong>
+              </div>
+              <div class="card-data-row">
+                <span class="card-info-lbl">الهاتف / Tél:</span>
+                <span class="card-info-val" id="cardStudentPhone">0550 00 00 00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- High-Contrast Clean Barcode Container -->
+          <div class="card-barcode-box" id="cardBarcodeContainer">
+            <svg id="cardBarcodeSvg"></svg>
+            <div class="card-barcode-sublabel">
+              <i class="fa-solid fa-barcode"></i>
+              <span>رمز تسجيل الحضور السريع • Pointage Automatique</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div style="display: flex; gap: 12px; justify-content: center; margin-top: 14px;">
-        <button class="btn-secondary" onclick="app.closeModals()">Fermer</button>
-        <button class="btn-primary" onclick="window.print()">
+      <!-- Action Buttons -->
+      <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 12px;">
+        <button type="button" class="btn-secondary" onclick="app.closeModals()">
+          <span data-i18n="btn_cancel">Fermer</span>
+        </button>
+        <button type="button" class="btn-secondary" onclick="app.copyStudentBarcodeMatricule()"
+          title="Copier le matricule">
+          <i class="fa-solid fa-copy"></i>
+          <span>نسخ الكود</span>
+        </button>
+        <button type="button" class="btn-primary" id="btnDownloadCardPdf"
+          style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border-color: #dc2626;"
+          onclick="app.downloadStudentCardPdf()"
+          title="Télécharger la carte scolaire au format PDF">
+          <i class="fa-solid fa-file-pdf"></i>
+          <span data-i18n="btn_download_card_pdf">تحميل البطاقة (PDF)</span>
+        </button>
+        <button type="button" class="btn-primary"
+          style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-color: #059669;"
+          onclick="app.printSingleStudentCard()">
           <i class="fa-solid fa-print"></i>
-          <span>Imprimer la Carte</span>
+          <span>طباعة البطاقة (CR-80)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Impression Groupée des Badges (Batch Badges Printing) -->
+  <div class="modal-overlay" id="modalBatchBadges">
+    <div class="modal-content" style="max-width: 680px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(59, 130, 246, 0.15); display: flex; align-items: center; justify-content: center; color: #3b82f6; font-size: 19px; flex-shrink: 0;">
+            <i class="fa-solid fa-id-card"></i>
+          </div>
+          <div>
+            <h3 class="modal-title" style="margin: 0; font-size: 17px;">طباعة بطاقات متعددة • Impression Groupée des Badges</h3>
+            <span style="font-size: 12px; color: var(--text-muted);">توليد وطباعة بطاقات مدرسية احترافية مع الباركود بتنسيق A4 (8 بطاقات لكل ورقة)</span>
+          </div>
+        </div>
+        <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <!-- Filter Controls Row -->
+      <div style="background: var(--bg-hover); padding: 14px 16px; border-radius: 10px; margin: 14px 0; border: 1px solid var(--border-color);">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" style="font-size: 12px; margin-bottom: 4px;">تصفية حسب المستوى الدراسي</label>
+            <select id="batchBadgesFilterLevel" class="form-control" style="font-size: 13px;" onchange="app.filterBatchBadgesList()">
+              <option value="">-- كل المستويات --</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" style="font-size: 12px; margin-bottom: 4px;">تصفية حسب الفوج الدراسي</label>
+            <select id="batchBadgesFilterGroup" class="form-control" style="font-size: 13px;" onchange="app.filterBatchBadgesList()">
+              <option value="">-- كل الأفواج --</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <div class="schoolaris-search-box" style="flex: 1; margin: 0; height: 38px;">
+            <i class="fa-solid fa-magnifying-glass" style="font-size: 12px;"></i>
+            <input type="text" id="batchBadgesSearchInput" class="schoolaris-search-input" style="font-size: 12px;"
+              placeholder="بحث بالاسم أو اللقب أو رقم القيد..." oninput="app.filterBatchBadgesList()">
+          </div>
+          <button type="button" class="btn-secondary" style="height: 38px; padding: 0 14px; font-size: 12px; white-space: nowrap;"
+            onclick="app.toggleSelectAllBatchModal()">
+            <i class="fa-solid fa-check-double"></i>
+            <span id="batchModalToggleAllText">تحديد الكل</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Students Selection List (Scrollable) -->
+      <div style="margin-bottom: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span style="font-size: 12px; font-weight: 700; color: var(--text-heading);">قائمة التلاميذ المتاحين (<span id="batchListCount">0</span>):</span>
+          <span style="font-size: 12px; font-weight: 700; color: #3b82f6;">تم تحديد: <span id="batchModalCheckedCount">0</span> تلميذ</span>
+        </div>
+        <div id="batchBadgesStudentsContainer" style="max-height: 220px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; background: rgba(0,0,0,0.15); padding: 6px;">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+
+      <!-- Theme Selector & Format Options -->
+      <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(59, 130, 246, 0.06); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <div style="font-size: 12px; font-weight: 700; margin-bottom: 6px; color: var(--text-heading);">تصميم ولون البطاقات:</div>
+          <div class="student-card-theme-bar" style="margin: 0;">
+            <button type="button" class="btn-card-theme active" id="btnBatchThemeBlue" onclick="app.setBatchTheme('blue')">
+              <span style="width: 10px; height: 10px; border-radius: 50%; background: #2563eb; display: inline-block;"></span>
+              <span>أزرق ملكي</span>
+            </button>
+            <button type="button" class="btn-card-theme" id="btnBatchThemeEmerald" onclick="app.setBatchTheme('emerald')">
+              <span style="width: 10px; height: 10px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
+              <span>زمردي</span>
+            </button>
+            <button type="button" class="btn-card-theme" id="btnBatchThemeGold" onclick="app.setBatchTheme('gold')">
+              <span style="width: 10px; height: 10px; border-radius: 50%; background: #f59e0b; display: inline-block;"></span>
+              <span>ذهبي</span>
+            </button>
+            <button type="button" class="btn-card-theme" id="btnBatchThemeWhite" onclick="app.setBatchTheme('white')">
+              <span style="width: 10px; height: 10px; border-radius: 50%; background: #ffffff; border: 1px solid #94a3b8; display: inline-block;"></span>
+              <span>أبيض اقتصادي</span>
+            </button>
+          </div>
+        </div>
+        <div style="text-align: right; font-size: 12px; color: var(--text-muted);">
+          <div><i class="fa-solid fa-print"></i> <strong>ورق A4 قياسي</strong></div>
+          <div style="color: #10b981; font-weight: 600; margin-top: 2px;" id="batchPagesEstimateInfo">8 بطاقات لكل ورقة</div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display: flex; gap: 10px; justify-content: flex-end; align-items: center;">
+        <button type="button" class="btn-secondary" onclick="app.closeModals()">
+          <span>إلغاء</span>
+        </button>
+        <button type="button" class="btn-primary" id="btnExecuteBatchPrint"
+          style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); padding: 10px 24px; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px;"
+          onclick="app.startBatchBadgesPrint()">
+          <i class="fa-solid fa-print"></i>
+          <span id="btnExecuteBatchPrintText">معاينة وطباعة البطاقات</span>
         </button>
       </div>
     </div>
@@ -2317,10 +2995,8 @@
           <div class="schoolaris-search-box" style="margin-bottom: 8px; width: 100%;">
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="text" id="payStudentSearch" class="schoolaris-search-input"
-              placeholder="Rechercher par nom, prénom ou matricule..."
-              oninput="app.filterPaymentStudents(this.value)"
-              onkeydown="app.handlePaymentStudentSearchKey(event)"
-              autocomplete="off">
+              placeholder="Rechercher par nom, prénom ou matricule..." oninput="app.filterPaymentStudents(this.value)"
+              onkeydown="app.handlePaymentStudentSearchKey(event)" autocomplete="off">
           </div>
           <select id="payStudentSelect" class="form-control" required onchange="app.onPaymentStudentChange()">
             <option value="">-- Choisir un élève --</option>
@@ -2465,6 +3141,304 @@
     </div>
   </div>
 
+  <!-- Modal: Exporter / Télécharger les Paiements (Multi-Mois) -->
+  <div class="modal-overlay" id="modalExportPayments">
+    <div class="modal-content" style="max-width: 640px;">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <i class="fa-solid fa-file-invoice-dollar" style="color: #10b981; margin-right: 6px;"></i>
+          <span data-i18n="modal_export_title">تحميل وتصدير سجل المدفوعات</span>
+        </h3>
+        <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div style="padding: 6px 0;">
+        <!-- Mode Tabs -->
+        <label class="form-label" style="margin-bottom: 8px; font-weight: 700;">
+          <span data-i18n="lbl_select_period_mode">طريقة تحديد المدفوعات / Période à exporter :</span>
+        </label>
+        <div class="export-mode-pills">
+          <button type="button" class="export-pill active" id="pillModeSingle" onclick="app.setExportMode('single')">
+            <i class="fa-regular fa-calendar"></i>
+            <span data-i18n="opt_single_month">شهر واحد</span>
+          </button>
+          <button type="button" class="export-pill" id="pillModeMulti" onclick="app.setExportMode('multi')">
+            <i class="fa-solid fa-calendar-days"></i>
+            <span data-i18n="opt_multi_months">عدة أشهر</span>
+          </button>
+          <button type="button" class="export-pill" id="pillModeRange" onclick="app.setExportMode('range')">
+            <i class="fa-solid fa-arrows-left-right"></i>
+            <span data-i18n="opt_range_months">مجال زمني</span>
+          </button>
+          <button type="button" class="export-pill" id="pillModeAll" onclick="app.setExportMode('all')">
+            <i class="fa-solid fa-layer-group"></i>
+            <span data-i18n="opt_all_months">جميع الأشهر</span>
+          </button>
+        </div>
+
+        <!-- Mode 1: Single Month View -->
+        <div id="exportSectionSingle" class="form-group">
+          <label class="form-label" data-i18n="lbl_choose_single_month">اختر الشهر المطلوب :</label>
+          <select id="exportSingleMonthSelect" class="form-control"
+            onchange="app.updateExportPaymentsPreview()"></select>
+        </div>
+
+        <!-- Mode 2: Multiple Months Checkboxes -->
+        <div id="exportSectionMulti" class="form-group" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label class="form-label" style="margin: 0;" data-i18n="lbl_choose_multi_months">حدد الأشهر المطلوبة للتصدير
+              :</label>
+            <div style="display: flex; gap: 8px;">
+              <button type="button" class="btn-secondary" style="padding: 3px 10px; font-size: 11px;"
+                onclick="app.toggleAllExportMonths(true)" data-i18n="btn_select_all">تحديد الكل</button>
+              <button type="button" class="btn-secondary" style="padding: 3px 10px; font-size: 11px;"
+                onclick="app.toggleAllExportMonths(false)" data-i18n="btn_deselect_all">إلغاء التحديد</button>
+            </div>
+          </div>
+          <div id="exportMultiMonthsGrid" class="months-checkbox-grid">
+            <!-- Injected via JS -->
+          </div>
+        </div>
+
+        <!-- Mode 3: Month Range -->
+        <div id="exportSectionRange" class="form-row" style="display: none;">
+          <div class="form-group">
+            <label class="form-label" data-i18n="lbl_from_month">من شهر :</label>
+            <select id="exportRangeFromSelect" class="form-control"
+              onchange="app.updateExportPaymentsPreview()"></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="lbl_to_month">إلى شهر :</label>
+            <select id="exportRangeToSelect" class="form-control" onchange="app.updateExportPaymentsPreview()"></select>
+          </div>
+        </div>
+
+        <!-- Mode 4: All Months Info -->
+        <div id="exportSectionAll" class="form-group" style="display: none;">
+          <div
+            style="padding: 12px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 8px; font-size: 13px; color: #93c5fd;">
+            <i class="fa-solid fa-circle-info" style="margin-right: 6px;"></i>
+            <span data-i18n="msg_export_all_hint">سيتم استخراج وتصدير السجل الكامل لجميع عمليات الدفع المسجلة منذ بداية
+              النظام.</span>
+          </div>
+        </div>
+
+        <!-- Optional Filters Row -->
+        <div class="form-row" style="margin-top: 10px;">
+          <div class="form-group">
+            <label class="form-label" data-i18n="lbl_filter_group">تصفية حسب الفوج (اختياري) :</label>
+            <select id="exportGroupSelect" class="form-control" onchange="app.updateExportPaymentsPreview()">
+              <option value="all">كل الأفواج (Tous les groupes)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="lbl_filter_method">وسيلة الدفع (اختياري) :</label>
+            <select id="exportMethodSelect" class="form-control" onchange="app.updateExportPaymentsPreview()">
+              <option value="all">كل الوسائل (Tous)</option>
+              <option value="espece">نقداً / Espèces</option>
+              <option value="baridimob">بريدي موب / BaridiMob / CCP</option>
+              <option value="cheque">شيك / Chèque</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Live Preview Stats Card -->
+        <div class="export-preview-card">
+          <div class="export-preview-item">
+            <span class="export-preview-val" id="exportPreviewCount">0</span>
+            <span class="export-preview-lbl" data-i18n="lbl_count_payments">عدد العمليات</span>
+          </div>
+          <div style="width: 1px; height: 35px; background: rgba(16, 185, 129, 0.2);"></div>
+          <div class="export-preview-item">
+            <span class="export-preview-val" id="exportPreviewStudents">0</span>
+            <span class="export-preview-lbl" data-i18n="lbl_count_students">التلاميذ المعنيون</span>
+          </div>
+          <div style="width: 1px; height: 35px; background: rgba(16, 185, 129, 0.2);"></div>
+          <div class="export-preview-item">
+            <span class="export-preview-val" id="exportPreviewTotal" style="color: #34d399;">0 DA</span>
+            <span class="export-preview-lbl" data-i18n="lbl_total_amount">إجمالي المبالغ</span>
+          </div>
+        </div>
+
+        <!-- Printable Report Area (Hidden on screen, populated dynamically for printing) -->
+        <div id="printablePaymentsReport" class="printable-area" style="display: none;"></div>
+
+        <!-- Modal Footer Actions -->
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+          <button type="button" class="btn-secondary" onclick="app.closeModals()">
+            <span data-i18n="btn_cancel">إلغاء</span>
+          </button>
+          <button type="button" class="btn-primary" onclick="app.executeExportPayments('print')">
+            <i class="fa-solid fa-print"></i>
+            <span data-i18n="btn_print_report">طباعة تقرير PDF</span>
+          </button>
+          <button type="button" class="btn-excel" onclick="app.executeExportPayments('excel')">
+            <i class="fa-solid fa-file-excel"></i>
+            <span data-i18n="btn_download_excel">تحميل ملف Excel (CSV)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Exporter / Télécharger les Mouvements de Caisse (Multi-Mois / Période) -->
+  <div class="modal-overlay" id="modalExportCaisse">
+    <div class="modal-content" style="max-width: 650px;">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <i class="fa-solid fa-cash-register" style="color: #f59e0b; margin-right: 6px;"></i>
+          <span data-i18n="modal_export_caisse_title">تحميل وتصدير سجل الخزينة والصندوق</span>
+        </h3>
+        <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div style="padding: 6px 0;">
+        <!-- Mode Tabs -->
+        <label class="form-label" style="margin-bottom: 8px; font-weight: 700;">
+          <span data-i18n="lbl_select_caisse_period_mode">طريقة تحديد الفترة / Période à exporter :</span>
+        </label>
+        <div class="export-mode-pills">
+          <button type="button" class="export-pill active" id="pillCaisseModeSingle"
+            onclick="app.setExportCaisseMode('single')">
+            <i class="fa-regular fa-calendar"></i>
+            <span data-i18n="opt_single_month">شهر واحد</span>
+          </button>
+          <button type="button" class="export-pill" id="pillCaisseModeMulti" onclick="app.setExportCaisseMode('multi')">
+            <i class="fa-solid fa-calendar-days"></i>
+            <span data-i18n="opt_multi_months">عدة أشهر</span>
+          </button>
+          <button type="button" class="export-pill" id="pillCaisseModeRange" onclick="app.setExportCaisseMode('range')">
+            <i class="fa-solid fa-arrows-left-right"></i>
+            <span data-i18n="opt_range_dates">مجال زمني / تواريخ</span>
+          </button>
+          <button type="button" class="export-pill" id="pillCaisseModeAll" onclick="app.setExportCaisseMode('all')">
+            <i class="fa-solid fa-layer-group"></i>
+            <span data-i18n="opt_all_movements">كامل السجل</span>
+          </button>
+        </div>
+
+        <!-- Mode 1: Single Month View -->
+        <div id="exportCaisseSectionSingle" class="form-group">
+          <label class="form-label" data-i18n="lbl_choose_single_month">اختر الشهر المطلوب :</label>
+          <select id="exportCaisseSingleMonthSelect" class="form-control"
+            onchange="app.updateExportCaissePreview()"></select>
+        </div>
+
+        <!-- Mode 2: Multiple Months Checkboxes -->
+        <div id="exportCaisseSectionMulti" class="form-group" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label class="form-label" style="margin: 0;" data-i18n="lbl_choose_multi_months">حدد الأشهر المطلوبة للتصدير
+              :</label>
+            <div style="display: flex; gap: 8px;">
+              <button type="button" class="btn-secondary" style="padding: 3px 10px; font-size: 11px;"
+                onclick="app.toggleAllExportCaisseMonths(true)" data-i18n="btn_select_all">تحديد الكل</button>
+              <button type="button" class="btn-secondary" style="padding: 3px 10px; font-size: 11px;"
+                onclick="app.toggleAllExportCaisseMonths(false)" data-i18n="btn_deselect_all">إلغاء التحديد</button>
+            </div>
+          </div>
+          <div id="exportCaisseMultiMonthsGrid" class="months-checkbox-grid">
+            <!-- Injected via JS -->
+          </div>
+        </div>
+
+        <!-- Mode 3: Date Range -->
+        <div id="exportCaisseSectionRange" class="form-row" style="display: none;">
+          <div class="form-group">
+            <label class="form-label" data-i18n="lbl_from_date">من تاريخ :</label>
+            <input type="date" id="exportCaisseRangeFromDate" class="form-control"
+              onchange="app.updateExportCaissePreview()">
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="lbl_to_date">إلى تاريخ :</label>
+            <input type="date" id="exportCaisseRangeToDate" class="form-control"
+              onchange="app.updateExportCaissePreview()">
+          </div>
+        </div>
+
+        <!-- Mode 4: All Info -->
+        <div id="exportCaisseSectionAll" class="form-group" style="display: none;">
+          <div
+            style="padding: 12px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 8px; font-size: 13px; color: #fbbf24;">
+            <i class="fa-solid fa-circle-info" style="margin-right: 6px;"></i>
+            <span data-i18n="msg_export_caisse_all_hint">سيتم استخراج وتصدير السجل الكامل لجميع حركات الصندوق والخزينة
+              (مداخيل ومصاريف) المسجلة في النظام.</span>
+          </div>
+        </div>
+
+        <!-- Optional Filters Row: Flux Type, Category, Method -->
+        <div class="form-row" style="margin-top: 10px;">
+          <div class="form-group">
+            <label class="form-label" data-i18n="lbl_filter_caisse_type">نوع الحركة (Flux) :</label>
+            <select id="exportCaisseTypeSelect" class="form-control" onchange="app.updateExportCaissePreview()">
+              <option value="all" data-i18n="opt_all_flux">كل الحركات (المداخيل والمصاريف)</option>
+              <option value="entree" data-i18n="opt_entrees_only">مداخيل فقط / Entrées (+)</option>
+              <option value="sortie" data-i18n="opt_sorties_only">مصاريف فقط / Sorties (-)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="lbl_filter_category">التصنيف (Catégorie) :</label>
+            <select id="exportCaisseCategorySelect" class="form-control" onchange="app.updateExportCaissePreview()">
+              <option value="all" data-i18n="opt_all_categories">كل التصنيفات (Toutes)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="lbl_filter_method">وسيلة الدفع :</label>
+            <select id="exportCaisseMethodSelect" class="form-control" onchange="app.updateExportCaissePreview()">
+              <option value="all" data-i18n="opt_all_methods">كل الوسائل (Tous)</option>
+              <option value="espece">نقداً / Espèces</option>
+              <option value="baridimob">بريدي موب / BaridiMob / CCP</option>
+              <option value="cheque">شيك / Chèque</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Live Preview Stats Card -->
+        <div class="export-preview-card"
+          style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(180, 83, 9, 0.08)); border-color: rgba(245, 158, 11, 0.3);">
+          <div class="export-preview-item">
+            <span class="export-preview-val" id="exportCaissePreviewCount" style="color: #f59e0b;">0</span>
+            <span class="export-preview-lbl" data-i18n="lbl_count_caisse_ops">عدد الحركات</span>
+          </div>
+          <div style="width: 1px; height: 35px; background: rgba(245, 158, 11, 0.2);"></div>
+          <div class="export-preview-item">
+            <span class="export-preview-val" id="exportCaissePreviewIn" style="color: #10b981;">0 DA</span>
+            <span class="export-preview-lbl" data-i18n="lbl_total_entrees">إجمالي المداخيل</span>
+          </div>
+          <div style="width: 1px; height: 35px; background: rgba(245, 158, 11, 0.2);"></div>
+          <div class="export-preview-item">
+            <span class="export-preview-val" id="exportCaissePreviewOut" style="color: #ef4444;">0 DA</span>
+            <span class="export-preview-lbl" data-i18n="lbl_total_sorties">إجمالي المصاريف</span>
+          </div>
+          <div style="width: 1px; height: 35px; background: rgba(245, 158, 11, 0.2);"></div>
+          <div class="export-preview-item">
+            <span class="export-preview-val" id="exportCaissePreviewNet" style="color: #3b82f6;">0 DA</span>
+            <span class="export-preview-lbl" data-i18n="lbl_solde_net">الرصيد الصافي</span>
+          </div>
+        </div>
+
+        <!-- Printable Report Area (Hidden on screen, populated dynamically for printing) -->
+        <div id="printableCaisseReport" class="printable-area" style="display: none;"></div>
+
+        <!-- Modal Footer Actions -->
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+          <button type="button" class="btn-secondary" onclick="app.closeModals()">
+            <span data-i18n="btn_cancel">إلغاء</span>
+          </button>
+          <button type="button" class="btn-primary"
+            style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-color: #d97706;"
+            onclick="app.executeExportCaisse('print')">
+            <i class="fa-solid fa-print"></i>
+            <span data-i18n="btn_print_report">طباعة تقرير PDF</span>
+          </button>
+          <button type="button" class="btn-excel" onclick="app.executeExportCaisse('excel')">
+            <i class="fa-solid fa-file-excel"></i>
+            <span data-i18n="btn_download_excel">تحميل ملف Excel (CSV)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal: Calcul Honoraires Enseignant -->
   <div class="modal-overlay" id="modalTeacherEarnings">
     <div class="modal-content" style="max-width: 550px;">
@@ -2532,7 +3506,8 @@
             <label class="form-label" style="margin-bottom: 0;">Matricule Enseignant</label>
             <span style="font-size: 11px; color: var(--text-muted);">Laissez vide pour génération automatique</span>
           </div>
-          <input type="text" id="teacherMatricule" class="form-control" style="font-family: monospace; font-weight: 700; color: #f97316;" placeholder="Automatique (ex: ENS-004)">
+          <input type="text" id="teacherMatricule" class="form-control"
+            style="font-family: monospace; font-weight: 700; color: #f97316;" placeholder="Automatique (ex: ENS-004)">
         </div>
         <div class="form-row">
           <div class="form-group">
@@ -3370,12 +4345,227 @@
     </div>
   </div>
 
+  <!-- Modal: Wizard d'Inscription en 3 Étapes -->
+  <div class="modal-overlay" id="modalEnrollmentWizard">
+    <div class="modal-content" style="max-width: 780px; width: 95%; max-height: 92vh; display: flex; flex-direction: column; overflow: hidden; border-radius: 16px; border: 1px solid rgba(6, 182, 212, 0.4); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); padding: 0;">
+      
+      <!-- Modal Header -->
+      <div class="modal-header" style="padding: 16px 24px; border-bottom: 1px solid var(--border-color); background: var(--bg-card); display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(6, 182, 212, 0.15); display: flex; align-items: center; justify-content: center; color: #06b6d4; font-size: 18px;">
+            <i class="fa-solid fa-user-plus"></i>
+          </div>
+          <div>
+            <h3 class="modal-title" style="margin: 0; font-size: 16px; font-weight: 700;" data-i18n="wizard_title">تسجيل تلميذ في فوج دراسي</h3>
+            <span style="font-size: 12px; color: var(--text-muted);" data-i18n="wizard_subtitle">خطوات متسلسلة وسهلة لإتمام التسجيل</span>
+          </div>
+        </div>
+        <button class="btn-icon" onclick="app.closeEnrollmentWizard()" title="إغلاق"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <!-- Stepper Indicator -->
+      <div class="wizard-stepper">
+        <div class="wizard-step-item active" id="wizardStepIndicator1" onclick="app.goToEnrollmentStep(1)">
+          <div class="wizard-step-bubble">1</div>
+          <div class="wizard-step-text">
+            <span class="wizard-step-title" data-i18n="wizard_step1_title">1. التلميذ</span>
+            <span class="wizard-step-sub" data-i18n="wizard_step1_sub">اختيار التلميذ</span>
+          </div>
+        </div>
+        <div class="wizard-step-line" id="wizardStepLine1"></div>
+        <div class="wizard-step-item" id="wizardStepIndicator2" onclick="app.goToEnrollmentStep(2)">
+          <div class="wizard-step-bubble">2</div>
+          <div class="wizard-step-text">
+            <span class="wizard-step-title" data-i18n="wizard_step2_title">2. المستوى</span>
+            <span class="wizard-step-sub" data-i18n="wizard_step2_sub">المستوى الدراسي</span>
+          </div>
+        </div>
+        <div class="wizard-step-line" id="wizardStepLine2"></div>
+        <div class="wizard-step-item" id="wizardStepIndicator3" onclick="app.goToEnrollmentStep(3)">
+          <div class="wizard-step-bubble">3</div>
+          <div class="wizard-step-text">
+            <span class="wizard-step-title" data-i18n="wizard_step3_title">3. المادة والفوج</span>
+            <span class="wizard-step-sub" data-i18n="wizard_step3_sub">الفوج والتأكيد</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== STEP 1 PANE: SELECT STUDENT ==================== -->
+      <div class="wizard-step-pane active" id="wizardStepPane1">
+        <div style="margin-bottom: 16px;">
+          <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">
+            <i class="fa-solid fa-user-graduate" style="color: #38bdf8; margin-left: 6px;"></i>
+            <span data-i18n="wizard_pane1_heading">الخطوة الأولى: ابحث عن التلميذ واختره</span>
+          </h4>
+          <p style="font-size: 12px; color: var(--text-muted); margin: 0;" data-i18n="wizard_pane1_desc">
+            اكتب اسم التلميذ، لقبه، رقم القيد (Matricule)، أو رقم الهاتف للاختيار السريع.
+          </p>
+        </div>
+
+        <!-- Search Input with Live Results -->
+        <div class="schoolaris-search-box" style="margin-bottom: 12px; width: 100%; position: relative;">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="wizardStudentSearchInput" class="schoolaris-search-input"
+            placeholder="ابحث باسم التلميذ أو لقبه أو رقمه..."
+            oninput="app.searchWizardStudents(this.value)"
+            autocomplete="off">
+          <button type="button" id="btnClearWizardStudentSearch" onclick="app.clearWizardStudentSearch()"
+            style="display: none; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px;">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <!-- Selected Student Card (Shown once chosen) -->
+        <div id="wizardSelectedStudentCard" class="smart-selected-card" style="display: none; margin-bottom: 14px; border-left: 4px solid #06b6d4;">
+          <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div id="wizardSelectedStudentAvatar" style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #0284c7, #06b6d4); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px; flex-shrink: 0; box-shadow: 0 4px 10px rgba(6, 182, 212, 0.3);">
+                E
+              </div>
+              <div>
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                  <strong id="wizardSelectedStudentName" style="color: var(--text-primary); font-size: 15px;">-</strong>
+                  <span id="wizardSelectedStudentMat" class="badge-pill badge-cyan" style="font-size: 11px;">ELE-XXXX</span>
+                  <span id="wizardSelectedStudentLevel" class="badge-pill badge-blue" style="font-size: 11px;">-</span>
+                </div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+                  <span id="wizardSelectedStudentPhone"><i class="fa-solid fa-phone"></i> -</span>
+                </div>
+              </div>
+            </div>
+            <button type="button" class="smart-change-btn" onclick="app.resetWizardStudentSelection()" title="تغيير التلميذ">
+              <i class="fa-solid fa-rotate-left"></i>
+              <span>تغيير</span>
+            </button>
+          </div>
+          <div id="wizardSelectedStudentGroups" style="margin-top: 10px; font-size: 12px; border-top: 1px dashed rgba(148, 163, 184, 0.2); padding-top: 8px;">
+            <!-- Currently enrolled groups injected here -->
+          </div>
+        </div>
+
+        <!-- Instant Students Results List -->
+        <div id="wizardStudentsResultsList" style="max-height: 280px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-card-subtle); box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
+          <!-- Injected items -->
+        </div>
+      </div>
+
+      <!-- ==================== STEP 2 PANE: SELECT LEVEL ==================== -->
+      <div class="wizard-step-pane" id="wizardStepPane2">
+        <div style="margin-bottom: 16px;">
+          <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">
+            <i class="fa-solid fa-layer-group" style="color: #60a5fa; margin-left: 6px;"></i>
+            <span data-i18n="wizard_pane2_heading">الخطوة الثانية: حدد المستوى الدراسي المطلوب</span>
+          </h4>
+          <p style="font-size: 12px; color: var(--text-muted); margin: 0;" data-i18n="wizard_pane2_desc">
+            اختر المستوى الدراسي لعرض الأفواج المتاحة الخاصة بهذا المستوى فقط.
+          </p>
+        </div>
+
+        <!-- Student summary banner -->
+        <div id="wizardStudentLevelBanner" style="display: flex; align-items: center; justify-content: space-between; background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 8px; padding: 8px 12px; margin-bottom: 14px; font-size: 12px; color: #38bdf8;">
+          <span><i class="fa-solid fa-user-check"></i> <span data-i18n="wizard_selected_student_lbl">التلميذ المختار :</span> <strong id="wizardStep2StudentName">-</strong></span>
+          <span id="wizardStep2StudentOrigLevel" class="badge-pill badge-cyan" style="font-size: 11px;">-</span>
+        </div>
+
+        <!-- Interactive Level Cards Grid -->
+        <div class="level-cards-grid" id="wizardLevelsGrid">
+          <!-- Injected level cards -->
+        </div>
+      </div>
+
+      <!-- ==================== STEP 3 PANE: SELECT SUBJECT & GROUP & CONFIRM ==================== -->
+      <div class="wizard-step-pane" id="wizardStepPane3">
+        <div style="margin-bottom: 14px;">
+          <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">
+            <i class="fa-solid fa-book-open" style="color: #10b981; margin-left: 6px;"></i>
+            <span data-i18n="wizard_pane3_heading">الخطوة الثالثة: اختر المادة والفوج الدراسي وأكد التسجيل</span>
+          </h4>
+          <p style="font-size: 12px; color: var(--text-muted); margin: 0;" data-i18n="wizard_pane3_desc">
+            اختر الفوج المناسب وحدد التخفيض الشهري إن وجد ثم أكد التسجيل.
+          </p>
+        </div>
+
+        <!-- Subject Filter Pills -->
+        <div class="filter-pills-row" id="wizardSubjectFilterPills" style="margin-bottom: 12px;">
+          <!-- Injected subject pills -->
+        </div>
+
+        <!-- Groups Cards Grid -->
+        <div class="group-cards-grid" id="wizardGroupsGrid" style="max-height: 220px; overflow-y: auto; margin-bottom: 16px;">
+          <!-- Injected group cards -->
+        </div>
+
+        <!-- Pricing, Discount & Summary Section -->
+        <div style="background: rgba(15, 23, 42, 0.5); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px 16px; margin-top: 10px;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; align-items: center;">
+            
+            <!-- Registration Date -->
+            <div>
+              <label class="form-label" style="font-size: 12px; font-weight: 600; margin-bottom: 4px;" data-i18n="wizard_lbl_reg_date">تاريخ التسجيل</label>
+              <input type="date" id="wizardRegDate" class="form-control" style="padding: 6px 10px; font-size: 12.5px;">
+            </div>
+
+            <!-- Monthly Discount with Presets -->
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <label class="form-label" style="font-size: 12px; font-weight: 600; margin-bottom: 0;" data-i18n="wizard_lbl_discount">تخفيض شهري (DA)</label>
+                <div style="display: flex; gap: 3px;">
+                  <button type="button" class="discount-preset-btn" onclick="app.setWizardDiscount(0)">0</button>
+                  <button type="button" class="discount-preset-btn" onclick="app.setWizardDiscount(500)">500</button>
+                  <button type="button" class="discount-preset-btn" onclick="app.setWizardDiscount(1000)">1000</button>
+                  <button type="button" class="discount-preset-btn" onclick="app.setWizardDiscount('free')" data-i18n="wizard_lbl_free">مجاني</button>
+                </div>
+              </div>
+              <input type="number" id="wizardDiscountInput" class="form-control" placeholder="0" value="0" min="0" oninput="app.updateWizardCalculations()" style="padding: 6px 10px; font-size: 12.5px;">
+            </div>
+
+            <!-- Net Price Display Box -->
+            <div style="text-align: center; background: rgba(0,0,0,0.25); border-radius: 8px; padding: 8px 12px; border: 1px solid rgba(6, 182, 212, 0.3);">
+              <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;" data-i18n="wizard_lbl_net_price">المبلغ الصافي شهرياً</div>
+              <strong id="wizardNetPrice" style="font-size: 20px; color: #38bdf8; font-weight: 800; display: block; margin-top: 2px;">0 DA</strong>
+              <span id="wizardDiscountNotice" style="font-size: 10.5px; color: #f59e0b; display: none;"></span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== WIZARD FOOTER NAVIGATION ==================== -->
+      <div class="wizard-footer">
+        <div>
+          <button type="button" class="btn-secondary" id="btnWizardPrev" onclick="app.goToPrevEnrollmentStep()" style="display: none; padding: 9px 16px;">
+            <i class="fa-solid fa-arrow-left" style="margin-right: 8px;"></i>
+            <span data-i18n="btn_prev">السابق</span>
+          </button>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn-secondary" id="btnWizardCancel" onclick="app.closeEnrollmentWizard()" style="padding: 9px 14px;">
+            <span data-i18n="btn_cancel">إلغاء</span>
+          </button>
+          <button type="button" class="btn-primary" id="btnWizardNext" onclick="app.goToNextEnrollmentStep()" style="background: linear-gradient(135deg, #0284c7, #06b6d4); font-weight: 700; padding: 9px 18px;">
+            <span>التالي: اختيار المستوى</span>
+            <i class="fa-solid fa-arrow-right" style="margin-left: 8px;"></i>
+          </button>
+          <button type="button" class="btn-primary" id="btnWizardConfirm" onclick="app.confirmWizardEnrollment(false)" style="display: none; background: linear-gradient(135deg, #0284c7, #06b6d4); font-weight: 700; padding: 9px 18px;">
+            <i class="fa-solid fa-check-double" style="margin-left: 6px;"></i>
+            <span data-i18n="wizard_btn_confirm">تأكيد التسجيل</span>
+          </button>
+          <button type="button" class="btn-primary" id="btnWizardConfirmAndPay" onclick="app.confirmWizardEnrollment(true)" style="display: none; background: linear-gradient(135deg, #059669, #10b981); font-weight: 700; padding: 9px 16px;" title="تأكيد التسجيل وفتح وصل الدفع فوراً">
+            <i class="fa-solid fa-cash-register" style="margin-left: 6px;"></i>
+            <span data-i18n="wizard_btn_confirm_pay">تسجيل ودفع فوري</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
   <!-- Hidden Printable Area for Attendance Sheet -->
   <div id="attendancePrintSheet" class="printable-area" style="display: none;"></div>
   <!-- Hidden Printable Area for Attendance Matrix -->
   <div id="attendancePrintMatrix" class="printable-area" style="display: none;"></div>
 
-  <script src="/js/app.js?v=2.4"></script>
+  <script src="/js/app.js?v=3.9"></script>
 </body>
 
 </html>

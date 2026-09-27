@@ -1,1 +1,4 @@
 node_modules/
+EDUMIND_Setup.exe
+*.exe
+bin/

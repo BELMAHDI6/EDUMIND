@@ -8,7 +8,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '20mb' }));
+app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 app.use(express.static(path.join(__dirname, 'public'), {
   etag: false,
   maxAge: 0,
@@ -22,6 +23,89 @@ const uploadDir = path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
+
+// -------------------------------------------------------------
+// SOFTWARE LICENSING & PROTECTION (VELOCE CRAFT)
+// -------------------------------------------------------------
+const LicenseManager = require('./license_manager');
+const licenseMgr = new LicenseManager(DB);
+
+const Updater = require('./updater');
+const updater = new Updater(__dirname);
+
+// Public License Endpoints (Never blocked)
+app.get('/api/license/status', (req, res) => {
+  try {
+    const status = licenseMgr.getStatus();
+    res.json({ success: true, ...status });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/license/activate', (req, res) => {
+  try {
+    const { key } = req.body;
+    const result = licenseMgr.activate(key);
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Cloud Auto-Update Endpoints (Never blocked)
+app.get('/api/updates/check', async (req, res) => {
+  try {
+    let customUrl = null;
+    try {
+      customUrl = DB.queryOne("SELECT value FROM settings WHERE key = 'update_server_url'")?.value;
+    } catch (e) {}
+    const result = await updater.checkForUpdates(customUrl);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/updates/apply', async (req, res) => {
+  try {
+    const { zipUrl } = req.body;
+    const result = await updater.applyUpdate(zipUrl);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/updates/restart', (req, res) => {
+  res.json({ success: true, message: 'Redémarrage en cours...' });
+  setTimeout(() => {
+    process.exit(0);
+  }, 1000);
+});
+
+// API Protection Middleware: Blocks database access if license is expired or invalid
+app.use('/api', (req, res, next) => {
+  if (req.path.startsWith('/license/') || req.path.startsWith('/updates/')) {
+    return next();
+  }
+
+  const status = licenseMgr.getStatus();
+  if (!status.isLicensed) {
+    return res.status(403).json({
+      success: false,
+      code: 'LICENSE_REQUIRED',
+      status: status.status,
+      message: status.message,
+      hwid: status.hwid
+    });
+  }
+
+  next();
+});
 
 function toNullableId(val) {
   if (val === undefined || val === null || val === '') return null;
@@ -69,26 +153,31 @@ app.get('/api/dashboard/stats', (req, res) => {
     const subjectsCount = DB.queryOne("SELECT COUNT(*) as count FROM subjects").count;
     const roomsCount = DB.queryOne("SELECT COUNT(*) as count FROM rooms").count;
 
-    // 7. Revenue Evolution - 12 Months
-    const monthlyEvolution = [];
+    // 7. Revenue Evolution - 12 Months (Single Fast Grouped Query)
     const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
     const now = new Date();
-    
+    const startDate = new Date(now.getFullYear(), now.getMonth() - 11, 1).toISOString().slice(0, 7) + '-01';
+
+    const revenueRows = DB.queryAll(`
+      SELECT strftime('%Y-%m', payment_date) as monthKey,
+             COALESCE(SUM(paid_amount), 0) as total 
+      FROM payments 
+      WHERE payment_date >= ?
+      GROUP BY strftime('%Y-%m', payment_date)
+    `, [startDate]);
+
+    const revenueMap = new Map();
+    revenueRows.forEach(r => revenueMap.set(r.monthKey, Number(r.total || 0)));
+
+    const monthlyEvolution = [];
     for (let i = 11; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const yearMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
       const label = `${monthNames[d.getMonth()]} ${d.getFullYear()}`;
-      
-      const row = DB.queryOne(`
-        SELECT COALESCE(SUM(paid_amount), 0) as total 
-        FROM payments 
-        WHERE strftime('%Y-%m', payment_date) = ?
-      `, [yearMonth]);
-
       monthlyEvolution.push({
         monthKey: yearMonth,
         label: label,
-        amount: row.total
+        amount: revenueMap.get(yearMonth) || 0
       });
     }
 
@@ -102,7 +191,7 @@ app.get('/api/dashboard/stats', (req, res) => {
       JOIN students s ON p.student_id = s.id
       JOIN groups g ON p.group_id = g.id
       JOIN subjects sub ON g.subject_id = sub.id
-      ORDER BY p.payment_date DESC
+      ORDER BY p.payment_date DESC, p.id DESC
       LIMIT 6
     `);
 
@@ -122,10 +211,10 @@ app.get('/api/dashboard/stats', (req, res) => {
           SELECT 1 FROM payments p 
           WHERE p.student_id = e.student_id 
             AND p.group_id = e.group_id 
-            AND strftime('%Y-%m', p.payment_date) = ?
+            AND (p.month_period = ? OR strftime('%Y-%m', p.payment_date) = ?)
         )
       LIMIT 6
-    `, [currentMonthStr]);
+    `, [currentMonthStr, currentMonthStr]);
 
     // 10. Notifications & Alerts
     const alerts = [];
@@ -177,49 +266,61 @@ app.get('/api/dashboard/stats', (req, res) => {
 app.get('/api/students', (req, res) => {
   try {
     const { search, level_id, status, payment_status } = req.query;
-    let sql = `
-      SELECT s.*, 
-             COALESCE(l.name, '-') as level_name,
-             (SELECT COUNT(*) FROM enrollments WHERE student_id = s.id AND status = 'active') as active_groups_count,
-             COALESCE((
-               SELECT SUM(g.price_monthly - e.discount_amount)
-               FROM enrollments e
-               JOIN groups g ON e.group_id = g.id
-               WHERE e.student_id = s.id AND e.status = 'active'
-             ), 0) as total_billed,
-             COALESCE((
-               SELECT SUM(paid_amount)
-               FROM payments
-               WHERE student_id = s.id
-             ), 0) as total_paid
-      FROM students s
-      LEFT JOIN levels l ON s.level_id = l.id
-      WHERE 1=1
-    `;
+
+    const whereClauses = [];
     const params = [];
 
     // Filter by Active Status
     if (status === 'inactive') {
-      sql += ` AND s.active = 0`;
+      whereClauses.push('s.active = 0');
     } else if (status === 'all') {
       // no filter
     } else {
-      // Default: active only
-      sql += ` AND s.active = 1`;
+      whereClauses.push('s.active = 1');
     }
 
-    if (search) {
-      sql += ` AND (s.first_name LIKE ? OR s.last_name LIKE ? OR s.matricule LIKE ? OR s.phone LIKE ? OR s.parent_phone LIKE ?)`;
-      const term = `%${search}%`;
-      params.push(term, term, term, term, term);
+    if (search && search.trim()) {
+      whereClauses.push("(s.first_name LIKE ? OR s.last_name LIKE ? OR (s.last_name || ' ' || s.first_name) LIKE ? OR s.matricule LIKE ? OR s.phone LIKE ? OR s.parent_phone LIKE ?)");
+      const term = `%${search.trim()}%`;
+      params.push(term, term, term, term, term, term);
     }
 
     if (level_id) {
-      sql += ` AND s.level_id = ?`;
+      whereClauses.push('s.level_id = ?');
       params.push(level_id);
     }
 
-    sql += ` ORDER BY s.id DESC`;
+    const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
+    const sql = `
+      WITH student_enr AS (
+        SELECT e.student_id,
+               COUNT(*) as active_groups_count,
+               COALESCE(SUM(g.price_monthly - e.discount_amount), 0) as total_billed
+        FROM enrollments e
+        JOIN groups g ON e.group_id = g.id
+        WHERE e.status = 'active'
+        GROUP BY e.student_id
+      ),
+      student_pay AS (
+        SELECT student_id,
+               COALESCE(SUM(paid_amount), 0) as total_paid
+        FROM payments
+        GROUP BY student_id
+      )
+      SELECT s.*,
+             COALESCE(l.name, '-') as level_name,
+             COALESCE(se.active_groups_count, 0) as active_groups_count,
+             COALESCE(se.total_billed, 0) as total_billed,
+             COALESCE(sp.total_paid, 0) as total_paid
+      FROM students s
+      LEFT JOIN levels l ON s.level_id = l.id
+      LEFT JOIN student_enr se ON s.id = se.student_id
+      LEFT JOIN student_pay sp ON s.id = sp.student_id
+      ${whereSql}
+      ORDER BY s.id DESC
+    `;
+
     let students = DB.queryAll(sql, params);
 
     // Calculate remaining and payment status for each student
@@ -746,6 +847,60 @@ app.put('/api/groups/:id', (req, res) => {
   }
 });
 
+app.get('/api/enrollments', (req, res) => {
+  try {
+    const { search, group_id, status, school_year } = req.query;
+    let sql = `
+      SELECT 
+        e.id, e.student_id, e.group_id, e.school_year, e.registration_date, e.discount_amount, e.status,
+        s.first_name, s.last_name, s.matricule, s.phone, s.photo_url, s.level_id,
+        l.name as level_name,
+        g.name as group_name, g.price_monthly,
+        sub.name as subject_name,
+        TRIM(COALESCE(t.first_name, '') || ' ' || COALESCE(t.last_name, '')) as teacher_name
+      FROM enrollments e
+      JOIN students s ON e.student_id = s.id
+      JOIN groups g ON e.group_id = g.id
+      LEFT JOIN levels l ON s.level_id = l.id
+      LEFT JOIN subjects sub ON g.subject_id = sub.id
+      LEFT JOIN teachers t ON g.teacher_id = t.id
+      WHERE 1=1
+    `;
+    const params = [];
+    if (status && status !== 'all') {
+      sql += ` AND e.status = ?`;
+      params.push(status);
+    }
+    if (group_id && group_id !== 'all') {
+      sql += ` AND e.group_id = ?`;
+      params.push(group_id);
+    }
+    if (school_year && school_year !== 'all') {
+      sql += ` AND e.school_year = ?`;
+      params.push(school_year);
+    }
+    if (search && search.trim()) {
+      const term = `%${search.trim()}%`;
+      sql += ` AND (
+        s.first_name LIKE ? OR 
+        s.last_name LIKE ? OR 
+        s.matricule LIKE ? OR 
+        s.phone LIKE ? OR 
+        g.name LIKE ? OR 
+        sub.name LIKE ? OR 
+        t.first_name LIKE ? OR 
+        t.last_name LIKE ?
+      )`;
+      params.push(term, term, term, term, term, term, term, term);
+    }
+    sql += ` ORDER BY e.id DESC`;
+    const rows = DB.queryAll(sql, params);
+    res.json({ success: true, enrollments: rows });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 app.post('/api/enrollments', (req, res) => {
   try {
     const { student_id, group_id, school_year, discount_amount } = req.body;
@@ -771,8 +926,23 @@ app.post('/api/enrollments', (req, res) => {
 app.delete('/api/enrollments/:id', (req, res) => {
   try {
     const { id } = req.params;
+    const { permanent } = req.query;
+    if (permanent === 'true' || permanent === '1') {
+      DB.run("DELETE FROM enrollments WHERE id = ?", [id]);
+      return res.json({ success: true, message: 'Inscription supprimée définitivement' });
+    }
     DB.run("UPDATE enrollments SET status = 'cancelled' WHERE id = ?", [id]);
     res.json({ success: true, message: 'Inscription annulée avec succès' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.patch('/api/enrollments/:id/reactivate', (req, res) => {
+  try {
+    const { id } = req.params;
+    DB.run("UPDATE enrollments SET status = 'active' WHERE id = ?", [id]);
+    res.json({ success: true, message: 'Inscription réactivée avec succès' });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -781,24 +951,83 @@ app.delete('/api/enrollments/:id', (req, res) => {
 // -------------------------------------------------------------
 // 4. PAYMENTS & RECEIPTS API
 // -------------------------------------------------------------
+app.get('/api/payments/months', (req, res) => {
+  try {
+    const rows = DB.queryAll(`
+      SELECT month_period, COUNT(*) as count, COALESCE(SUM(paid_amount), 0) as total_amount
+      FROM payments
+      GROUP BY month_period
+      ORDER BY month_period DESC
+    `);
+    res.json({ success: true, months: rows });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 app.get('/api/payments', (req, res) => {
   try {
-    const { search } = req.query;
+    const { search, month, months, from_month, to_month, group_id, method, all, limit } = req.query;
     let sql = `
-      SELECT p.*, s.first_name || ' ' || s.last_name as student_name, s.matricule,
-             g.name as group_name, sub.name as subject_name
+      SELECT p.*, s.first_name || ' ' || s.last_name as student_name, s.matricule, s.phone as student_phone, s.parent_phone,
+             g.name as group_name, sub.name as subject_name,
+             t.first_name || ' ' || t.last_name as teacher_name
       FROM payments p
       JOIN students s ON p.student_id = s.id
       JOIN groups g ON p.group_id = g.id
       JOIN subjects sub ON g.subject_id = sub.id
+      LEFT JOIN teachers t ON g.teacher_id = t.id
     `;
+    const conditions = [];
     const params = [];
+
     if (search && search.trim()) {
-      sql += ` WHERE (s.first_name LIKE ? OR s.last_name LIKE ? OR (s.first_name || ' ' || s.last_name) LIKE ? OR s.matricule LIKE ? OR p.receipt_no LIKE ? OR g.name LIKE ? OR sub.name LIKE ?)`;
+      conditions.push(`(s.first_name LIKE ? OR s.last_name LIKE ? OR (s.first_name || ' ' || s.last_name) LIKE ? OR s.matricule LIKE ? OR p.receipt_no LIKE ? OR g.name LIKE ? OR sub.name LIKE ?)`);
       const term = `%${search.trim()}%`;
       params.push(term, term, term, term, term, term, term);
     }
-    sql += ` ORDER BY p.id DESC LIMIT 150`;
+
+    if (month && month.trim() && month !== 'all') {
+      conditions.push(`p.month_period = ?`);
+      params.push(month.trim());
+    } else if (months && months.trim()) {
+      const monthList = months.split(',').map(m => m.trim()).filter(Boolean);
+      if (monthList.length > 0) {
+        const placeholders = monthList.map(() => '?').join(',');
+        conditions.push(`p.month_period IN (${placeholders})`);
+        params.push(...monthList);
+      }
+    } else if (from_month || to_month) {
+      if (from_month && from_month.trim()) {
+        conditions.push(`p.month_period >= ?`);
+        params.push(from_month.trim());
+      }
+      if (to_month && to_month.trim()) {
+        conditions.push(`p.month_period <= ?`);
+        params.push(to_month.trim());
+      }
+    }
+
+    if (group_id && group_id !== 'all') {
+      conditions.push(`p.group_id = ?`);
+      params.push(Number(group_id));
+    }
+
+    if (method && method !== 'all') {
+      conditions.push(`p.payment_method = ?`);
+      params.push(method.trim());
+    }
+
+    if (conditions.length > 0) {
+      sql += ` WHERE ` + conditions.join(' AND ');
+    }
+
+    sql += ` ORDER BY p.payment_date DESC, p.id DESC`;
+    if (!all || all === 'false' || all === '0') {
+      const maxLimit = Number(limit) || 300;
+      sql += ` LIMIT ${maxLimit}`;
+    }
+
     const payments = DB.queryAll(sql, params);
     res.json({ success: true, payments });
   } catch (err) {
@@ -1952,10 +2181,30 @@ app.get('/api/caisse/summary', (req, res) => {
   }
 });
 
+// Caisse available months summary for export and reporting
+app.get('/api/caisse/months', (req, res) => {
+  try {
+    const rows = DB.queryAll(`
+      SELECT strftime('%Y-%m', movement_date) as month_period,
+             COUNT(*) as count,
+             COALESCE(SUM(CASE WHEN type = 'entree' THEN amount ELSE 0 END), 0) as total_entrees,
+             COALESCE(SUM(CASE WHEN type = 'sortie' THEN amount ELSE 0 END), 0) as total_sorties,
+             COALESCE(SUM(CASE WHEN type = 'entree' THEN amount ELSE -amount END), 0) as solde_net
+      FROM caisse
+      WHERE movement_date IS NOT NULL AND movement_date != ''
+      GROUP BY strftime('%Y-%m', movement_date)
+      ORDER BY month_period DESC
+    `);
+    res.json({ success: true, months: rows });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // Caisse full movements log with filters
 app.get('/api/caisse/movements', (req, res) => {
   try {
-    const { type, category, from, to, search, limit } = req.query;
+    const { type, category, from, to, month, months, from_month, to_month, method, search, all, limit } = req.query;
     let sql = `
       SELECT c.*,
              COALESCE(s.first_name || ' ' || s.last_name, t.first_name || ' ' || t.last_name, c.user_name) as person_name
@@ -1976,6 +2225,10 @@ app.get('/api/caisse/movements', (req, res) => {
       sql += ` AND c.category = ?`;
       params.push(category);
     }
+    if (method && method !== 'all') {
+      sql += ` AND c.payment_method = ?`;
+      params.push(method);
+    }
     if (from) {
       sql += ` AND c.movement_date >= ?`;
       params.push(from);
@@ -1984,14 +2237,37 @@ app.get('/api/caisse/movements', (req, res) => {
       sql += ` AND c.movement_date <= ?`;
       params.push(to);
     }
-    if (search) {
-      sql += ` AND (c.title LIKE ? OR c.reference LIKE ? OR c.category LIKE ?)`;
-      const s = `%${search}%`;
-      params.push(s, s, s);
+    if (month && month.trim()) {
+      sql += ` AND strftime('%Y-%m', c.movement_date) = ?`;
+      params.push(month.trim());
+    } else if (months && months.trim()) {
+      const monthList = months.split(',').map(m => m.trim()).filter(Boolean);
+      if (monthList.length > 0) {
+        const placeholders = monthList.map(() => '?').join(',');
+        sql += ` AND strftime('%Y-%m', c.movement_date) IN (${placeholders})`;
+        params.push(...monthList);
+      }
+    } else if (from_month || to_month) {
+      if (from_month && from_month.trim()) {
+        sql += ` AND strftime('%Y-%m', c.movement_date) >= ?`;
+        params.push(from_month.trim());
+      }
+      if (to_month && to_month.trim()) {
+        sql += ` AND strftime('%Y-%m', c.movement_date) <= ?`;
+        params.push(to_month.trim());
+      }
+    }
+    if (search && search.trim()) {
+      sql += ` AND (c.title LIKE ? OR c.reference LIKE ? OR c.category LIKE ? OR s.first_name LIKE ? OR s.last_name LIKE ? OR t.first_name LIKE ? OR t.last_name LIKE ? OR c.user_name LIKE ?)`;
+      const s = `%${search.trim()}%`;
+      params.push(s, s, s, s, s, s, s, s);
     }
 
-    sql += ` ORDER BY c.movement_date DESC, c.id DESC LIMIT ?`;
-    params.push(parseInt(limit) || 100);
+    sql += ` ORDER BY c.movement_date DESC, c.movement_time DESC, c.id DESC`;
+    if (!all || all === 'false' || all === '0') {
+      sql += ` LIMIT ?`;
+      params.push(parseInt(limit) || 100);
+    }
 
     const movements = DB.queryAll(sql, params);
     res.json({ success: true, movements });
@@ -2356,12 +2632,12 @@ app.get('/api/backup/download', (req, res) => {
         }
       });
     } else {
-      const dbFile = path.join(__dirname, 'edumind.sqlite');
+      const dbFile = DB.getDatabasePath();
       res.download(dbFile, `EDUMIND_Backup_${dateStr}.sqlite`);
     }
   } catch (err) {
     console.error('Erreur téléchargement backup:', err);
-    const dbFile = path.join(__dirname, 'edumind.sqlite');
+    const dbFile = DB.getDatabasePath();
     if (fs.existsSync(dbFile)) {
       res.download(dbFile, `EDUMIND_Backup_${dateStr}.sqlite`);
     } else {
@@ -2373,7 +2649,7 @@ app.get('/api/backup/download', (req, res) => {
 // List existing daily backups in the archives
 app.get('/api/backup/list', (req, res) => {
   try {
-    const backupDir = path.join(__dirname, 'backups');
+    const backupDir = DB.getBackupDirectory();
     if (!fs.existsSync(backupDir)) {
       return res.json({ success: true, backups: [] });
     }
@@ -2400,7 +2676,7 @@ app.get('/api/backup/list', (req, res) => {
 // Download a specific archive backup file
 app.get('/api/backup/download-archive/:filename', (req, res) => {
   const fileName = path.basename(req.params.filename);
-  const filePath = path.join(__dirname, 'backups', fileName);
+  const filePath = path.join(DB.getBackupDirectory(), fileName);
   if (fs.existsSync(filePath) && fileName.startsWith('edumind_backup_') && fileName.endsWith('.sqlite')) {
     res.download(filePath, fileName);
   } else {
@@ -2422,12 +2698,128 @@ app.post('/api/backup/now', (req, res) => {
   }
 });
 
+// Restore SQLite Database from uploaded file
+app.post('/api/backup/restore', express.raw({ type: ['application/octet-stream', 'application/x-sqlite3', 'application/vnd.sqlite3', '*/*'], limit: '250mb' }), (req, res) => {
+  try {
+    const buffer = req.body;
+    if (!buffer || !Buffer.isBuffer(buffer) || buffer.length < 100) {
+      return res.status(400).json({ success: false, error: 'Fichier vide ou invalide.' });
+    }
+
+    const header = buffer.subarray(0, 16).toString('utf8');
+    if (!header.startsWith('SQLite format 3')) {
+      return res.status(400).json({ success: false, error: 'Le fichier fourni n\'est pas une base de données SQLite valide.' });
+    }
+
+    const tempPath = path.join(os.tmpdir(), `temp_restore_${Date.now()}.sqlite`);
+    fs.writeFileSync(tempPath, buffer);
+
+    if (typeof DB.restoreDatabase === 'function') {
+      const result = DB.restoreDatabase(tempPath);
+      if (result.success) {
+        res.json({ success: true, message: 'Base de données restaurée avec succès' });
+      } else {
+        res.status(500).json({ success: false, error: result.error || 'Erreur lors de la restauration' });
+      }
+    } else {
+      res.status(500).json({ success: false, error: 'Module de restauration non disponible' });
+    }
+  } catch (err) {
+    console.error('Erreur restauration SQLite:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Restore SQLite Database from an existing archive file in backups/
+app.post('/api/backup/restore-archive/:filename', (req, res) => {
+  try {
+    const fileName = path.basename(req.params.filename);
+    const filePath = path.join(DB.getBackupDirectory(), fileName);
+    if (!fs.existsSync(filePath) || !fileName.endsWith('.sqlite')) {
+      return res.status(404).json({ success: false, error: 'Fichier d\'archive non trouvé' });
+    }
+
+    const tempCopy = path.join(os.tmpdir(), `temp_restore_arch_${Date.now()}.sqlite`);
+    fs.copyFileSync(filePath, tempCopy);
+
+    const result = DB.restoreDatabase(tempCopy);
+    if (result.success) {
+      res.json({ success: true, message: 'Base de données restaurée depuis l\'archive avec succès' });
+    } else {
+      res.status(500).json({ success: false, error: result.error });
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Universal PDF File Downloader (guarantees correct filename and MIME type across all browsers & OS)
+app.post('/api/download-pdf', (req, res) => {
+  try {
+    const { filename, base64 } = req.body;
+    if (!base64) {
+      return res.status(400).send('Données de fichier manquantes');
+    }
+    const commaIdx = base64.indexOf(',');
+    const cleanBase64 = commaIdx !== -1 ? base64.slice(commaIdx + 1) : base64;
+    const buffer = Buffer.from(cleanBase64.trim(), 'base64');
+    let safeFilename = (filename || 'Carte_Scolaire.pdf').trim();
+    if (!safeFilename.toLowerCase().endsWith('.pdf')) {
+      safeFilename += '.pdf';
+    }
+    const asciiFilename = safeFilename.replace(/[^a-zA-Z0-9_\-\.]/g, '_');
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${asciiFilename}"`);
+    res.setHeader('Content-Length', buffer.length);
+    res.send(buffer);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
 // Serve frontend for all client routes
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Start Server
-app.listen(PORT, () => {
-  console.log(`🚀 EDUMIND Server listening on http://localhost:${PORT}`);
-});
+// Server Lifecycle Management
+let serverInstance = null;
+
+function startServer(port = PORT) {
+  return new Promise((resolve, reject) => {
+    if (serverInstance && serverInstance.listening) {
+      return resolve({ server: serverInstance, port });
+    }
+    serverInstance = app.listen(port, () => {
+      console.log(`🚀 EDUMIND Server listening on http://localhost:${port}`);
+      resolve({ server: serverInstance, port });
+    });
+    serverInstance.on('error', (err) => {
+      reject(err);
+    });
+  });
+}
+
+function stopServer() {
+  return new Promise((resolve) => {
+    if (serverInstance) {
+      serverInstance.close(() => {
+        console.log('🛑 EDUMIND Server stopped');
+        serverInstance = null;
+        resolve();
+      });
+    } else {
+      resolve();
+    }
+  });
+}
+
+if (require.main === module) {
+  startServer(PORT).catch((err) => {
+    console.error('❌ Failed to start EDUMIND Server:', err.message);
+  });
+}
+
+module.exports = { app, startServer, stopServer, DB, PORT };
+
