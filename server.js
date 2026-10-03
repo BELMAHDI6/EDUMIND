@@ -11,6 +11,13 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ extended: true, limit: '20mb' }));
+app.use('/api', (req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  next();
+});
+
 app.use(express.static(path.join(__dirname, 'public'), {
   etag: false,
   maxAge: 0,
@@ -3392,7 +3399,7 @@ app.get('/api/teachers', (req, res) => {
     const currentMonth = month || new Date().toISOString().slice(0, 7);
 
     let sql = `
-      SELECT t.*, sub.name as subject_name,
+      SELECT t.*, (t.first_name || ' ' || t.last_name) as name, sub.name as subject_name,
              (SELECT COUNT(*) FROM groups WHERE teacher_id = t.id AND active = 1) as groups_count
       FROM teachers t
       LEFT JOIN subjects sub ON t.subject_id = sub.id
@@ -3454,8 +3461,8 @@ app.post('/api/teachers', (req, res) => {
       }
 
       const result = DB.run(`
-        INSERT INTO teachers (matricule, first_name, last_name, phone, email, subject_id, remuneration_type, remuneration_rate, tarif_heure, tarif_seance, salaire_fixe, tarif_par_eleve)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO teachers (matricule, first_name, last_name, phone, email, subject_id, remuneration_type, remuneration_rate, tarif_heure, tarif_seance, salaire_fixe, tarif_par_eleve, active)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
       `, [
         matricule, first_name.trim(), last_name.trim(), phone || null, email || null, validSubId,
         remuneration_type || 'percent', parseFloat(remuneration_rate) || 50.0,

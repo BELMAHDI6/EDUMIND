@@ -10400,14 +10400,24 @@ class EdumindApp {
   }
 
   async saveCaisseMovement() {
+    const isAr = this.lang === 'ar';
     try {
-      const type = document.getElementById('caisseMovType').value;
-      const title = document.getElementById('caisseMovTitle').value;
-      const category = document.getElementById('caisseMovCategory').value;
-      const amount = document.getElementById('caisseMovAmount').value;
-      const payment_method = document.getElementById('caisseMovMethod').value;
-      const movement_date = document.getElementById('caisseMovDate').value;
-      const reference = document.getElementById('caisseMovRef').value;
+      const type = document.getElementById('caisseMovType')?.value || 'sortie';
+      const title = document.getElementById('caisseMovTitle')?.value?.trim();
+      const category = document.getElementById('caisseMovCategory')?.value;
+      const amount = parseFloat(document.getElementById('caisseMovAmount')?.value);
+      const payment_method = document.getElementById('caisseMovMethod')?.value || 'espece';
+      const movement_date = document.getElementById('caisseMovDate')?.value || '';
+      const reference = document.getElementById('caisseMovRef')?.value?.trim() || '';
+
+      if (!title) {
+        this.showToast(isAr ? 'يرجى إدخال بيان أو وصف العملية' : 'Veuillez saisir le motif du mouvement', 'warning');
+        return;
+      }
+      if (!amount || amount <= 0) {
+        this.showToast(isAr ? 'يرجى إدخال مبلغ صحيح أكبر من الصفر' : 'Veuillez saisir un montant valide supérieur à 0', 'warning');
+        return;
+      }
 
       const res = await fetch('/api/caisse/add', {
         method: 'POST',
@@ -10416,27 +10426,45 @@ class EdumindApp {
       });
       const data = await res.json();
       if (!data.success) {
-        alert(data.error || 'Erreur lors de l’enregistrement');
+        this.showToast(data.error || (isAr ? 'حدث خطأ أثناء الحفظ' : 'Erreur lors de l’enregistrement'), 'error');
         return;
       }
       this.closeModals();
-      this.loadCaisse();
+      const form = document.getElementById('caisseMovementForm');
+      if (form) form.reset();
+
+      // Reset filters so the newly added movement is immediately visible
+      const fType = document.getElementById('caisseFilterType');
+      if (fType) fType.value = 'all';
+      const fCat = document.getElementById('caisseFilterCategory');
+      if (fCat) fCat.value = 'all';
+      const fSearch = document.getElementById('caisseFilterSearch');
+      if (fSearch) fSearch.value = '';
+
+      this.playChime('success');
+      this.showToast(isAr ? 'تم تسجيل حركة الصندوق بنجاح!' : 'Mouvement de caisse enregistré avec succès !', 'success');
+      await this.loadCaisse();
+      if (this.loadDashboardData) await this.loadDashboardData();
     } catch (e) {
       console.error(e);
-      alert('Erreur réseau');
+      this.showToast(isAr ? 'خطأ في الاتصال بالخادم' : 'Erreur réseau ou serveur', 'error');
     }
   }
 
   async deleteCaisseMovement(id) {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce mouvement de caisse ?')) return;
+    const isAr = this.lang === 'ar';
+    if (!confirm(isAr ? 'هل أنت متأكد من رغبتك في حذف حركة الصندوق هذه؟' : 'Êtes-vous sûr de vouloir supprimer ce mouvement de caisse ?')) return;
     try {
       const res = await fetch(`/api/caisse/${id}`, { method: 'DELETE' });
       const data = await res.json();
       if (data.success) {
-        this.loadCaisse();
+        this.showToast(isAr ? 'تم حذف حركة الصندوق' : 'Mouvement supprimé', 'info');
+        await this.loadCaisse();
+        if (this.loadDashboardData) await this.loadDashboardData();
       }
     } catch (e) {
       console.error(e);
+      this.showToast(isAr ? 'خطأ في الاتصال بالخادم' : 'Erreur réseau ou serveur', 'error');
     }
   }
 
@@ -10445,10 +10473,16 @@ class EdumindApp {
   }
 
   async saveExpense() {
+    const isAr = this.lang === 'ar';
     try {
-      const title = document.getElementById('expenseTitle')?.value || 'Dépense générale';
-      const category = document.getElementById('expenseCategory')?.value || 'Autre dépense';
-      const amount = document.getElementById('expenseAmount')?.value || 0;
+      const title = document.getElementById('expenseTitle')?.value?.trim() || (isAr ? 'مصروف عام' : 'Dépense générale');
+      const category = document.getElementById('expenseCategory')?.value || (isAr ? 'مصاريف أخرى' : 'Autre dépense');
+      const amount = parseFloat(document.getElementById('expenseAmount')?.value);
+
+      if (!amount || amount <= 0) {
+        this.showToast(isAr ? 'يرجى إدخال مبلغ صحيح' : 'Veuillez saisir un montant valide', 'warning');
+        return;
+      }
 
       const res = await fetch('/api/caisse/add', {
         method: 'POST',
@@ -10464,15 +10498,17 @@ class EdumindApp {
       });
       const data = await res.json();
       if (!data.success) {
-        alert(data.error || 'Erreur lors de l’enregistrement');
+        this.showToast(data.error || (isAr ? 'حدث خطأ أثناء الحفظ' : 'Erreur lors de l’enregistrement'), 'error');
         return;
       }
       this.closeModals();
-      this.loadCaisse();
-      this.loadDashboardData();
+      this.playChime('success');
+      this.showToast(isAr ? 'تم تسجيل المصروف بنجاح!' : 'Dépense enregistrée avec succès !', 'success');
+      await this.loadCaisse();
+      if (this.loadDashboardData) await this.loadDashboardData();
     } catch (e) {
       console.error(e);
-      alert('Erreur réseau');
+      this.showToast(isAr ? 'خطأ في الاتصال بالخادم' : 'Erreur réseau ou serveur', 'error');
     }
   }
 
@@ -11031,9 +11067,9 @@ class EdumindApp {
   populatePlanningFilters() {
     const teacherSelect = document.getElementById('filterPlanningTeacher');
     if (teacherSelect && this.teachers) {
-      const current = teacherSelect.value;
-      teacherSelect.innerHTML = `<option value="">Tous les enseignants</option>` +
-        this.teachers.map(t => `<option value="${t.id}">${this.escapeHtml(t.name)}</option>`).join('');
+      const isAr = this.lang === 'ar';
+      teacherSelect.innerHTML = `<option value="">${isAr ? 'جميع الأساتذة' : 'Tous les enseignants'}</option>` +
+        this.teachers.map(t => `<option value="${t.id}">${this.escapeHtml(t.name || `${t.first_name || ''} ${t.last_name || ''}`.trim())}</option>`).join('');
       teacherSelect.value = current;
     }
 
@@ -12297,10 +12333,14 @@ class EdumindApp {
         this.closeModals();
         const form = document.getElementById('teacherForm');
         if (form) form.reset();
-        document.getElementById('teacherId').value = '';
+        const idField = document.getElementById('teacherId');
+        if (idField) idField.value = '';
+        const searchInput = document.getElementById('searchTeacherInput');
+        if (searchInput) searchInput.value = '';
+
         this.playChime('success');
         this.showToast(isAr ? 'تم حفظ بيانات الأستاذ بنجاح!' : 'Enseignant enregistré avec succès !', 'success');
-        this.loadTeachers();
+        await this.loadTeachers();
       } else {
         this.showToast(data.error || (isAr ? 'حدث خطأ أثناء الحفظ' : 'Erreur lors de l’enregistrement'), 'error');
       }
@@ -12322,15 +12362,20 @@ class EdumindApp {
   }
 
   async deleteTeacher(id) {
-    if (!confirm('Voulez-vous vraiment désactiver cet enseignant ?')) return;
+    const isAr = this.lang === 'ar';
+    if (!confirm(isAr ? 'هل أنت متأكد من رغبتك في حذف أو إلغاء تفعيل هذا الأستاذ؟' : 'Voulez-vous vraiment désactiver cet enseignant ?')) return;
     try {
       const res = await fetch(`/api/teachers/${id}`, { method: 'DELETE' });
       const data = await res.json();
       if (data.success) {
-        this.loadTeachers();
+        this.showToast(isAr ? 'تم إلغاء تفعيل الأستاذ بنجاح' : 'Enseignant désactivé avec succès', 'info');
+        await this.loadTeachers();
+      } else {
+        this.showToast(data.error || (isAr ? 'حدث خطأ أثناء الحذف' : 'Erreur lors de la suppression'), 'error');
       }
     } catch (e) {
       console.error(e);
+      this.showToast(isAr ? 'خطأ في الاتصال بالخادم' : 'Erreur réseau ou serveur', 'error');
     }
   }
 
@@ -12698,9 +12743,10 @@ class EdumindApp {
     const subSelect = document.getElementById('groupSubject');
     subSelect.innerHTML = this.subjects.map(s => `<option value="${s.id}">${this.escapeHtml(s.name)}</option>`).join('');
 
+    const isAr = this.lang === 'ar';
     const tchSelect = document.getElementById('groupTeacher');
-    tchSelect.innerHTML = '<option value="">-- Choisir un enseignant --</option>' +
-      this.teachers.map(t => `<option value="${t.id}">${this.escapeHtml(t.first_name)} ${this.escapeHtml(t.last_name)}</option>`).join('');
+    tchSelect.innerHTML = `<option value="">${isAr ? '-- اختر الأستاذ --' : '-- Choisir un enseignant --'}</option>` +
+      this.teachers.map(t => `<option value="${t.id}">${this.escapeHtml(t.name || `${t.first_name || ''} ${t.last_name || ''}`.trim())}</option>`).join('');
 
     const rmSelect = document.getElementById('groupRoom');
     rmSelect.innerHTML = '<option value="">-- Choisir une salle --</option>' +
@@ -12736,9 +12782,10 @@ class EdumindApp {
     const subSelect = document.getElementById('groupSubject');
     subSelect.innerHTML = this.subjects.map(s => `<option value="${s.id}" ${s.id == g.subject_id ? 'selected' : ''}>${this.escapeHtml(s.name)}</option>`).join('');
 
+    const isAr = this.lang === 'ar';
     const tchSelect = document.getElementById('groupTeacher');
-    tchSelect.innerHTML = '<option value="">-- Choisir un enseignant --</option>' +
-      this.teachers.map(t => `<option value="${t.id}" ${t.id == g.teacher_id ? 'selected' : ''}>${this.escapeHtml(t.first_name)} ${this.escapeHtml(t.last_name)}</option>`).join('');
+    tchSelect.innerHTML = `<option value="">${isAr ? '-- اختر الأستاذ --' : '-- Choisir un enseignant --'}</option>` +
+      this.teachers.map(t => `<option value="${t.id}" ${t.id == g.teacher_id ? 'selected' : ''}>${this.escapeHtml(t.name || `${t.first_name || ''} ${t.last_name || ''}`.trim())}</option>`).join('');
 
     const rmSelect = document.getElementById('groupRoom');
     rmSelect.innerHTML = '<option value="">-- Choisir une salle --</option>' +
