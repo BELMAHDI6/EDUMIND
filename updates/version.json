@@ -1,7 +1,7 @@
 {
-  "version": "1.0.6",
+  "version": "1.0.7",
   "releaseDate": "2026-10-03",
-  "zipUrl": "https://raw.githubusercontent.com/BELMAHDI6/EDUMIND/main/updates/edumind_patch_v1.0.6.zip",
-  "notes": "Résolution définitive du blocage multi-postes, transactions atomiques et corrections de tableaux et thèmes",
-  "notes_ar": "Résolution définitive du blocage multi-postes, transactions atomiques et corrections de tableaux et thèmes"
+  "zipUrl": "https://raw.githubusercontent.com/BELMAHDI6/EDUMIND/main/updates/edumind_patch_v1.0.7.zip",
+  "notes": "Correction du bouton d'inscription d'élèves dans les groupes et optimisation du système",
+  "notes_ar": "Correction du bouton d'inscription d'élèves dans les groupes et optimisation du système"
 }
