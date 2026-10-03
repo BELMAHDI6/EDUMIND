@@ -66,9 +66,20 @@ async function ensureServerRunning() {
   }
 
   logMsg(`[EDUMIND Electron] Démarrage du serveur interne sur le port ${activePort}...`);
-  const serverScript = path.join(__dirname, 'server.js');
+  
+  // Resolve base directory (handles unpacked or asar environments)
+  let appRootDir = __dirname;
+  if (__dirname.includes('app.asar')) {
+    const unpackedDir = path.join(process.resourcesPath, 'app');
+    if (fs.existsSync(unpackedDir)) {
+      appRootDir = unpackedDir;
+    }
+  }
+
+  const serverScript = path.join(appRootDir, 'server.js');
 
   const nodeCandidates = [
+    path.join(appRootDir, 'bin', 'node.exe'),
     path.join(__dirname, 'bin', 'node.exe'),
     'C:\\Program Files\\node.exe',
     'C:\\Program Files\\nodejs\\node.exe',
@@ -76,9 +87,14 @@ async function ensureServerRunning() {
   ];
   const nodeExe = nodeCandidates.find(p => p === 'node' || fs.existsSync(p)) || 'node';
   logMsg(`[EDUMIND Electron] Exécutable Node détecté : ${nodeExe}`);
+  logMsg(`[EDUMIND Electron] Script serveur cible : ${serverScript}`);
+
+  let serverStderr = '';
+  let serverExitedEarly = false;
+  let exitCode = null;
 
   serverProcess = spawn(nodeExe, [serverScript], {
-    cwd: __dirname,
+    cwd: appRootDir,
     env: { ...process.env, PORT: String(activePort) },
     stdio: ['ignore', 'pipe', 'pipe'],
     windowsHide: true
@@ -91,20 +107,32 @@ async function ensureServerRunning() {
 
   serverProcess.stderr.on('data', (chunk) => {
     const msg = chunk.toString().trim();
-    if (msg) logMsg(`[EDUMIND Serveur Erreur] ${msg}`);
+    if (msg) {
+      serverStderr += (serverStderr ? '\n' : '') + msg;
+      logMsg(`[EDUMIND Serveur Erreur] ${msg}`);
+    }
   });
 
   serverProcess.on('exit', (code, signal) => {
-    logMsg(`[EDUMIND Serveur] Processus arrêté (code: ${code}, signal: ${signal})`);
+    serverExitedEarly = true;
+    exitCode = code;
+    logMsg(`[EDUMIND Serveur] Processus arrêté prématurément (code: ${code}, signal: ${signal})`);
     serverProcess = null;
   });
 
-  const ready = await waitForServer(activePort);
-  if (!ready) {
-    throw new Error('Le serveur EDUMIND n\'a pas répondu dans le délai imparti (10s).');
+  for (let i = 0; i < 40; i++) {
+    if (serverExitedEarly) {
+      throw new Error(`Le processus Node du serveur s'est arrêté inopinément (Code: ${exitCode}).\n${serverStderr || 'Aucun détail dans stderr.'}`);
+    }
+    const ready = await isServerReady(activePort);
+    if (ready) {
+      logMsg(`[EDUMIND Electron] Serveur prêt et opérationnel sur http://127.0.0.1:${activePort}`);
+      return activePort;
+    }
+    await new Promise((r) => setTimeout(r, 250));
   }
-  logMsg(`[EDUMIND Electron] Serveur prêt et opérationnel sur http://127.0.0.1:${activePort}`);
-  return activePort;
+
+  throw new Error('Le serveur EDUMIND n\'a pas répondu dans le délai imparti (10s).' + (serverStderr ? `\nErreur serveur:\n${serverStderr}` : ''));
 }
 
 /**

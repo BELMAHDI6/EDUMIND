@@ -23,21 +23,61 @@ async function main() {
     throw new Error('installer.cs introuvable : ' + installerCs);
   }
 
-  console.log('1. Nettoyage préventif des fichiers inutiles dans resources/app :');
+  // Ensure running app instances are closed to avoid locked files during compression
+  try {
+    execSync('taskkill /f /im EDUMIND.exe >nul 2>&1 || exit 0', { shell: 'cmd.exe' });
+  } catch (e) {}
+
+  // 1. Purge any invalid app.asar in resources
+  const resourcesDir = path.join(installedDir, 'resources');
+  if (fs.existsSync(resourcesDir)) {
+    for (const f of fs.readdirSync(resourcesDir)) {
+      if (f.startsWith('app.asar') || f === 'elevate.exe') {
+        const fullPath = path.join(resourcesDir, f);
+        try {
+          if (fs.statSync(fullPath).isDirectory()) {
+            fs.rmSync(fullPath, { recursive: true, force: true });
+          } else {
+            fs.unlinkSync(fullPath);
+          }
+          console.log('   Supprimé artefact non compatible :', f);
+        } catch(e){}
+      }
+    }
+  }
+
+  console.log('1. Synchronisation du code source le plus récent vers resources/app :');
   const appDir = path.join(installedDir, 'resources', 'app');
+  if (!fs.existsSync(appDir)) {
+    fs.mkdirSync(appDir, { recursive: true });
+  }
+
+  // Files & folders to synchronize from project root to installed app
+  const syncItems = [
+    'server.js', 'database.js', 'main.js', 'package.json',
+    'updater.js', 'license_manager.js', 'generate-license.js', 'get-hwid.js',
+    'public', 'updates'
+  ];
+
+  for (const item of syncItems) {
+    const src = path.join(projectDir, item);
+    const dst = path.join(appDir, item);
+    if (fs.existsSync(src)) {
+      if (fs.statSync(src).isDirectory()) {
+        fs.cpSync(src, dst, { recursive: true, force: true });
+      } else {
+        fs.copyFileSync(src, dst);
+      }
+      console.log(`   Synchronisé : ${item}`);
+    }
+  }
+
+  console.log('\n2. Nettoyage préventif des fichiers temporaires dans resources/app :');
   if (fs.existsSync(appDir)) {
     const junkPatterns = ['.zip', 'EDUMIND_Setup', 'desktop_debug.log', 'electron_out.log', '.shm', '.wal'];
     for (const f of fs.readdirSync(appDir)) {
       if (junkPatterns.some(p => f.includes(p))) {
-        try { fs.unlinkSync(path.join(appDir, f)); console.log('   Supprimé :', f); } catch(e){}
-      }
-    }
-    const updDir = path.join(appDir, 'updates');
-    if (fs.existsSync(updDir)) {
-      for (const f of fs.readdirSync(updDir)) {
-        if (f.endsWith('.zip')) {
-          try { fs.unlinkSync(path.join(updDir, f)); console.log('   Supprimé archive patch :', f); } catch(e){}
-        }
+        try { fs.unlinkSync(path.join(appDir, f)); console.log('   Supprimé junk :', f); } catch(e){}
       }
     }
   }

@@ -431,7 +431,10 @@ const i18n = {
     tab_facturation: "Facturation & Échéances",
     tab_caisse: "Catégories de Caisse",
     tab_donnees: "Sauvegardes & Restauration",
+    tab_reseau: "Réseau & Multi-Postes",
     tab_administration: "Administration & Année",
+    tab_apropos: "À propos & Support",
+    network_panel_title: "Réseau Local & Connexion Multi-Postes (LAN)",
     th_enseignant: "ENSEIGNANT",
     lbl_filter_category: "Catégorie :",
     batch_selected_text: "élève(s) sélectionné(s)",
@@ -885,7 +888,10 @@ const i18n = {
     tab_facturation: "الفوترة ومواعيد الاستحقاق",
     tab_caisse: "تصنيفات الصندوق",
     tab_donnees: "النسخ الاحتياطي والاسترجاع",
+    tab_reseau: "الشبكة والربط المتعدد",
     tab_administration: "الإدارة والسنة الدراسية",
+    tab_apropos: "حول البرنامج والدعم",
+    network_panel_title: "الشبكة المحلية والربط متعدد الأجهزة (LAN)",
     th_enseignant: "الأستاذ",
     lbl_filter_category: "التصنيف :",
     batch_selected_text: "تلميذ محدد",
@@ -14531,7 +14537,7 @@ class EdumindApp {
 
   async loadSettingsInputs() {
     await this.loadSettings();
-    this.loadNetworkInfo();
+    this.checkLicenseStatus();
 
     // 1. Établissement
     const schoolNameInput = document.getElementById('settingSchoolName');
