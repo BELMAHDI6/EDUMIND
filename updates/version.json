@@ -1,7 +1,7 @@
 {
-  "version": "1.0.7",
+  "version": "1.0.8",
   "releaseDate": "2026-10-03",
-  "zipUrl": "https://raw.githubusercontent.com/BELMAHDI6/EDUMIND/main/updates/edumind_patch_v1.0.7.zip",
-  "notes": "Optimisation du système d'inscription aux groupes et enregistrement direct",
-  "notes_ar": "Optimisation du système d'inscription aux groupes et enregistrement direct"
+  "zipUrl": "https://raw.githubusercontent.com/BELMAHDI6/EDUMIND/main/updates/edumind_patch_v1.0.8.zip",
+  "notes": "Mise à jour v1.0.8 : Optimisation complète des inscriptions et stabilité générale",
+  "notes_ar": "Mise à jour v1.0.8 : Optimisation complète des inscriptions et stabilité générale"
 }
