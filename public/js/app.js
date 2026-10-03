@@ -7988,6 +7988,9 @@ class EdumindApp {
   }
 
   async savePayment() {
+    const submitBtn = document.querySelector('#paymentForm button[type="submit"]');
+    if (submitBtn && submitBtn.disabled) return;
+
     const studentId = document.getElementById('payStudentSelect').value;
     const groupId = document.getElementById('payGroupSelect').value;
     const paidAmount = document.getElementById('payAmount').value;
@@ -7997,34 +8000,50 @@ class EdumindApp {
       return;
     }
 
-    const payload = {
-      student_id: studentId,
-      group_id: groupId,
-      month_period: document.getElementById('payMonthPeriod').value,
-      paid_amount: paidAmount,
-      discount: document.getElementById('payDiscount').value,
-      payment_method: document.getElementById('payMethod').value
-    };
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.dataset.origHtml = submitBtn.innerHTML;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enregistrement...';
+    }
 
-    const res = await fetch('/api/payments', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+    try {
+      const payload = {
+        student_id: studentId,
+        group_id: groupId,
+        month_period: document.getElementById('payMonthPeriod').value,
+        paid_amount: paidAmount,
+        discount: document.getElementById('payDiscount').value,
+        payment_method: document.getElementById('payMethod').value
+      };
 
-    const data = await res.json();
-    if (data.success) {
-      this.closeModals();
-      this.loadPayments();
-      this.loadDashboardData();
-      this.loadCaisse();
+      const res = await fetch('/api/payments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
 
-      // Show and print official receipt directly!
-      if (data.payment) {
-        this.renderReceipt(data.payment);
+      const data = await res.json();
+      if (data.success) {
+        this.closeModals();
+        this.loadPayments();
+        this.loadDashboardData();
+        this.loadCaisse();
+
+        // Show and print official receipt directly!
+        if (data.payment) {
+          this.renderReceipt(data.payment);
+        }
+      } else {
+        alert(data.error || 'Erreur lors de l’enregistrement du paiement');
       }
-    } else {
-      alert(data.error || 'Erreur lors de l’enregistrement du paiement');
+    } catch (err) {
+      console.error(err);
+      alert('Erreur réseau lors de l’enregistrement du paiement.');
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        if (submitBtn.dataset.origHtml) submitBtn.innerHTML = submitBtn.dataset.origHtml;
+      }
     }
   }
 

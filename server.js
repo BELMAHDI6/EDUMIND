@@ -1743,6 +1743,35 @@ app.get('/api/payments/:id', (req, res) => {
   }
 });
 
+// Bulletproof, Collision-Free Receipt Number Generator
+function generateUniqueReceiptNo(prefix = 'REC') {
+  const year = new Date().getFullYear();
+  const rows = DB.queryAll(
+    'SELECT receipt_no FROM payments WHERE receipt_no LIKE ? OR receipt_no LIKE ?',
+    [`${prefix}-${year}-%`, `REC-${year}-%`]
+  );
+  let maxSeq = 0;
+  for (const r of rows) {
+    if (!r.receipt_no) continue;
+    const parts = r.receipt_no.split('-');
+    for (const p of parts) {
+      const n = parseInt(p, 10);
+      if (!isNaN(n) && n !== year && n > maxSeq) {
+        maxSeq = n;
+      }
+    }
+  }
+  const maxIdRow = DB.queryOne('SELECT MAX(id) as max_id FROM payments');
+  const baseline = Math.max(maxSeq, Number(maxIdRow?.max_id || 0));
+  let nextSeq = baseline + 1;
+  let candidate = `${prefix}-${year}-${String(nextSeq).padStart(5, '0')}`;
+  while (DB.queryOne('SELECT id FROM payments WHERE receipt_no = ? OR receipt_no LIKE ?', [candidate, `${candidate}-%`])) {
+    nextSeq++;
+    candidate = `${prefix}-${year}-${String(nextSeq).padStart(5, '0')}`;
+  }
+  return candidate;
+}
+
 app.post('/api/payments', (req, res) => {
   try {
     const { student_id, group_id, month_period, paid_amount, discount, payment_method, notes } = req.body;
@@ -1755,15 +1784,27 @@ app.post('/api/payments', (req, res) => {
       const paid = parseFloat(paid_amount) || 0;
       const remaining = Math.max(0, (baseAmount - disc) - paid);
 
-      // Auto receipt number based on max existing id + 1 to avoid race condition collisions
-      const lastPay = DB.queryOne("SELECT MAX(id) as max_id FROM payments");
-      const nextSeq = (lastPay?.max_id || 0) + 1;
-      const receipt_no = `REC-${new Date().getFullYear()}-${String(nextSeq).padStart(5, '0')}`;
+      // Auto receipt number based on collision-free unique generator
+      let receipt_no = generateUniqueReceiptNo('REC');
 
-      const result = DB.run(`
-        INSERT INTO payments (receipt_no, student_id, group_id, month_period, base_amount, discount, paid_amount, remaining_amount, payment_method, notes)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `, [receipt_no, student_id, group_id, month_period, baseAmount, disc, paid, remaining, payment_method || 'espece', notes]);
+      let result;
+      let attempts = 0;
+      while (attempts < 5) {
+        try {
+          result = DB.run(`
+            INSERT INTO payments (receipt_no, student_id, group_id, month_period, base_amount, discount, paid_amount, remaining_amount, payment_method, notes)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `, [receipt_no, student_id, group_id, month_period, baseAmount, disc, paid, remaining, payment_method || 'espece', notes]);
+          break;
+        } catch (insertErr) {
+          if (insertErr.message && (insertErr.message.includes('receipt_no') || insertErr.message.includes('UNIQUE'))) {
+            attempts++;
+            receipt_no = generateUniqueReceiptNo('REC');
+            continue;
+          }
+          throw insertErr;
+        }
+      }
 
       const newPayment = DB.queryOne(`
         SELECT p.*, s.first_name, s.last_name, s.matricule, s.phone as student_phone, s.parent_phone,
@@ -1883,15 +1924,13 @@ app.post('/api/payments/multi', (req, res) => {
     const nowP = new Date();
     const curTime = nowP.toTimeString().split(' ')[0];
 
-    // Generate unified receipt number
-    const lastPay = DB.queryOne("SELECT id FROM payments ORDER BY id DESC LIMIT 1");
-    const nextSeq = (lastPay ? Number(lastPay.id) : 0) + 1;
-    const receipt_no = `REC-${new Date().getFullYear()}-${String(nextSeq).padStart(5, '0')}`;
+    DB.exec('BEGIN IMMEDIATE;');
+
+    // Generate unified receipt number inside transaction lock
+    const receipt_no = generateUniqueReceiptNo('REC');
 
     let totalPaid = 0;
     const createdPayments = [];
-
-    DB.exec('BEGIN IMMEDIATE;');
 
     try {
       let itemIdx = 0;
@@ -1908,22 +1947,38 @@ app.post('/api/payments/multi', (req, res) => {
 
         const rowReceiptNo = items.length > 1 ? `${receipt_no}-${itemIdx}` : receipt_no;
 
-        const resRun = DB.run(`
-          INSERT INTO payments (receipt_no, student_id, group_id, month_period, base_amount, discount, paid_amount, remaining_amount, payment_method, payment_date, notes)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [
-          rowReceiptNo,
-          student_id,
-          groupId,
-          monthPeriod,
-          baseAmount,
-          discount,
-          paidAmount,
-          remainingAmount,
-          payment_method,
-          payDate,
-          notes
-        ]);
+        let resRun;
+        let attempts = 0;
+        let actualRowReceiptNo = rowReceiptNo;
+        while (attempts < 5) {
+          try {
+            resRun = DB.run(`
+              INSERT INTO payments (receipt_no, student_id, group_id, month_period, base_amount, discount, paid_amount, remaining_amount, payment_method, payment_date, notes)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `, [
+              actualRowReceiptNo,
+              student_id,
+              groupId,
+              monthPeriod,
+              baseAmount,
+              discount,
+              paidAmount,
+              remainingAmount,
+              payment_method,
+              payDate,
+              notes
+            ]);
+            break;
+          } catch (rErr) {
+            if (rErr.message && (rErr.message.includes('receipt_no') || rErr.message.includes('UNIQUE'))) {
+              attempts++;
+              const fallbackReceipt = generateUniqueReceiptNo('REC');
+              actualRowReceiptNo = items.length > 1 ? `${fallbackReceipt}-${itemIdx}` : fallbackReceipt;
+              continue;
+            }
+            throw rErr;
+          }
+        }
 
         totalPaid += paidAmount;
 
@@ -1999,10 +2054,10 @@ app.post('/api/payments/family', (req, res) => {
     }
     const resolvedParentName = (parent && parent.full_name) || parent_name || 'Parent d\'élève';
 
-    // Generate unified family receipt number
-    const lastPay = DB.queryOne("SELECT id FROM payments ORDER BY id DESC LIMIT 1");
-    const nextSeq = (lastPay ? Number(lastPay.id) : 0) + 1;
-    const receipt_no = `REC-FAM-${new Date().getFullYear()}-${String(nextSeq).padStart(5, '0')}`;
+    DB.exec('BEGIN IMMEDIATE;');
+
+    // Generate unified family receipt number inside transaction lock
+    const receipt_no = generateUniqueReceiptNo('REC-FAM');
 
     let totalPaid = 0;
     let totalBase = 0;
@@ -2011,8 +2066,6 @@ app.post('/api/payments/family', (req, res) => {
     let totalRemaining = 0;
     const createdPayments = [];
     const childrenIds = new Set();
-
-    DB.exec('BEGIN IMMEDIATE;');
 
     try {
       let itemIdx = 0;
@@ -2034,22 +2087,38 @@ app.post('/api/payments/family', (req, res) => {
 
         const rowReceiptNo = items.length > 1 ? `${receipt_no}-${itemIdx}` : receipt_no;
 
-        const resRun = DB.run(`
-          INSERT INTO payments (receipt_no, student_id, group_id, month_period, base_amount, discount, paid_amount, remaining_amount, payment_method, payment_date, notes)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [
-          rowReceiptNo,
-          studentId,
-          groupId,
-          monthPeriod,
-          baseAmount,
-          discount,
-          paidAmount,
-          remainingAmount,
-          payment_method,
-          payDate,
-          notes ? `[Paiement Famille: ${resolvedParentName}] ${notes}` : `[Paiement Famille: ${resolvedParentName}]`
-        ]);
+        let resRun;
+        let attempts = 0;
+        let actualRowReceiptNo = rowReceiptNo;
+        while (attempts < 5) {
+          try {
+            resRun = DB.run(`
+              INSERT INTO payments (receipt_no, student_id, group_id, month_period, base_amount, discount, paid_amount, remaining_amount, payment_method, payment_date, notes)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `, [
+              actualRowReceiptNo,
+              studentId,
+              groupId,
+              monthPeriod,
+              baseAmount,
+              discount,
+              paidAmount,
+              remainingAmount,
+              payment_method,
+              payDate,
+              notes ? `[Paiement Famille: ${resolvedParentName}] ${notes}` : `[Paiement Famille: ${resolvedParentName}]`
+            ]);
+            break;
+          } catch (rErr) {
+            if (rErr.message && (rErr.message.includes('receipt_no') || rErr.message.includes('UNIQUE'))) {
+              attempts++;
+              const fallbackReceipt = generateUniqueReceiptNo('REC-FAM');
+              actualRowReceiptNo = items.length > 1 ? `${fallbackReceipt}-${itemIdx}` : fallbackReceipt;
+              continue;
+            }
+            throw rErr;
+          }
+        }
 
         totalPaid += paidAmount;
         totalBase += baseAmount;

@@ -1,7 +1,7 @@
 {
-  "version": "1.0.8",
+  "version": "1.0.9",
   "releaseDate": "2026-10-03",
-  "zipUrl": "https://raw.githubusercontent.com/BELMAHDI6/EDUMIND/main/updates/edumind_patch_v1.0.8.zip",
-  "notes": "Mise à jour v1.0.8 : Optimisation complète des inscriptions et stabilité générale",
-  "notes_ar": "Mise à jour v1.0.8 : Optimisation complète des inscriptions et stabilité générale"
+  "zipUrl": "https://raw.githubusercontent.com/BELMAHDI6/EDUMIND/main/updates/edumind_patch_v1.0.9.zip",
+  "notes": "Résolution définitive du conflit de numéro de reçu (UNIQUE constraint failed: payments.receipt_no)",
+  "notes_ar": "Résolution définitive du conflit de numéro de reçu (UNIQUE constraint failed: payments.receipt_no)"
 }
