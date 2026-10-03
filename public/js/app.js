@@ -11539,16 +11539,10 @@ class EdumindApp {
     }
   }
 
-  quickEnrollFromGroupModal() {
+  async quickEnrollFromGroupModal() {
     const groupId = this.currentSelectedGroupId;
     this.closeModals();
-    this.switchView('inscriptions');
-    setTimeout(() => {
-      const select = document.getElementById('enrollGroupSelect');
-      if (select && groupId) {
-        select.value = groupId;
-      }
-    }, 150);
+    await this.openEnrollmentWizard(null, groupId);
   }
 
   // -------------------------------------------------------------
@@ -12870,7 +12864,18 @@ class EdumindApp {
 
   // ==================== 3-STEP ENROLLMENT WIZARD ====================
 
-  openEnrollmentWizard(preselectedStudentId = null) {
+  async openEnrollmentWizard(preselectedStudentId = null, preselectedGroupId = null) {
+    // Ensure core dependencies are loaded if called from elsewhere
+    if (!this.students || this.students.length === 0 || !this.groups || this.groups.length === 0 || !this.inscriptionsList) {
+      await Promise.all([
+        (!this.students || this.students.length === 0) ? this.loadStudents() : Promise.resolve(),
+        (!this.groups || this.groups.length === 0) ? this.loadGroups() : Promise.resolve(),
+        (!this.levels || this.levels.length === 0) && this.loadLevels ? this.loadLevels() : Promise.resolve(),
+        (!this.subjects || this.subjects.length === 0) && this.loadSubjects ? this.loadSubjects() : Promise.resolve(),
+        (!this.inscriptionsList) ? this.loadInscriptionsList() : Promise.resolve()
+      ]);
+    }
+
     // Initialize wizard state
     this.enrollWizard = {
       step: 1,
@@ -12878,8 +12883,19 @@ class EdumindApp {
       selectedLevelId: null,
       selectedSubjectId: 'all',
       selectedGroup: null,
-      discount: 0
+      discount: 0,
+      preselectedGroupId: preselectedGroupId || null
     };
+
+    // If preselectedGroupId is provided, find and preselect group and its level
+    if (preselectedGroupId && this.groups) {
+      const targetGroup = this.groups.find(g => String(g.id) === String(preselectedGroupId));
+      if (targetGroup) {
+        this.enrollWizard.selectedGroup = targetGroup;
+        this.enrollWizard.selectedLevelId = targetGroup.level_id || null;
+        if (targetGroup.subject_id) this.enrollWizard.selectedSubjectId = targetGroup.subject_id;
+      }
+    }
 
     // Reset date to today
     const dateInput = document.getElementById('wizardRegDate');
@@ -12900,7 +12916,11 @@ class EdumindApp {
 
     if (preselectedStudentId) {
       this.selectWizardStudent(preselectedStudentId);
-      this.goToEnrollmentStep(2);
+      if (preselectedGroupId) {
+        this.goToEnrollmentStep(3);
+      } else {
+        this.goToEnrollmentStep(2);
+      }
     } else {
       this.resetWizardStudentSelection();
       this.goToEnrollmentStep(1);
@@ -13133,8 +13153,8 @@ class EdumindApp {
     if (!student) return;
 
     this.enrollWizard.selectedStudent = student;
-    // Auto-suggest student's level
-    if (student.level_id) {
+    // Auto-suggest student's level only if not already pre-set by selected group
+    if (!this.enrollWizard.selectedGroup && student.level_id) {
       this.enrollWizard.selectedLevelId = student.level_id;
     }
 
@@ -13195,9 +13215,13 @@ class EdumindApp {
       }
     }
 
-    // UX Improvement: Auto-advance to Step 2 (Level Selection) smoothly
+    // UX Improvement: Auto-advance to Step 2 (Level Selection) or directly to Step 3 if group is already selected
     setTimeout(() => {
-      this.goToEnrollmentStep(2);
+      if (this.enrollWizard.selectedGroup) {
+        this.goToEnrollmentStep(3);
+      } else {
+        this.goToEnrollmentStep(2);
+      }
     }, 150);
   }
 
@@ -13474,6 +13498,11 @@ class EdumindApp {
         this.playChime('success');
         this.closeEnrollmentWizard();
         await this.loadInscriptionsList();
+
+        if (this.currentView === 'groupes' && this.currentSelectedGroupId) {
+          if (typeof this.loadGroups === 'function') await this.loadGroups();
+          if (typeof this.showGroupStudentsModal === 'function') this.showGroupStudentsModal(this.currentSelectedGroupId);
+        }
 
         if (andPay) {
           alert(isAr ? 'تم تسجيل التلميذ بنجاح! جاري فتح نافذة استلام الدفع والوصل...' : 'Inscription réussie ! Ouverture du reçu de paiement...');

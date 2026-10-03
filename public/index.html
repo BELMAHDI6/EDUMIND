@@ -4659,11 +4659,11 @@
         </table>
       </div>
       <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
-        <button type="button" class="btn-primary" onclick="app.quickEnrollFromGroupModal()" style="font-size: 13px;">
+        <button type="button" class="btn-primary" id="btnGroupModalEnrollStudent" onclick="app.quickEnrollFromGroupModal()" style="font-size: 13px;">
           <i class="fa-solid fa-user-plus"></i>
-          <span>Inscrire un élève</span>
+          <span data-i18n="btn_new_enrollment">Inscrire un élève</span>
         </button>
-        <button type="button" class="btn-secondary" onclick="app.closeModals()">Fermer</button>
+        <button type="button" class="btn-secondary" onclick="app.closeModals()" data-i18n="btn_close">Fermer</button>
       </div>
     </div>
   </div>
