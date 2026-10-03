@@ -6,6 +6,7 @@ bin/
 # Large files & temp
 temp_app.zip
 *.zip
+!updates/*.zip
 temp_*/
 
 # Database files (never push - contains client data)

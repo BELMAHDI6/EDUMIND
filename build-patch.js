@@ -139,7 +139,7 @@ async function main() {
   const versionJsonPath = path.join(UPDATES_DIR, 'version.json');
   const releaseDate = new Date().toISOString().split('T')[0];
   const repoName = 'BELMAHDI6/EDUMIND';
-  const zipUrl = `https://github.com/${repoName}/releases/download/v${newVer}/${zipFileName}`;
+  const zipUrl = `https://raw.githubusercontent.com/${repoName}/main/updates/${zipFileName}`;
 
   const manifest = {
     version: newVer,

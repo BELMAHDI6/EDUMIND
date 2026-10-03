@@ -85,7 +85,14 @@ class Updater {
    * Downloads a file from a URL to a local destination path
    */
   async downloadFile(url, destPath) {
-    const res = await fetch(url);
+    let res = await fetch(url);
+    if (!res.ok && url.includes('releases/download/')) {
+      const fallbackUrl = url.replace(/https:\/\/github\.com\/([^/]+\/[^/]+)\/releases\/download\/v[^/]+\/([^/]+)/, 'https://raw.githubusercontent.com/$1/main/updates/$2');
+      if (fallbackUrl !== url) {
+        console.log(`[Auto-Updater] Tentative de secours via : ${fallbackUrl}`);
+        res = await fetch(fallbackUrl);
+      }
+    }
     if (!res.ok) {
       throw new Error(`Échec du téléchargement (HTTP ${res.status})`);
     }
