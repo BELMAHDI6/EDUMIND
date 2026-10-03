@@ -396,8 +396,8 @@ const i18n = {
     th_statut_col: "STATUT",
     import_btn_confirm: "Confirmer et enregistrer l'importation",
     import_btn_executing: "Importation en cours...",
-    btn_bulk_enrollment: "Inscription groupée (Multi-élèves & Groupes)",
-    bulk_enroll_title: "Inscription groupée (Multi-élèves & Groupes)",
+    btn_bulk_enrollment: "Inscription dans les groupes (Multi-inscriptions)",
+    bulk_enroll_title: "Inscription dans les Groupes (Multi-inscriptions)",
     bulk_enroll_subtitle: "Sélectionnez les élèves et les groupes cibles pour les inscrire en un seul clic",
     bulk_panel_students: "1. Sélection des élèves",
     bulk_select_all_students: "Tout sélectionner",
@@ -853,8 +853,8 @@ const i18n = {
     th_statut_col: "الحالة",
     import_btn_confirm: "تأكيد وحفظ الاستيراد",
     import_btn_executing: "جاري الاستيراد والحفظ...",
-    btn_bulk_enrollment: "تسجيل جماعي (عدة تلاميذ / أفواج)",
-    bulk_enroll_title: "تسجيل جماعي (عدة تلاميذ في عدة أفواج)",
+    btn_bulk_enrollment: "تسجيل في الأفواج (تسجيل متعدد)",
+    bulk_enroll_title: "تسجيل التلاميذ في الأفواج (تسجيل متعدد)",
     bulk_enroll_subtitle: "اختر قائمة التلاميذ والأفواج المطلوبة بضغطة زر لإتمام التسجيل دفعة واحدة",
     bulk_panel_students: "1. اختيار التلاميذ",
     bulk_select_all_students: "تحديد كل الظاهرين",
@@ -14079,7 +14079,7 @@ class EdumindApp {
   // INSCRIPTION GROUPÉE (MULTI-ÉLÈVES & MULTI-GROUPES)
   // ===========================================================================
 
-  async openBulkEnrollmentModal() {
+  async openBulkEnrollmentModal(preselectedGroupId = null) {
     const isAr = this.lang === 'ar';
     try {
       // Ensure all master data is loaded
@@ -14147,6 +14147,13 @@ class EdumindApp {
       // Reset selection state
       this._bulkSelectedStudentIds = new Set();
       this._bulkSelectedGroupIds = new Set();
+      if (preselectedGroupId) {
+        this._bulkSelectedGroupIds.add(Number(preselectedGroupId));
+        const targetGrp = (this.groups || []).find(g => String(g.id) === String(preselectedGroupId));
+        if (targetGrp && targetGrp.level_id && lvlGroupFilter) {
+          lvlGroupFilter.value = String(targetGrp.level_id);
+        }
+      }
 
       // Render both panels
       this.renderBulkStudentsList();
@@ -14446,10 +14453,27 @@ class EdumindApp {
     if (elT) elT.textContent = `${totalCombinations} ${isAr ? 'تسجيل' : 'inscription(s)'}`;
 
     const btn = document.getElementById('btnConfirmBulkEnrollment');
+    const btnText = document.getElementById('btnConfirmBulkEnrollText');
     if (btn) {
       btn.disabled = totalCombinations === 0;
       btn.style.opacity = totalCombinations > 0 ? '1' : '0.5';
       btn.style.cursor = totalCombinations > 0 ? 'pointer' : 'not-allowed';
+      if (totalCombinations > 0) {
+        btn.style.background = 'linear-gradient(135deg, #0284c7, #06b6d4)';
+        btn.style.boxShadow = '0 4px 15px rgba(6, 182, 212, 0.4)';
+      } else {
+        btn.style.background = 'linear-gradient(135deg, #7c3aed, #6366f1)';
+        btn.style.boxShadow = 'none';
+      }
+    }
+    if (btnText) {
+      if (totalCombinations === 1) {
+        btnText.textContent = isAr ? 'تأكيد تسجيل التلميذ في الفوج' : "Confirmer l'inscription de l'élève";
+      } else if (totalCombinations > 1) {
+        btnText.textContent = isAr ? `تأكيد ${totalCombinations} تسجيلات في الأفواج` : `Confirmer les ${totalCombinations} inscriptions`;
+      } else {
+        btnText.textContent = isAr ? 'تأكيد التسجيل في الأفواج' : 'Confirmer les inscriptions';
+      }
     }
   }
 
@@ -14513,6 +14537,10 @@ class EdumindApp {
         this.showToast(msg, 'success');
         this.closeModals();
         await this.loadInscriptionsList();
+        if (this.currentView === 'groupes' && this.currentSelectedGroupId) {
+          if (typeof this.loadGroups === 'function') await this.loadGroups();
+          if (typeof this.showGroupStudentsModal === 'function') this.showGroupStudentsModal(this.currentSelectedGroupId);
+        }
       } else {
         this.playChime('error');
         this.showToast(data.error || (isAr ? 'حدث خطأ أثناء تنفيذ التسجيل الجماعي' : 'Erreur lors de l’inscription groupée'), 'error');
