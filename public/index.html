@@ -13,6 +13,8 @@
   <script src="/js/JsBarcode.all.min.js"></script>
   <!-- html2pdf for Client-Side PDF Generation (Local & Offline) -->
   <script src="/js/html2pdf.bundle.min.js"></script>
+  <!-- SheetJS for Excel & Algerian Rakmana Import/Export (Local & Offline) -->
+  <script src="/js/xlsx.full.min.js"></script>
   <!-- QRCode.js for QR Generation -->
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <!-- FontAwesome Icons -->
@@ -312,6 +314,10 @@
         <span class="nav-icon icon-eleves"><i class="fa-solid fa-user-graduate"></i></span>
         <span data-i18n="nav_eleves">Élèves</span>
       </li>
+      <li class="nav-item" data-view="parents">
+        <span class="nav-icon icon-parents" style="color: #8b5cf6;"><i class="fa-solid fa-people-roof"></i></span>
+        <span data-i18n="nav_parents">Parents d'élèves</span>
+      </li>
       <li class="nav-item" data-view="inscriptions">
         <span class="nav-icon icon-inscriptions"><i class="fa-solid fa-clipboard-check"></i></span>
         <span data-i18n="nav_inscriptions">Inscriptions</span>
@@ -449,7 +455,7 @@
         </button>
 
         <!-- Logout Button -->
-        <button class="btn-logout-header" id="btnLogout" onclick="app.logout()" title="Déconnexion / تسجيل الخروج"
+        <button class="btn-logout-header" id="btnLogout" onclick="app.logout()" title="Déconnexion"
           aria-label="Déconnexion">
           <i class="fa-solid fa-arrow-right-from-bracket"></i>
           <span data-i18n="btn_logout">Déconnexion</span>
@@ -623,11 +629,18 @@
       <div id="studentsListView" class="students-list-wrapper">
         <div class="schoolaris-header">
           <h2 class="schoolaris-title" data-i18n="title_eleves">Élèves</h2>
-          <button class="btn-primary" onclick="app.openModalStudent()"
-            style="box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);">
-            <i class="fa-solid fa-plus"></i>
-            <span data-i18n="btn_add_student">Nouvel élève</span>
-          </button>
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <button type="button" class="btn-secondary" onclick="app.openImportStudentsModal()"
+              style="background: linear-gradient(135deg, #059669, #10b981); color: #fff; border: none; font-weight: 700; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35); display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 8px; cursor: pointer;">
+              <i class="fa-solid fa-file-excel" style="font-size: 16px;"></i>
+              <span data-i18n="btn_import_students">استيراد (Excel / الرقمنة)</span>
+            </button>
+            <button type="button" class="btn-primary" onclick="app.openModalStudent()"
+              style="box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);">
+              <i class="fa-solid fa-plus"></i>
+              <span data-i18n="btn_add_student">Nouvel élève</span>
+            </button>
+          </div>
         </div>
 
         <!-- Schoolaris Filter Bar -->
@@ -673,7 +686,7 @@
               <thead>
                 <tr>
                   <th style="width: 44px; text-align: center;">
-                    <input type="checkbox" id="selectAllStudentsCheckbox" class="edumind-chk" onchange="app.toggleSelectAllStudents(this.checked)" title="تحديد الكل / Tout sélectionner">
+                    <input type="checkbox" id="selectAllStudentsCheckbox" class="edumind-chk" onchange="app.toggleSelectAllStudents(this.checked)" title="Tout sélectionner">
                   </th>
                   <th style="width: 140px;">MATRICULE</th>
                   <th data-i18n="th_nom">NOM</th>
@@ -681,9 +694,6 @@
                   <th data-i18n="th_niveau">NIVEAU</th>
                   <th data-i18n="th_phone">TÉLÉPHONE</th>
                   <th style="text-align: center;">INSCRIPTIONS</th>
-                  <th>FACTURÉ</th>
-                  <th>PAYÉ</th>
-                  <th>RESTE</th>
                   <th>STATUT</th>
                   <th style="text-align: right; width: 170px;">ACTIONS</th>
                 </tr>
@@ -699,16 +709,16 @@
         <div id="studentsBatchActionBar" class="students-batch-bar" style="display: none;">
           <div class="batch-bar-info">
             <span class="batch-bar-badge" id="batchSelectedCount">0</span>
-            <span id="batchSelectedText">تلميذ محدد</span>
+            <span id="batchSelectedText" data-i18n="batch_selected_text">élève(s) sélectionné(s)</span>
           </div>
           <div class="batch-bar-actions">
             <button type="button" class="btn-primary batch-btn-print" onclick="app.printSelectedBadges()">
               <i class="fa-solid fa-id-card"></i>
-              <span id="batchPrintBtnText">طباعة البطاقات</span>
+              <span id="batchPrintBtnText" data-i18n="btn_print_badges">Imprimer les badges</span>
             </button>
             <button type="button" class="btn-secondary batch-btn-clear" onclick="app.clearSelectedStudents()">
               <i class="fa-solid fa-xmark"></i>
-              <span>إلغاء</span>
+              <span data-i18n="btn_cancel">Annuler</span>
             </button>
           </div>
         </div>
@@ -764,19 +774,19 @@
         <!-- 4 Financial KPI Cards -->
         <div class="profile-kpis-grid">
           <div class="profile-kpi-card">
-            <span class="profile-kpi-label">Total facturé</span>
+            <span class="profile-kpi-label" data-i18n="profile_kpi_billed">Total facturé</span>
             <div class="profile-kpi-value" id="profileKpiBilled">0 DA</div>
           </div>
           <div class="profile-kpi-card">
-            <span class="profile-kpi-label">Total payé</span>
+            <span class="profile-kpi-label" data-i18n="profile_kpi_paid">Total payé</span>
             <div class="profile-kpi-value green" id="profileKpiPaid">0 DA</div>
           </div>
           <div class="profile-kpi-card">
-            <span class="profile-kpi-label">Reste dû</span>
+            <span class="profile-kpi-label" data-i18n="profile_kpi_remaining">Reste dû</span>
             <div class="profile-kpi-value" id="profileKpiRemaining">0 DA</div>
           </div>
           <div class="profile-kpi-card">
-            <span class="profile-kpi-label">Paiements</span>
+            <span class="profile-kpi-label" data-i18n="profile_kpi_payments">Paiements</span>
             <div class="profile-kpi-value" id="profileKpiPayments">0</div>
           </div>
         </div>
@@ -869,6 +879,130 @@
       </div>
     </section>
 
+    <!-- ==================== 2b. PARENTS D'ÉLÈVES VIEW (SCHOOLARIS STYLE) ==================== -->
+    <section class="view-container" id="view-parents">
+      <div class="schoolaris-header">
+        <div>
+          <h2 class="schoolaris-title" data-i18n="title_parents">Parents d'élèves</h2>
+          <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;" data-i18n="subtitle_parents">
+            Gestion des parents, suivi de la fratrie et remises familiales
+          </p>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <button type="button" class="btn-excel" onclick="app.exportParentsToExcel()" title="Exporter vers Excel">
+            <i class="fa-solid fa-download"></i>
+            <span>Excel</span>
+          </button>
+          <button type="button" class="btn-primary" onclick="app.openModalParent()"
+            style="background: linear-gradient(135deg, #7c3aed, #8b5cf6); box-shadow: 0 4px 14px rgba(124, 58, 237, 0.4);">
+            <i class="fa-solid fa-user-plus"></i>
+            <span data-i18n="btn_add_parent">Nouveau parent</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI Summary Cards for Parents -->
+      <div class="planning-kpi-grid"
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 20px;">
+        <div class="kpi-card"
+          style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; gap: 16px;">
+          <div
+            style="width: 48px; height: 48px; border-radius: 12px; background: rgba(139, 92, 246, 0.15); display: flex; align-items: center; justify-content: center; color: #8b5cf6; font-size: 20px; flex-shrink: 0;">
+            <i class="fa-solid fa-people-roof"></i>
+          </div>
+          <div>
+            <div style="font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;" data-i18n="kpi_parents_total">TOTAL PARENTS</div>
+            <div id="kpiTotalParents" style="font-size: 24px; font-weight: 800; color: var(--text-main);">0</div>
+          </div>
+        </div>
+
+        <div class="kpi-card"
+          style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; gap: 16px;">
+          <div
+            style="width: 48px; height: 48px; border-radius: 12px; background: rgba(16, 185, 129, 0.15); display: flex; align-items: center; justify-content: center; color: #10b981; font-size: 20px; flex-shrink: 0;">
+            <i class="fa-solid fa-percent"></i>
+          </div>
+          <div>
+            <div style="font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;" data-i18n="kpi_parents_discount">REMISE FAMILIALE</div>
+            <div id="kpiDiscountParents" style="font-size: 24px; font-weight: 800; color: var(--text-main);">0</div>
+          </div>
+        </div>
+
+        <div class="kpi-card"
+          style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; gap: 16px;">
+          <div
+            style="width: 48px; height: 48px; border-radius: 12px; background: rgba(59, 130, 246, 0.15); display: flex; align-items: center; justify-content: center; color: #3b82f6; font-size: 20px; flex-shrink: 0;">
+            <i class="fa-solid fa-children"></i>
+          </div>
+          <div>
+            <div style="font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;" data-i18n="kpi_parents_children">ENFANTS SCOLARISÉS</div>
+            <div id="kpiEnrolledChildren" style="font-size: 24px; font-weight: 800; color: var(--text-main);">0</div>
+          </div>
+        </div>
+
+        <div class="kpi-card"
+          style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; gap: 16px;">
+          <div
+            style="width: 48px; height: 48px; border-radius: 12px; background: rgba(239, 68, 68, 0.15); display: flex; align-items: center; justify-content: center; color: #ef4444; font-size: 20px; flex-shrink: 0;">
+            <i class="fa-solid fa-hand-holding-dollar"></i>
+          </div>
+          <div>
+            <div style="font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;" data-i18n="kpi_parents_debts">DETTES FAMILIALES</div>
+            <div id="kpiTotalFamilyDebts" style="font-size: 24px; font-weight: 800; color: #ef4444;">0 DA</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="schoolaris-card" style="margin-bottom: 20px;">
+        <div class="schoolaris-filter-bar" style="border-bottom: none; display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+          <div class="schoolaris-search-box" style="flex: 1; min-width: 260px;">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchParentInput" class="schoolaris-search-input"
+              placeholder="Rechercher par nom, prénom, tél ou enfant..."
+              oninput="app.filterParents(this.value)">
+          </div>
+          <select id="filterParentDiscount" class="schoolaris-select" style="max-width: 200px;"
+            onchange="app.filterParents(document.getElementById('searchParentInput').value)">
+            <option value="all">Toutes les remises</option>
+            <option value="with_discount">Avec remise (&gt; 0%)</option>
+            <option value="no_discount">Sans remise (0%)</option>
+          </select>
+          <select id="filterParentDebts" class="schoolaris-select" style="max-width: 200px;"
+            onchange="app.filterParents(document.getElementById('searchParentInput').value)">
+            <option value="all">Tous statuts financiers</option>
+            <option value="has_debt">Avec dettes / impayés</option>
+            <option value="up_to_date">À jour (aucun impayé)</option>
+          </select>
+          <button class="btn-secondary" onclick="app.loadParents()" title="Actualiser la liste" style="padding: 8px 14px;">
+            <i class="fa-solid fa-rotate"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Parents Table Card -->
+      <div class="schoolaris-card">
+        <div class="table-responsive">
+          <table class="schoolaris-table">
+            <thead>
+              <tr>
+                <th style="min-width: 220px;" data-i18n="th_parent_nom">PARENT / RESPONSABLE</th>
+                <th style="width: 150px;" data-i18n="th_phone">TÉLÉPHONE</th>
+                <th style="min-width: 200px;" data-i18n="th_enfants_count">ENFANTS INSCRITS</th>
+                <th style="width: 140px; text-align: center;" data-i18n="th_reduction_pct">RÉDUCTION (%)</th>
+                <th style="width: 150px; text-align: right;" data-i18n="th_parent_solde">DETTES FAMILIALES</th>
+                <th style="width: 170px; text-align: center;" data-i18n="th_actions">ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody id="parentsTableBody">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+
     <!-- ==================== 3. POINTAGE & GESTION DES PRÉSENCES ==================== -->
     <section class="view-container" id="view-pointage">
       <!-- Section Header -->
@@ -891,7 +1025,12 @@
           </button>
           <button type="button" class="att-tab-btn" id="tabBtnScan" onclick="app.switchAttendanceMode('scan')">
             <i class="fa-solid fa-qrcode"></i>
-            <span data-i18n="tab_rapid_scan">Scanner Code-barres / QR</span>
+            <span data-i18n="tab_rapid_scan">Scanner Code-barres / QR (Par Groupe)</span>
+          </button>
+          <button type="button" class="att-tab-btn" id="tabBtnEntrance" onclick="app.switchAttendanceMode('entrance')"
+            style="border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.08);">
+            <i class="fa-solid fa-door-open" style="color: #10b981;"></i>
+            <span data-i18n="tab_entrance_pointage">Borne d'Entrée (Présence Générale)</span>
           </button>
         </div>
       </div>
@@ -1198,6 +1337,13 @@
             </button>
           </form>
 
+          <div style="display: flex; justify-content: center;">
+            <div class="scanner-ready-badge">
+              <span class="scanner-pulse-dot"></span>
+              <span data-i18n="tip_douchette_ready">قارئ الباركود (Douchette USB) متصل وجاهز للمسح المباشر</span>
+            </div>
+          </div>
+
           <!-- Dynamic Scan Result Card -->
           <div id="pointageResultCard" class="pointage-result-card" style="display: none;">
             <div id="pointageBadge" class="pointage-badge-huge">À JOUR</div>
@@ -1254,6 +1400,209 @@
           </div>
         </div>
       </div>
+
+      <!-- ================= MODE 3: GENERAL ENTRANCE ATTENDANCE (BORNE D'ENTRÉE) ================= -->
+      <div id="attendanceEntranceView" style="display: none;">
+        <!-- Entrance Top Control Bar -->
+        <div class="card" style="margin-bottom: 18px; padding: 18px 20px; border-top: 3px solid #10b981;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <!-- Left: Date Picker & Mode Selectors -->
+            <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+              <div style="width: 170px;">
+                <label class="form-label" style="font-weight: 700; margin-bottom: 5px; display: flex; align-items: center; gap: 6px;">
+                  <i class="fa-regular fa-calendar-days" style="color: #10b981;"></i>
+                  <span data-i18n="lbl_session_date">Date Séance</span>
+                </label>
+                <input type="date" id="entranceSessionDate" class="form-control" style="height: 42px; font-weight: 700;"
+                  onchange="app.onEntranceDateChange(this.value)">
+              </div>
+
+              <div>
+                <label class="form-label" style="font-weight: 700; margin-bottom: 5px; display: flex; align-items: center; gap: 6px;">
+                  <i class="fa-solid fa-sliders" style="color: #60a5fa;"></i>
+                  <span data-i18n="entrance_scan_mode">Mode de Pointage</span>
+                </label>
+                <div class="entrance-mode-group">
+                  <button type="button" class="btn-entrance-mode active" id="btnModeAuto" onclick="app.setEntranceMode('auto')">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                    <span data-i18n="entrance_mode_auto">Détection Auto (Entrée / Sortie)</span>
+                  </button>
+                  <button type="button" class="btn-entrance-mode" id="btnModeIn" onclick="app.setEntranceMode('in')">
+                    <i class="fa-solid fa-arrow-right-to-bracket" style="color: #10b981;"></i>
+                    <span data-i18n="entrance_mode_in">Entrée</span>
+                  </button>
+                  <button type="button" class="btn-entrance-mode" id="btnModeOut" onclick="app.setEntranceMode('out')">
+                    <i class="fa-solid fa-arrow-right-from-bracket" style="color: #f59e0b;"></i>
+                    <span data-i18n="entrance_mode_out">Sortie</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Live Clock & Actions -->
+            <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+              <div class="entrance-live-clock-pill">
+                <i class="fa-regular fa-clock" style="color: #10b981; font-size: 16px;"></i>
+                <span id="entranceDigitalClock">--:--:--</span>
+              </div>
+              <button type="button" class="btn-secondary" id="btnEntranceFullscreen" onclick="app.toggleEntranceFullscreen()"
+                style="height: 42px; padding: 0 16px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-expand"></i>
+                <span data-i18n="entrance_kiosk_btn">Plein Écran (Kiosk)</span>
+              </button>
+              <button type="button" class="btn-secondary" onclick="app.printEntranceJournal()"
+                style="height: 42px; padding: 0 16px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-print"></i>
+                <span data-i18n="btn_print_entrance_journal">Imprimer le Journal</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Statistics Strip -->
+        <div class="entrance-stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 22px;">
+          <div class="card" style="padding: 16px 20px; display: flex; align-items: center; gap: 16px; margin: 0; border-left: 4px solid #3b82f6;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(59, 130, 246, 0.15); color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;">
+              <i class="fa-solid fa-user-graduate"></i>
+            </div>
+            <div>
+              <div style="font-size: 22px; font-weight: 800; color: #fff;" id="entranceStatStudents">0 / 0</div>
+              <div style="font-size: 12px; color: var(--text-muted);" data-i18n="stat_students_today">Élèves Présents Aujourd'hui</div>
+            </div>
+          </div>
+
+          <div class="card" style="padding: 16px 20px; display: flex; align-items: center; gap: 16px; margin: 0; border-left: 4px solid #f97316;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(249, 115, 22, 0.15); color: #f97316; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;">
+              <i class="fa-solid fa-chalkboard-user"></i>
+            </div>
+            <div>
+              <div style="font-size: 22px; font-weight: 800; color: #fff;" id="entranceStatTeachers">0 / 0</div>
+              <div style="font-size: 12px; color: var(--text-muted);" data-i18n="stat_teachers_today">Enseignants Présents</div>
+            </div>
+          </div>
+
+          <div class="card" style="padding: 16px 20px; display: flex; align-items: center; gap: 16px; margin: 0; border-left: 4px solid #10b981;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(16, 185, 129, 0.15); color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;">
+              <i class="fa-solid fa-school"></i>
+            </div>
+            <div>
+              <div style="font-size: 22px; font-weight: 800; color: #10b981;" id="entranceStatTotal">0</div>
+              <div style="font-size: 12px; color: var(--text-muted);" data-i18n="stat_total_in_school">Total Présents à l'Établissement</div>
+            </div>
+          </div>
+
+          <div class="card" style="padding: 16px 20px; display: flex; align-items: center; gap: 16px; margin: 0; border-left: 4px solid #8b5cf6;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(139, 92, 246, 0.15); color: #8b5cf6; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;">
+              <i class="fa-solid fa-bell"></i>
+            </div>
+            <div style="overflow: hidden;">
+              <div style="font-size: 15px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="entranceStatLastScan">--:--</div>
+              <div style="font-size: 12px; color: var(--text-muted);" data-i18n="stat_last_scan">Dernier Pointage Validé</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Big Scan Hero Box -->
+        <div class="pointage-hero" style="background: linear-gradient(135deg, #09203f 0%, #1e3c72 100%); border: 1px solid rgba(56, 189, 248, 0.3); margin-bottom: 24px;">
+          <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 12px;">
+            <i class="fa-solid fa-door-open" style="color: #38bdf8;"></i>
+            <span data-i18n="entrance_title">Borne d'Entrée & Pointage Rapide (Élèves & Enseignants)</span>
+          </h2>
+          <p style="color: #94a3b8; margin-bottom: 22px; font-size: 14px;" data-i18n="entrance_subtitle">
+            Scannez le badge de l'élève ou de l'enseignant pour enregistrer sa présence instantanément sans sélection de groupe.
+          </p>
+
+          <form id="entranceScanForm" class="pointage-scan-box" onsubmit="event.preventDefault(); app.handleEntranceScan();" style="max-width: 620px;">
+            <input type="text" id="entranceScanInput" class="input-scan"
+              placeholder="Scannez le code-barres ou tapez le matricule (Ex: ETU-001 / ENS-001)..."
+              autocomplete="off" style="font-size: 18px; padding: 15px 20px; border-color: #38bdf8;">
+            <button type="submit" class="btn-primary" style="padding: 0 32px; font-size: 16px; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); border: none;">
+              <i class="fa-solid fa-barcode"></i>
+              <span data-i18n="btn_scan">Pointer</span>
+            </button>
+          </form>
+
+          <div style="display: flex; justify-content: center;">
+            <div class="scanner-ready-badge" style="border-color: rgba(56, 189, 248, 0.4); background: rgba(56, 189, 248, 0.12); color: #38bdf8;">
+              <span class="scanner-pulse-dot" style="background-color: #38bdf8; box-shadow: 0 0 10px #38bdf8;"></span>
+              <span data-i18n="tip_douchette_ready_entrance">قارئ الباركود (Douchette) جاهز للمسح السريع والتلقائي</span>
+            </div>
+          </div>
+
+          <!-- Dynamic Result Display Card for Entrance -->
+          <div id="entranceResultCard" class="pointage-result-card" style="display: none; max-width: 640px; margin-top: 24px; padding: 22px; border-radius: 16px; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(12px); border: 2px solid #10b981; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);">
+            <div id="entranceBadge" class="pointage-badge-huge" style="background: #10b981; color: #fff; font-size: 16px; padding: 6px 22px; border-radius: 20px; margin-bottom: 12px;">
+              POINTAGE PRÊT
+            </div>
+
+            <div style="display: flex; gap: 20px; align-items: center; justify-content: center; margin-top: 10px; flex-wrap: wrap;">
+              <div id="entranceAvatar" class="student-avatar-box" style="width: 86px; height: 100px; font-size: 40px; border-radius: 12px; overflow: hidden; border: 2px solid rgba(255,255,255,0.2);">
+                <i class="fa-solid fa-user"></i>
+              </div>
+              <div style="text-align: left; flex: 1; min-width: 250px;" id="entranceInfoText">
+                <!-- Injected via JavaScript -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Today Attendance Log Table -->
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 14px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <i class="fa-solid fa-list-check" style="color: #10b981; font-size: 20px;"></i>
+              <h3 style="font-size: 16px; font-weight: 800; margin: 0;" data-i18n="title_entrance_live_log">Journal des Présences d'Entrée</h3>
+              <span id="entranceLiveCountBadge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-weight: 700; padding: 3px 12px; border-radius: 12px; font-size: 12.5px;">
+                0 pointages
+              </span>
+            </div>
+
+            <!-- Filters -->
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <!-- Role filter -->
+              <select id="entranceFilterType" class="form-control" style="width: 170px; height: 38px; font-size: 13px;" onchange="app.loadEntranceLiveList()">
+                <option value="all" data-i18n="opt_all_roles">Tous (Élèves & Enseignants)</option>
+                <option value="student" data-i18n="opt_students_only">Élèves seulement</option>
+                <option value="teacher" data-i18n="opt_teachers_only">Enseignants seulement</option>
+              </select>
+
+              <!-- Search filter -->
+              <div style="position: relative; width: 220px;">
+                <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 10px; top: 11px; color: var(--text-muted); font-size: 13px;"></i>
+                <input type="text" id="entranceSearchInput" class="form-control" style="padding-left: 32px; height: 38px; font-size: 13px;"
+                  placeholder="Rechercher nom ou matricule..." oninput="app.filterEntranceList(this.value)">
+              </div>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="edumind-table">
+              <thead>
+                <tr>
+                  <th style="width: 45px;">#</th>
+                  <th style="width: 95px;" data-i18n="th_type">TYPE</th>
+                  <th style="width: 120px;" data-i18n="th_matricule">MATRICULE</th>
+                  <th data-i18n="th_nom_prenom">NOM & PRÉNOM</th>
+                  <th data-i18n="th_classe_matiere">CLASSE / MATIÈRE</th>
+                  <th style="width: 115px; text-align: center;" data-i18n="th_heure_entree">HEURE ENTRÉE</th>
+                  <th style="width: 115px; text-align: center;" data-i18n="th_heure_sortie">HEURE SORTIE</th>
+                  <th style="width: 110px; text-align: center;" data-i18n="th_duree">DURÉE</th>
+                  <th style="width: 110px; text-align: center;" data-i18n="th_statut">STATUT</th>
+                  <th style="width: 65px; text-align: center;" data-i18n="th_actions">ACTION</th>
+                </tr>
+              </thead>
+              <tbody id="entranceLiveTableBody">
+                <tr>
+                  <td colspan="10" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                    <i class="fa-solid fa-qrcode" style="font-size: 32px; margin-bottom: 10px; display: block; opacity: 0.4;"></i>
+                    <span data-i18n="entrance_empty_state">Scannez le badge d'un élève ou d'un enseignant pour afficher le journal du jour.</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- ==================== 4. PAIEMENTS & REÇUS VIEW ==================== -->
@@ -1271,12 +1620,12 @@
           </div>
           <select id="paymentMonthFilter" class="form-control" style="width: 175px; padding: 7px 12px; font-size: 13px;"
             onchange="app.onPaymentMonthFilterChange(this.value)" title="Filtrer par mois">
-            <option value="all">Tous les mois (الكل)</option>
+            <option value="all">Tous les mois</option>
           </select>
           <button class="btn-excel" onclick="app.openExportPaymentsModal()"
-            title="تحميل وتصدير سجل المدفوعات لشهر أو عدة أشهر">
+            title="Exporter l'historique des paiements">
             <i class="fa-solid fa-file-arrow-down"></i>
-            <span data-i18n="btn_export_payments">تحميل المدفوعات</span>
+            <span data-i18n="btn_export_payments">Exporter les Paiements</span>
           </button>
           <button class="btn-primary" onclick="app.openModalPayment()">
             <i class="fa-solid fa-plus"></i>
@@ -1298,6 +1647,103 @@
         <div id="paymentsActiveFilterBadge" style="font-size: 12px; color: var(--text-muted);">
           <!-- Dynamic Filter Tag -->
         </div>
+      </div>
+
+      <!-- ==================== FAST CASHIER & MULTI-PAYMENT SECTION ==================== -->
+      <div class="card" id="fastCashierCard" style="margin-bottom: 20px; border: 1px solid rgba(16, 185, 129, 0.35); background: linear-gradient(180deg, rgba(16, 185, 129, 0.05) 0%, rgba(15, 23, 42, 0.4) 100%); border-radius: 14px; padding: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+        
+        <!-- Section Header, Mode Switcher & Instant Search Boxes -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 14px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div id="fastPayHeaderIcon" style="width: 38px; height: 38px; border-radius: 10px; background: rgba(16, 185, 129, 0.18); color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+              <i class="fa-solid fa-cash-register"></i>
+            </div>
+            <div>
+              <h3 id="fastPayCardTitle" style="margin: 0; font-size: 16px; font-weight: 800; color: var(--text-heading);" data-i18n="fast_pay_title">Caisse Rapide & Multi-Paiement (Multi-cours & Mois)</h3>
+              <span id="fastPayCardSubtitle" style="font-size: 12px; color: var(--text-muted);" data-i18n="fast_pay_subtitle">Recherchez un élève ou un parent pour encaisser plusieurs cours et générer un reçu unifié</span>
+            </div>
+          </div>
+
+          <!-- Mode Toggle: Student vs Parent / Family -->
+          <div class="fastpay-mode-switch" style="display: flex; background: rgba(0, 0, 0, 0.35); padding: 4px; border-radius: 10px; border: 1px solid var(--border-color); gap: 4px;">
+            <button type="button" id="btnModeFastPayStudent" class="btn-fastpay-mode" onclick="app.setFastPayMode('student')"
+                    style="padding: 7px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; background: #10b981; color: white; transition: all 0.2s;">
+              <i class="fa-solid fa-user-graduate"></i>
+              <span data-i18n="fast_pay_mode_student">دفع لتلميذ</span>
+            </button>
+            <button type="button" id="btnModeFastPayParent" class="btn-fastpay-mode" onclick="app.setFastPayMode('parent')"
+                    style="padding: 7px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; background: transparent; color: var(--text-muted); transition: all 0.2s;">
+              <i class="fa-solid fa-people-roof" style="color: #a855f7;"></i>
+              <span data-i18n="fast_pay_mode_parent">دفع عائلي (بالولي)</span>
+              <span style="background: rgba(168, 85, 247, 0.25); color: #c084fc; font-size: 10.5px; padding: 1px 7px; border-radius: 999px; font-weight: 800;">الكل معاً</span>
+            </button>
+          </div>
+
+          <!-- Instant Student Search Input with Live Dropdown -->
+          <div id="fastPayStudentSearchWrapper" style="position: relative; flex: 1; max-width: 440px; min-width: 280px;">
+            <div class="schoolaris-search-box" style="width: 100%; border: 1px solid rgba(16, 185, 129, 0.4); background: var(--bg-card); padding: 2px 10px;">
+              <i class="fa-solid fa-user-graduate" style="color: #10b981; font-size: 14px;"></i>
+              <input type="text" id="fastPayStudentSearch" class="schoolaris-search-input" style="font-size: 13px;"
+                placeholder="Rechercher par nom, prénom ou matricule..." oninput="app.onFastPayStudentSearch(this.value)"
+                onfocus="app.onFastPayStudentSearch(this.value)" autocomplete="off">
+              <button type="button" id="btnFastPayClearSearch" style="display: none; background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0 4px;" onclick="app.clearFastPayStudent()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <!-- Live Search Dropdown -->
+            <div id="fastPaySearchResults" style="display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 100; max-height: 280px; overflow-y: auto; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            </div>
+          </div>
+
+          <!-- Instant Parent Search Input with Live Dropdown -->
+          <div id="fastPayParentSearchWrapper" style="display: none; position: relative; flex: 1; max-width: 440px; min-width: 280px;">
+            <div class="schoolaris-search-box" style="width: 100%; border: 1px solid rgba(168, 85, 247, 0.6); background: var(--bg-card); padding: 2px 10px; box-shadow: 0 0 14px rgba(168, 85, 247, 0.15);">
+              <i class="fa-solid fa-people-roof" style="color: #a855f7; font-size: 14px;"></i>
+              <input type="text" id="fastPayParentSearch" class="schoolaris-search-input" style="font-size: 13px;"
+                placeholder="ابحث باسم الولي، رقم الهاتف أو اسم أحد الأبناء..." oninput="app.onFastPayParentSearch(this.value)"
+                onfocus="app.onFastPayParentSearch(this.value)" autocomplete="off">
+              <button type="button" id="btnFastPayParentClearSearch" style="display: none; background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0 4px;" onclick="app.clearFastPayParent()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <!-- Live Search Dropdown for Parents -->
+            <div id="fastPayParentSearchResults" style="display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 100; max-height: 280px; overflow-y: auto; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            </div>
+          </div>
+        </div>
+
+        <!-- Student Active Details & Multi-Payment Body -->
+        <div id="fastPayActiveContainer" style="display: none;">
+          <!-- Dynamically populated by app.js: Student Hero Banner, Enrolled Courses Table with checkboxes, Totals & Checkout -->
+        </div>
+
+        <!-- Parent Active Details & Family Multi-Payment Body -->
+        <div id="fastPayParentActiveContainer" style="display: none;">
+          <!-- Dynamically populated by app.js: Parent Hero Banner, Children & Courses Cards, Partial Pay Controls & Checkout -->
+        </div>
+
+        <!-- Initial Placeholder when no student is selected -->
+        <div id="fastPayEmptyPlaceholder" style="padding: 26px 16px; text-align: center; border: 1px dashed rgba(255, 255, 255, 0.12); border-radius: 10px; background: rgba(0, 0, 0, 0.1);">
+          <div style="width: 44px; height: 44px; border-radius: 50%; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; color: #10b981; font-size: 20px;">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </div>
+          <div style="font-weight: 700; font-size: 14px; margin-bottom: 4px; color: var(--text-heading);" data-i18n="fast_pay_no_student_hint">
+            Tapez le nom ou matricule de l'élève ci-dessus pour afficher ses cours et régler en un clic
+          </div>
+          <div style="font-size: 12px; color: var(--text-muted);" data-i18n="fast_pay_no_student_sub">
+            Les résultats et groupes s'afficheront instantanément avec la possibilité d'imprimer un reçu unifié.
+          </div>
+        </div>
+
+        <!-- Initial Placeholder when no parent is selected -->
+        <div id="fastPayParentEmptyPlaceholder" style="display: none; padding: 26px 16px; text-align: center; border: 1px dashed rgba(168, 85, 247, 0.35); border-radius: 10px; background: rgba(168, 85, 247, 0.04);">
+          <div style="width: 44px; height: 44px; border-radius: 50%; background: rgba(168, 85, 247, 0.12); border: 1px solid rgba(168, 85, 247, 0.35); display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; color: #c084fc; font-size: 20px;">
+            <i class="fa-solid fa-people-roof"></i>
+          </div>
+          <div style="font-weight: 700; font-size: 14px; margin-bottom: 4px; color: var(--text-heading);" data-i18n="fast_pay_no_parent_hint">
+            ابحث باسم الولي لعرض جميع أبنائه وأفواجهم وتسديد المستحقات دفعة واحدة أو دفع جزء من المبلغ
+          </div>
+          <div style="font-size: 12px; color: var(--text-muted);" data-i18n="fast_pay_no_parent_sub">
+            يمكنك إدخال أي مبلغ جزئي وتوزيعه تلقائياً على الأبناء، مع حفظ أي متبقي كدين وإصدار وصل دفع عائلي موحد.
+          </div>
+        </div>
+
       </div>
 
       <div class="card">
@@ -1331,12 +1777,27 @@
           <span data-i18n="title_echeances">Échéances & Suivi des Impayés</span>
         </div>
       </div>
+      <!-- Schoolaris Filter Bar for Echeances -->
+      <div class="schoolaris-card" style="margin-bottom: 16px;">
+        <div class="schoolaris-filter-bar" style="border-bottom: none; display: flex; gap: 12px; align-items: center;">
+          <div class="schoolaris-search-box" style="flex: 1;">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchEcheancesInput" class="schoolaris-search-input"
+              placeholder="ابحث باسم التلميذ، اسم الولي، رقم الهاتف أو الفوج..."
+              oninput="app.filterEcheances(this.value)">
+          </div>
+          <button class="btn-secondary" onclick="app.loadEcheances()" title="تحديث" style="padding: 8px 14px;">
+            <i class="fa-solid fa-rotate"></i>
+          </button>
+        </div>
+      </div>
       <div class="card">
         <div class="table-responsive">
           <table class="edumind-table">
             <thead>
               <tr>
                 <th data-i18n="th_eleve">ÉLÈVE</th>
+                <th data-i18n="th_parent">PARENT / TUTEUR</th>
                 <th data-i18n="th_groupe">GROUPE</th>
                 <th data-i18n="th_matiere">MATIÈRE</th>
                 <th data-i18n="th_phone">TÉLÉPHONE</th>
@@ -1361,9 +1822,9 @@
         </div>
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
           <button class="btn-excel" onclick="app.openExportCaisseModal()"
-            title="تحميل وتصدير سجل حركات الخزينة والصندوق">
+            title="Exporter le journal de caisse">
             <i class="fa-solid fa-file-arrow-down"></i>
-            <span data-i18n="btn_export_caisse">تحميل سجل الخزينة</span>
+            <span data-i18n="btn_export_caisse">Exporter la Caisse</span>
           </button>
           <button class="btn-primary" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"
             onclick="app.openModalCaisseMovement('entree')">
@@ -1453,23 +1914,22 @@
         style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding: 10px 16px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 10px; font-size: 13px; flex-wrap: wrap; gap: 8px;">
         <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
           <span style="color: var(--text-muted);"><i class="fa-solid fa-list-check" style="color: #f59e0b;"></i> <strong
-              id="caisseFilteredCount">0</strong> <span data-i18n="lbl_caisse_movements_count">حركات
-              معروضة</span></span>
+              id="caisseFilteredCount">0</strong> <span data-i18n="lbl_caisse_movements_count">mouvements affichés</span></span>
           <span style="color: var(--border-color);">|</span>
-          <span><span data-i18n="lbl_total_entrees">المداخيل</span> : <strong id="caisseFilteredIn"
+          <span><span data-i18n="lbl_total_entrees">Entrées</span> : <strong id="caisseFilteredIn"
               style="color: #10b981; font-size: 14px;">0 DA</strong></span>
           <span style="color: var(--border-color);">|</span>
-          <span><span data-i18n="lbl_total_sorties">المصاريف</span> : <strong id="caisseFilteredOut"
+          <span><span data-i18n="lbl_total_sorties">Dépenses</span> : <strong id="caisseFilteredOut"
               style="color: #ef4444; font-size: 14px;">0 DA</strong></span>
           <span style="color: var(--border-color);">|</span>
-          <span><span data-i18n="lbl_solde_net">الرصيد الصافي</span> : <strong id="caisseFilteredNet"
+          <span><span data-i18n="lbl_solde_net">Solde Net</span> : <strong id="caisseFilteredNet"
               style="color: #3b82f6; font-size: 14px;">0 DA</strong></span>
         </div>
         <div style="display: flex; gap: 8px; align-items: center;">
           <button type="button" class="btn-excel" style="padding: 5px 12px; font-size: 12px;"
-            onclick="app.quickExportCaisseTable()" title="تحميل وتصدير الجدول المعروض حالياً بصيغة Excel">
+            onclick="app.quickExportCaisseTable()" title="Exporter le tableau vers Excel">
             <i class="fa-solid fa-file-excel"></i>
-            <span data-i18n="btn_quick_excel">Excel السريع</span>
+            <span data-i18n="btn_quick_excel">Excel Rapide</span>
           </button>
         </div>
       </div>
@@ -1506,7 +1966,14 @@
           <span data-i18n="title_enseignants">Enseignants & Honoraires</span>
         </div>
         <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-          <div class="schoolaris-search-box" style="width: 320px; min-width: 220px;">
+          <div style="display: flex; align-items: center; gap: 6px; background: var(--card-bg, #fff); border: 1px solid var(--border-color, #e2e8f0); border-radius: 8px; padding: 4px 10px;">
+            <label for="filterTeacherMonth" style="font-size: 12px; font-weight: 600; color: var(--text-muted); margin: 0; display: flex; align-items: center; gap: 5px;">
+              <i class="fa-solid fa-calendar-days" style="color: #f97316;"></i>
+              <span data-i18n="lbl_filter_month">Mois :</span>
+            </label>
+            <input type="month" id="filterTeacherMonth" class="form-control" style="width: auto; padding: 3px 8px; font-size: 13px; border: none; background: transparent; font-weight: 600;" onchange="app.loadTeachers()">
+          </div>
+          <div class="schoolaris-search-box" style="width: 280px; min-width: 200px;">
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="text" id="searchTeacherInput" class="schoolaris-search-input"
               placeholder="Rechercher par nom d'enseignant, matière...">
@@ -1529,6 +1996,7 @@
                 <th>TÉLÉPHONE</th>
                 <th>MODE DE RÉMUNÉRATION</th>
                 <th>GROUPES</th>
+                <th>HONORAIRES (MOIS)</th>
                 <th>ACTIONS</th>
               </tr>
             </thead>
@@ -1577,8 +2045,7 @@
             <i class="fa-solid fa-calendar-check"></i>
           </div>
           <div>
-            <div style="font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Séances
-              / Groupes</div>
+            <div style="font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;" data-i18n="planning_kpi_groups">Séances / Groupes</div>
             <div id="planningKpiTotalGroups" style="font-size: 24px; font-weight: 800; color: var(--text-main);">0</div>
           </div>
         </div>
@@ -1590,8 +2057,7 @@
             <i class="fa-solid fa-clock"></i>
           </div>
           <div>
-            <div style="font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Volume
-              Hebdomadaire</div>
+            <div style="font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;" data-i18n="planning_kpi_hours">Volume Hebdomadaire</div>
             <div id="planningKpiTotalHours" style="font-size: 24px; font-weight: 800; color: var(--text-main);">0h</div>
           </div>
         </div>
@@ -1603,8 +2069,7 @@
             <i class="fa-solid fa-chalkboard-user"></i>
           </div>
           <div>
-            <div style="font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">
-              Enseignants Programmés</div>
+            <div style="font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;" data-i18n="planning_kpi_teachers">Enseignants Programmés</div>
             <div id="planningKpiTeachersCount" style="font-size: 24px; font-weight: 800; color: var(--text-main);">0
             </div>
           </div>
@@ -1617,8 +2082,7 @@
             <i class="fa-solid fa-door-open"></i>
           </div>
           <div>
-            <div style="font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Salles
-              Utilisées</div>
+            <div style="font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;" data-i18n="planning_kpi_rooms">Salles Utilisées</div>
             <div id="planningKpiRoomsCount" style="font-size: 24px; font-weight: 800; color: var(--text-main);">0</div>
           </div>
         </div>
@@ -1918,10 +2382,15 @@
             <span id="enrollmentsRevenueBadge" class="badge-pill badge-cyan" style="font-weight: 600;">0 DA / mois</span>
           </div>
         </div>
-        <div style="display: flex; gap: 10px; align-items: center;">
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <button type="button" class="btn-secondary" onclick="app.openBulkEnrollmentModal()" id="btnOpenBulkEnrollModal"
+            style="background: linear-gradient(135deg, #7c3aed, #6366f1); color: #fff; border: none; font-size: 14px; padding: 11px 20px; font-weight: 700; border-radius: 10px; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35); display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+            <i class="fa-solid fa-users-line"></i>
+            <span data-i18n="btn_bulk_enrollment">تسجيل جماعي (عدة تلاميذ / أفواج)</span>
+          </button>
           <button type="button" class="btn-primary" onclick="app.openEnrollmentWizard()" id="btnOpenEnrollWizard"
-            style="box-shadow: 0 4px 14px rgba(6, 182, 212, 0.35); background: linear-gradient(135deg, #0284c7, #06b6d4); font-size: 14.5px; padding: 11px 22px; font-weight: 700; border-radius: 10px;">
-            <i class="fa-solid fa-user-plus" style="margin-left: 6px;"></i>
+            style="box-shadow: 0 4px 14px rgba(6, 182, 212, 0.35); background: linear-gradient(135deg, #0284c7, #06b6d4); font-size: 14px; padding: 11px 20px; font-weight: 700; border-radius: 10px; display: inline-flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-user-plus"></i>
             <span data-i18n="btn_new_enrollment">تسجيل تلميذ جديد</span>
           </button>
         </div>
@@ -1943,7 +2412,7 @@
           <!-- Month Filter (Styled exactly like payments dropdown) -->
           <select id="filterEnrollmentMonth" class="form-control" style="width: 185px; padding: 7px 12px; font-size: 13px;"
             onchange="app.filterEnrollmentsTable()" title="Filtrer par mois">
-            <option value="all">Tous les mois (الكل)</option>
+            <option value="all">Tous les mois</option>
           </select>
 
           <!-- Group Filter -->
@@ -2042,6 +2511,11 @@
             onclick="app.switchSettingsTab('donnees')">
             <i class="fa-solid fa-database"></i>
             <span data-i18n="tab_donnees">Données</span>
+          </button>
+          <button type="button" class="settings-nav-btn" data-settings-tab="reseau"
+            onclick="app.switchSettingsTab('reseau'); app.loadNetworkInfo();">
+            <i class="fa-solid fa-network-wired"></i>
+            <span data-i18n="tab_reseau">Réseau & Multi-Postes</span>
           </button>
 
           <div class="settings-nav-divider"></div>
@@ -2321,7 +2795,7 @@
               </p>
 
               <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; align-items: center;">
-                <a href="/api/backup/download" class="btn-primary"
+                <a href="/api/backup/download" download="EDUMIND_Backup.sqlite" onclick="app.downloadBackup(event)" class="btn-primary"
                   style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
                   <i class="fa-solid fa-download"></i>
                   <span data-i18n="btn_backup_download">Télécharger la Sauvegarde Instantanée (.sqlite)</span>
@@ -2386,6 +2860,78 @@
                     <i class="fa-solid fa-arrows-rotate"></i> Actualiser l'interface & Vider le cache
                   </button>
                 </div>
+              </div>
+            </div>
+          <!-- 6. TAB: RÉSEAU & MULTI-POSTES (LAN) -->
+          <div class="settings-tab-panel" id="settingsTab-reseau">
+            <h3 class="settings-panel-title" style="color: #38bdf8;">
+              <i class="fa-solid fa-network-wired" style="margin-right: 8px;"></i>
+              <span data-i18n="network_panel_title">Réseau Local & Connexion Multi-Postes (LAN)</span>
+            </h3>
+
+            <!-- Hero Status Card -->
+            <div class="settings-card" style="border: 1px solid rgba(56, 189, 248, 0.3); background: linear-gradient(135deg, rgba(14, 165, 233, 0.08) 0%, rgba(15, 23, 42, 0.6) 100%);">
+              <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                  <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(16, 185, 129, 0.15); color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 22px;">
+                    <i class="fa-solid fa-server"></i>
+                  </div>
+                  <div>
+                    <h4 style="margin: 0; font-size: 17px; font-weight: 700; color: #fff;">Serveur EDUMIND Actif & Connecté</h4>
+                    <span style="font-size: 13px; color: #34d399; display: flex; align-items: center; gap: 6px; margin-top: 4px;">
+                      <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
+                      Prêt pour la synchronisation multi-utilisateurs en temps réel
+                    </span>
+                  </div>
+                </div>
+                <button type="button" class="btn-primary" onclick="app.loadNetworkInfo()" style="font-size: 13px;">
+                  <i class="fa-solid fa-arrows-rotate"></i> Actualiser les Adresses IP
+                </button>
+              </div>
+
+              <!-- Primary Link Box -->
+              <div style="background: rgba(0, 0, 0, 0.3); border: 1px dashed rgba(56, 189, 248, 0.4); border-radius: 10px; padding: 16px; margin-bottom: 20px;">
+                <label style="font-size: 12.5px; font-weight: 600; color: #94a3b8; display: block; margin-bottom: 8px;">
+                  🔗 الرابط المباشر لفتح البرنامج من أي حاسوب أو هاتف آخر في المدرسة (عبر المتصفح) :
+                </label>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                  <input type="text" id="lanServerUrlDisplay" readonly class="form-control" style="font-family: monospace; font-size: 15px; font-weight: 700; color: #38bdf8; background: rgba(15, 23, 42, 0.8);" value="Chargement...">
+                  <button type="button" class="btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('lanServerUrlDisplay').value); app.showToast(app.lang === 'ar' ? 'تم نسخ الرابط بنجاح!' : 'Lien copié dans le presse-papier !', 'success');">
+                    <i class="fa-regular fa-copy"></i> Copier
+                  </button>
+                </div>
+              </div>
+
+              <!-- Available Network Interfaces -->
+              <h5 style="margin: 0 0 12px 0; font-size: 14px; font-weight: 600; color: #cbd5e1;">Adresses Réseau Détectées (Wi-Fi / Câble Ethernet) :</h5>
+              <div id="lanAddressesList">
+                <div style="color: var(--text-muted); font-size: 13px;">Recherche des cartes réseau...</div>
+              </div>
+            </div>
+
+            <!-- Guide & Instructions Card -->
+            <div class="settings-card" style="margin-top: 16px;">
+              <h4 style="margin: 0 0 14px 0; font-size: 15px; font-weight: 700; color: #f59e0b;">
+                <i class="fa-solid fa-circle-question" style="margin-right: 6px;"></i>
+                كيف يعمل النظام متعدد المستخدمين في نفس الوقت؟ (Multi-Postes)
+              </h4>
+              <div style="font-size: 13px; line-height: 1.8; color: var(--text-main);">
+                <ol style="padding-left: 20px; margin: 0;">
+                  <li style="margin-bottom: 10px;">
+                    <strong>هذا الحاسوب هو الخادم الرئيسي (Host Server)</strong>: قاعدة البيانات محمية ومخزنة هنا.
+                  </li>
+                  <li style="margin-bottom: 10px;">
+                    <strong>لإدخال البيانات من حواسيب أخرى (أمانة، استقبال، أساتذة)</strong>:
+                    يكفي توصيل الحواسيب بنفس شبكة الواي فاي أو الروتر، ثم فتح متصفح <strong>Google Chrome</strong> أو <strong>Microsoft Edge</strong> وكتابة الرابط الموضح أعلاه (مثال: <code style="color:#38bdf8;">http://192.168.1.5:3000</code>).
+                  </li>
+                  <li style="margin-bottom: 10px;">
+                    <strong>العمل المتزامن بدون تعارض</strong>:
+                    تم تفعيل رتل العمليات الفوري (High-Concurrency Transactions) بحيث يمكن لعدة مستخدمين تسجيل التلاميذ والأساتذة وسحب الإيصالات في نفس اللحظة بدون أي تهنيق أو انتظار.
+                  </li>
+                  <li>
+                    <strong>ملاحظة هامة</strong>: تأكد من بقاء هذا الحاسوب مشغلاً وموصولاً بالشبكة أثناء فترات العمل.
+                  </li>
+                </ol>
               </div>
             </div>
           </div>
@@ -2467,13 +3013,11 @@
                 </div>
                 <div class="admin-info-item">
                   <span class="admin-label" data-i18n="setting_lic_type">Type de licence</span>
-                  <span class="admin-value" id="settingLicType" style="font-weight: 700;">Permanente (À vie /
-                    دائم)</span>
+                  <span class="admin-value" id="settingLicType" style="font-weight: 700;">Permanente (À vie)</span>
                 </div>
                 <div class="admin-info-item">
                   <span class="admin-label" data-i18n="setting_lic_expiry">Date d'expiration</span>
-                  <span class="admin-value" id="settingLicExpiry" style="font-weight: 700; color: #10b981;">Illimité
-                    (دائم)</span>
+                  <span class="admin-value" id="settingLicExpiry" style="font-weight: 700; color: #10b981;">Illimitée</span>
                 </div>
                 <div class="admin-info-item">
                   <span class="admin-label">Support Technique</span>
@@ -2627,6 +3171,181 @@
 
   <!-- ==================== MODALS ==================== -->
 
+  <!-- Modal: Importer Élèves depuis Excel / الرقمنة -->
+  <div class="modal-overlay" id="modalImportStudents">
+    <div class="modal-content" style="max-width: 1050px; width: 95%; max-height: 92vh; display: flex; flex-direction: column;">
+      <div class="modal-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 14px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(16, 185, 129, 0.15); display: flex; align-items: center; justify-content: center; color: #10b981; font-size: 18px;">
+            <i class="fa-solid fa-file-excel"></i>
+          </div>
+          <div>
+            <h3 class="modal-title" style="margin-bottom: 2px;" data-i18n="import_modal_title">استيراد قائمة التلاميذ (Excel / الرقمنة)</h3>
+            <p style="font-size: 12px; color: var(--text-muted); margin: 0;" data-i18n="import_modal_subtitle">استيراد وتحديث بيانات التلاميذ تلقائياً من ملفات Excel، الرقمنة، أو ملفات Eleve</p>
+          </div>
+        </div>
+        <button type="button" class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body" style="overflow-y: auto; padding: 18px 20px; flex: 1;">
+        <!-- Tabs Bar (Identical to Client's Reference Screen) -->
+        <div class="import-tabs-bar" style="display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px;">
+          <button type="button" class="import-tab-btn active" id="tabImportExcel" onclick="app.switchImportTab('excel')"
+            style="padding: 8px 16px; border-radius: 8px; border: none; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; background: rgba(16, 185, 129, 0.15); color: #10b981;">
+            <i class="fa-solid fa-file-excel"></i>
+            <span data-i18n="import_tab_excel">Modèle Excel (Nouveau)</span>
+          </button>
+          <button type="button" class="import-tab-btn" id="tabImportEleve" onclick="app.switchImportTab('eleve')"
+            style="padding: 8px 16px; border-radius: 8px; border: none; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; background: transparent; color: var(--text-muted);">
+            <i class="fa-solid fa-file-lines"></i>
+            <span data-i18n="import_tab_eleve">Fichier Eleve (Ministère)</span>
+          </button>
+          <button type="button" class="import-tab-btn" id="tabImportRakmana" onclick="app.switchImportTab('rakmana')"
+            style="padding: 8px 16px; border-radius: 8px; border: none; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; background: transparent; color: var(--text-muted);">
+            <i class="fa-solid fa-globe"></i>
+            <span data-i18n="import_tab_rakmana">Fichier HTML (Plate-forme)</span>
+          </button>
+        </div>
+
+        <!-- Info & Template Download Box -->
+        <div style="background: rgba(14, 165, 233, 0.08); border: 1px solid rgba(14, 165, 233, 0.25); border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 260px;">
+            <i class="fa-solid fa-circle-info" style="color: #38bdf8; font-size: 20px;"></i>
+            <span style="font-size: 12.5px; color: var(--text-normal); line-height: 1.5;" data-i18n="import_info_text">
+              Reconnaissance automatique des colonnes : Matricule, Groupe, Statut, Genre, Niveau scolaire, Nom, Prénom, Date et Lieu de naissance, Nom du père/tuteur, Adresse, Téléphone.
+            </span>
+          </div>
+          <button type="button" class="btn-secondary" onclick="app.downloadStudentExcelTemplate()"
+            style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #10b981; font-weight: 700; font-size: 12.5px; padding: 8px 14px; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+            <i class="fa-solid fa-download"></i>
+            <span data-i18n="import_btn_download_template">Télécharger le modèle Excel (Vierge)</span>
+          </button>
+        </div>
+
+        <!-- Upload Drop Zone -->
+        <div id="studentDropZone"
+          style="border: 2px dashed rgba(16, 185, 129, 0.45); border-radius: 12px; padding: 28px 20px; text-align: center; cursor: pointer; transition: all 0.25s ease; background: rgba(16, 185, 129, 0.03); margin-bottom: 16px;"
+          onclick="document.getElementById('importStudentFileInput').click()"
+          ondragover="event.preventDefault(); this.style.borderColor='#10b981'; this.style.background='rgba(16, 185, 129, 0.08)';"
+          ondragleave="this.style.borderColor='rgba(16, 185, 129, 0.45)'; this.style.background='rgba(16, 185, 129, 0.03)';"
+          ondrop="app.handleStudentFileDrop(event)">
+          <input type="file" id="importStudentFileInput" accept=".xlsx, .xls, .csv, .html" style="display: none;" onchange="app.handleStudentFileSelected(event)">
+          
+          <div id="dropZonePrompt">
+            <div style="width: 52px; height: 52px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); color: #10b981; display: inline-flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 10px;">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+            </div>
+            <h4 style="font-size: 15px; font-weight: 700; margin: 0 0 6px 0; color: var(--text-heading);" data-i18n="import_drop_prompt">Glissez-déposez le fichier Excel ou Plate-forme ici</h4>
+            <p style="font-size: 12.5px; color: var(--text-muted); margin: 0;" data-i18n="import_drop_browse">
+              ou cliquez pour choisir depuis votre ordinateur (.xlsx, .xls, .csv, .html)
+            </p>
+          </div>
+
+          <div id="dropZoneFileInfo" style="display: none; align-items: center; justify-content: center; gap: 12px;">
+            <i class="fa-solid fa-file-excel" style="color: #10b981; font-size: 28px;"></i>
+            <div style="text-align: right;">
+              <strong id="importFileName" style="font-size: 14px; color: var(--text-heading); display: block;">fichier.xlsx</strong>
+              <span id="importFileSize" style="font-size: 12px; color: var(--text-muted);">0 KB</span>
+            </div>
+            <button type="button" class="btn-icon" onclick="event.stopPropagation(); app.resetImportFile();" title="Changer de fichier" style="margin-right: 12px; color: #ef4444;">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Options Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin-bottom: 16px; background: rgba(0,0,0,0.15); padding: 14px; border-radius: 10px; border: 1px solid var(--border-color);">
+          <!-- Default Level -->
+          <div>
+            <label class="form-label" style="font-size: 12px; font-weight: 700; margin-bottom: 4px;" data-i18n="import_lbl_default_level">Niveau scolaire par défaut</label>
+            <select id="importDefaultLevel" class="form-control" style="font-size: 12.5px; padding: 7px 10px;">
+              <option value="" data-i18n="import_opt_level_auto">-- Optionnel (ou auto-détecté du fichier) --</option>
+            </select>
+          </div>
+
+          <!-- Default Group -->
+          <div>
+            <label class="form-label" style="font-size: 12px; font-weight: 700; margin-bottom: 4px;" data-i18n="import_lbl_default_group">Groupe / Classe d'affectation</label>
+            <select id="importDefaultGroup" class="form-control" style="font-size: 12.5px; padding: 7px 10px;">
+              <option value="" data-i18n="import_opt_group_none">-- Aucun groupe pour le moment --</option>
+            </select>
+          </div>
+
+          <!-- Duplicate Strategy -->
+          <div>
+            <label class="form-label" style="font-size: 12px; font-weight: 700; margin-bottom: 4px;" data-i18n="import_lbl_duplicate_strategy">Gestion des doublons (élèves existants)</label>
+            <select id="importOptDuplicate" class="form-control" style="font-size: 12.5px; padding: 7px 10px;">
+              <option value="skip" data-i18n="import_opt_duplicate_skip">Ignorer les doublons (Recommandé)</option>
+              <option value="update" data-i18n="import_opt_duplicate_update">Mettre à jour les données existantes</option>
+            </select>
+          </div>
+
+          <!-- Matricule Strategy -->
+          <div>
+            <label class="form-label" style="font-size: 12px; font-weight: 700; margin-bottom: 4px;" data-i18n="import_lbl_matricule_strategy">Matricule / Identifiant élève</label>
+            <select id="importOptMatricule" class="form-control" style="font-size: 12.5px; padding: 7px 10px;">
+              <option value="keep" data-i18n="import_opt_mat_keep">Conserver le matricule du fichier (génération auto si vide)</option>
+              <option value="generate" data-i18n="import_opt_mat_gen">Générer de nouveaux matricules (EDU-2026-XXXX)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Live Preview Section -->
+        <div id="importPreviewSection" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+            <h4 style="font-size: 14px; font-weight: 800; margin: 0; color: var(--text-heading); display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-table-list" style="color: #38bdf8;"></i>
+              <span data-i18n="import_preview_heading">Aperçu direct avant enregistrement</span>
+            </h4>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <span id="importBadgeTotal" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-weight: 700; font-size: 11.5px; padding: 3px 8px; border-radius: 6px;">Total: 0</span>
+              <span id="importBadgeReady" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-weight: 700; font-size: 11.5px; padding: 3px 8px; border-radius: 6px;">Prêts: 0</span>
+              <span id="importBadgeWarn" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; font-weight: 700; font-size: 11.5px; padding: 3px 8px; border-radius: 6px; display: none;">0 erreurs</span>
+            </div>
+          </div>
+
+          <div style="max-height: 280px; overflow: auto; border: 1px solid var(--border-color); border-radius: 8px; background: rgba(0,0,0,0.1);">
+            <table class="schoolaris-table" style="font-size: 12px; margin: 0;">
+              <thead>
+                <tr>
+                  <th style="width: 40px; text-align: center;" data-i18n="th_num_col">#</th>
+                  <th data-i18n="th_matricule_col">MATRICULE / ID</th>
+                  <th data-i18n="th_nom_col">NOM</th>
+                  <th data-i18n="th_prenom_col">PRÉNOM</th>
+                  <th data-i18n="th_genre_col">GENRE</th>
+                  <th data-i18n="th_niveau_col">NIVEAU SCOLAIRE</th>
+                  <th data-i18n="th_naissance_col">DATE NAISSANCE</th>
+                  <th data-i18n="th_lieu_col">LIEU NAISSANCE</th>
+                  <th data-i18n="th_parent_col">PÈRE / TUTEUR</th>
+                  <th data-i18n="th_adresse_col">ADRESSE</th>
+                  <th data-i18n="th_groupe_col">GROUPE / CLASSE</th>
+                  <th style="text-align: center;" data-i18n="th_statut_col">STATUT</th>
+                </tr>
+              </thead>
+              <tbody id="importPreviewTableBody">
+                <!-- Rows injected dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer" style="border-top: 1px solid var(--border-color); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center;">
+        <button type="button" class="btn-secondary" onclick="app.closeModals()">
+          <span data-i18n="btn_cancel">Annuler</span>
+        </button>
+        <div style="display: flex; gap: 10px;">
+          <button type="button" id="btnExecuteImport" class="btn-primary" onclick="app.executeStudentImport()" disabled
+            style="background: linear-gradient(135deg, #059669, #10b981); font-weight: 700; padding: 9px 20px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35); display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <span id="btnExecuteImportText" data-i18n="import_btn_confirm">Confirmer et enregistrer l'importation</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal: Ajouter / Modifier Élève -->
   <div class="modal-overlay" id="modalStudent">
     <div class="modal-content">
@@ -2680,6 +3399,19 @@
             <input type="text" id="studentParentPhone" class="form-control" placeholder="05/06/07...">
           </div>
         </div>
+        <div class="form-row">
+          <div class="form-group" style="flex: 2;">
+            <label class="form-label">الولي المسجل / Parent d'élève</label>
+            <select id="studentParentId" class="form-control" onchange="app.onStudentParentSelectChange()">
+              <option value="">-- اختار ولي مسجل مسبقاً (أو أدخل بياناته أدناه) --</option>
+            </select>
+          </div>
+          <div class="form-group" id="parentDiscountPreviewBox" style="flex: 1; display: none; align-self: flex-end; padding-bottom: 6px;">
+            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-weight: 700; padding: 7px 12px; border-radius: 6px; display: inline-block;">
+              <i class="fa-solid fa-percent"></i> تخفيض: <span id="parentDiscountBadgeVal">0</span>%
+            </span>
+          </div>
+        </div>
         <div class="form-group">
           <label class="form-label">Nom du Parent / Tuteur</label>
           <input type="text" id="studentParentName" class="form-control" placeholder="Nom complet du responsable...">
@@ -2696,48 +3428,202 @@
     </div>
   </div>
 
+  <!-- Modal: Ajouter / Modifier Parent (الولي) -->
+  <div class="modal-overlay" id="modalParent">
+    <div class="modal-content" style="max-width: 580px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(139, 92, 246, 0.15); color: #8b5cf6; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+            <i class="fa-solid fa-people-roof"></i>
+          </div>
+          <h3 class="modal-title" id="modalParentTitle" data-i18n="btn_add_parent">Nouveau parent</h3>
+        </div>
+        <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="parentForm" onsubmit="event.preventDefault(); app.saveParent();">
+        <input type="hidden" id="parentId">
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label class="form-label" data-i18n="lbl_parent_fullname">Nom complet du parent (Nom et Prénom) *</label>
+          <input type="text" id="parentFullName" class="form-control" required
+            placeholder="Ex: Benali Mohamed">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" data-i18n="lbl_parent_phone">Téléphone principal *</label>
+            <input type="text" id="parentPhone" class="form-control" required placeholder="05 / 06 / 07...">
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="lbl_parent_phone_sec">Téléphone secondaire / WhatsApp</label>
+            <input type="text" id="parentPhoneSecondary" class="form-control" placeholder="Optionnel...">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" data-i18n="lbl_parent_email">Adresse email</label>
+            <input type="email" id="parentEmail" class="form-control" placeholder="parent@example.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="lbl_parent_address">Adresse de résidence</label>
+            <input type="text" id="parentAddress" class="form-control" placeholder="Ville, quartier...">
+          </div>
+        </div>
+
+        <!-- Manual Discount Percentage Section -->
+        <div style="background: rgba(139, 92, 246, 0.06); border: 1px dashed rgba(139, 92, 246, 0.35); border-radius: 10px; padding: 14px; margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label class="form-label" style="margin-bottom: 0; color: #8b5cf6; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+              <i class="fa-solid fa-percent"></i> <span data-i18n="lbl_parent_discount_title">Taux de remise accordé à la famille (%)</span>
+            </label>
+            <span style="font-size: 11px; color: var(--text-muted);" data-i18n="lbl_parent_discount_hint">Appliqué automatiquement aux inscriptions des enfants</span>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <input type="number" id="parentDiscountPercent" class="form-control" min="0" max="100" step="1"
+              value="0" style="width: 110px; text-align: center; font-weight: 800; font-size: 16px; color: #10b981;">
+            <span style="font-weight: 800; font-size: 16px; color: var(--text-heading);">%</span>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-inline-start: 10px;">
+              <button type="button" class="btn-secondary" style="padding: 4px 8px; font-size: 11px;" onclick="document.getElementById('parentDiscountPercent').value=0">0%</button>
+              <button type="button" class="btn-secondary" style="padding: 4px 8px; font-size: 11px;" onclick="document.getElementById('parentDiscountPercent').value=10">10%</button>
+              <button type="button" class="btn-secondary" style="padding: 4px 8px; font-size: 11px;" onclick="document.getElementById('parentDiscountPercent').value=15">15%</button>
+              <button type="button" class="btn-secondary" style="padding: 4px 8px; font-size: 11px;" onclick="document.getElementById('parentDiscountPercent').value=20">20%</button>
+              <button type="button" class="btn-secondary" style="padding: 4px 8px; font-size: 11px;" onclick="document.getElementById('parentDiscountPercent').value=25">25%</button>
+              <button type="button" class="btn-secondary" style="padding: 4px 8px; font-size: 11px;" onclick="document.getElementById('parentDiscountPercent').value=50">50%</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" data-i18n="lbl_parent_notes">Notes & observations sur la famille</label>
+          <textarea id="parentNotes" class="form-control" rows="2" placeholder="Observations ou statut particulier..."></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+          <button type="button" class="btn-secondary" onclick="app.closeModals()" data-i18n="btn_cancel">Annuler</button>
+          <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, #7c3aed, #8b5cf6);" data-i18n="btn_save_parent">Enregistrer le parent</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Dossier Familial (ملف العائلة والأبناء المتمدرسين) -->
+  <div class="modal-overlay" id="modalParentDossier">
+    <div class="modal-content" style="max-width: 820px; width: 95%;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(139, 92, 246, 0.15); color: #8b5cf6; display: flex; align-items: center; justify-content: center; font-size: 22px;">
+            <i class="fa-solid fa-people-roof"></i>
+          </div>
+          <div>
+            <h3 class="modal-title" id="dossierParentName">Dossier Familial</h3>
+            <div style="font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 12px; margin-top: 3px;">
+              <span id="dossierParentPhone"><i class="fa-solid fa-phone"></i> -</span>
+              <span id="dossierParentDiscount"><i class="fa-solid fa-percent"></i> Remise: 0%</span>
+              <span id="dossierParentAddress" style="display:none;"><i class="fa-solid fa-location-dot"></i> -</span>
+            </div>
+          </div>
+        </div>
+        <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <!-- Quick Summary Badges -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 16px 0;">
+        <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; text-align: center;">
+          <div style="font-size: 11px; color: var(--text-muted);" data-i18n="dossier_stat_children">Enfants scolarisés</div>
+          <div id="dossierChildrenCount" style="font-size: 20px; font-weight: 800; color: #3b82f6; margin-top: 2px;">0</div>
+        </div>
+        <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; text-align: center;">
+          <div style="font-size: 11px; color: var(--text-muted);" data-i18n="dossier_stat_discount">Taux de remise</div>
+          <div id="dossierDiscountVal" style="font-size: 20px; font-weight: 800; color: #10b981; margin-top: 2px;">0%</div>
+        </div>
+        <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; text-align: center;">
+          <div style="font-size: 11px; color: var(--text-muted);" data-i18n="dossier_stat_debts">Reste dû familial</div>
+          <div id="dossierTotalDebt" style="font-size: 20px; font-weight: 800; color: #ef4444; margin-top: 2px;">0 DA</div>
+        </div>
+      </div>
+
+      <!-- Children List Section -->
+      <div style="margin-bottom: 20px;">
+        <h4 style="font-size: 14px; font-weight: 700; color: var(--text-heading); margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
+          <span><i class="fa-solid fa-children" style="color: #3b82f6; margin-right: 6px; margin-left: 6px;"></i> <span data-i18n="dossier_title_children">Liste des enfants scolarisés dans l'établissement</span></span>
+        </h4>
+        <div id="dossierChildrenContainer" style="display: flex; flex-direction: column; gap: 10px;">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+
+      <!-- Family Unpaid Breakdown Section -->
+      <div style="margin-bottom: 20px;">
+        <h4 style="font-size: 14px; font-weight: 700; color: var(--text-heading); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+          <i class="fa-solid fa-clock-rotate-left" style="color: #f59e0b;"></i> <span data-i18n="dossier_title_unpaid">Impayés et cotisations en attente de la famille</span>
+        </h4>
+        <div class="table-responsive" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px;">
+          <table class="schoolaris-table" style="margin-bottom: 0;">
+            <thead>
+              <tr>
+                <th data-i18n="dossier_th_student">Élève</th>
+                <th data-i18n="dossier_th_group">Groupe / Matière</th>
+                <th data-i18n="dossier_th_month">Mois</th>
+                <th style="text-align: right;" data-i18n="dossier_th_amount">Montant dû</th>
+                <th style="text-align: center;" data-i18n="th_actions">Action</th>
+              </tr>
+            </thead>
+            <tbody id="dossierUnpaidTableBody">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border-color);">
+        <button type="button" class="btn-secondary" onclick="app.closeModals()" data-i18n="btn_close">Fermer</button>
+        <button type="button" class="btn-primary" id="btnDossierEditParent" style="background: linear-gradient(135deg, #7c3aed, #8b5cf6);">
+          <i class="fa-solid fa-pen-to-square"></i> <span data-i18n="btn_edit_parent">Modifier le parent</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal: Imprimer Carte d'Élève (Student Card with High-Density Barcode) -->
   <div class="modal-overlay" id="modalStudentCard">
     <div class="modal-content" style="max-width: 490px; text-align: center;">
       <div class="modal-header">
         <div style="display: flex; align-items: center; gap: 8px;">
-          <i class="fa-solid fa-id-card-clip" style="color: #3b82f6; font-size: 20px;"></i>
-          <h3 class="modal-title" data-i18n="modal_card_title">بطاقة التلميذ المدرسية • Carte Scolaire</h3>
+          <i class="fa-solid fa-id-card-clip" style="color: #10b981; font-size: 20px;"></i>
+          <h3 class="modal-title" data-i18n="modal_card_title">Carte Scolaire de l'Élève</h3>
         </div>
         <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
-      <!-- Theme Selector Pills -->
+      <!-- Theme Selector Pills (No Blue - Emerald Green is Default) -->
       <div class="student-card-theme-bar">
-        <button type="button" class="btn-card-theme active" id="btnThemeBlue" onclick="app.setStudentCardTheme('blue')"
-          title="Bleu Royal">
-          <span
-            style="width: 12px; height: 12px; border-radius: 50%; background: #2563eb; display: inline-block;"></span>
-          <span>أزرق ملكي</span>
-        </button>
-        <button type="button" class="btn-card-theme" id="btnThemeEmerald" onclick="app.setStudentCardTheme('emerald')"
+        <button type="button" class="btn-card-theme active" id="btnThemeEmerald" onclick="app.setStudentCardTheme('emerald')"
           title="Vert Émeraude">
           <span
             style="width: 12px; height: 12px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
-          <span>زمردي</span>
+          <span data-i18n="theme_emerald">Vert Émeraude</span>
+        </button>
+        <button type="button" class="btn-card-theme" id="btnThemePurple" onclick="app.setStudentCardTheme('purple')"
+          title="Pourpre Royal">
+          <span
+            style="width: 12px; height: 12px; border-radius: 50%; background: #8b5cf6; display: inline-block;"></span>
+          <span data-i18n="theme_purple">Pourpre Royal</span>
         </button>
         <button type="button" class="btn-card-theme" id="btnThemeGold" onclick="app.setStudentCardTheme('gold')"
           title="Noir & Or">
           <span
             style="width: 12px; height: 12px; border-radius: 50%; background: #f59e0b; display: inline-block;"></span>
-          <span>ذهبي فاخر</span>
+          <span data-i18n="theme_gold">Noir & Or</span>
         </button>
         <button type="button" class="btn-card-theme" id="btnThemeWhite" onclick="app.setStudentCardTheme('white')"
           title="Blanc économique">
           <span
             style="width: 12px; height: 12px; border-radius: 50%; background: #ffffff; border: 1px solid #94a3b8; display: inline-block;"></span>
-          <span>أبيض ناصع</span>
+          <span data-i18n="theme_white">Blanc Économique</span>
         </button>
       </div>
 
       <!-- Student Card Preview Wrapper -->
       <div class="student-card-wrapper">
-        <div id="printableCard" class="student-card-preview theme-blue">
+        <div id="printableCard" class="student-card-preview theme-emerald">
           <!-- Card Header / Brand -->
           <div class="card-header-bar">
             <div class="card-brand-left">
@@ -2746,11 +3632,11 @@
               </div>
               <div class="card-school-info">
                 <div class="card-school-title" id="cardSchoolName">EDUMIND ACADEMY</div>
-                <div class="card-school-sub">COURS DE SOUTIEN & FORMATION</div>
+                <div class="card-school-sub" id="cardSchoolSub" data-i18n="card_school_sub">ÉTABLISSEMENT D'ENSEIGNEMENT</div>
               </div>
             </div>
             <div class="card-badge-right">
-              <span class="card-official-tag">OFFICIEL • نظامي</span>
+              <span class="card-official-tag" id="cardOfficialTag" data-i18n="card_tag_student">ÉLÈVE • OFFICIEL</span>
               <span class="card-year-badge" id="cardSchoolYear">2025/2026</span>
             </div>
           </div>
@@ -2761,7 +3647,7 @@
               <div class="card-avatar-frame" id="cardAvatarContainer">
                 <i class="fa-solid fa-user" style="font-size: 36px; opacity: 0.6;"></i>
               </div>
-              <span class="card-verified-ribbon"><i class="fa-solid fa-circle-check"></i> رسمي</span>
+              <span class="card-verified-ribbon" id="cardVerifiedRibbon"><i class="fa-solid fa-circle-check"></i> <span data-i18n="card_verified">OFFICIEL</span></span>
             </div>
             <div class="card-info-col">
               <h3 class="card-name-text" id="cardStudentName">Nom de l'élève</h3>
@@ -2770,11 +3656,11 @@
                 <strong id="cardStudentMatricule">ETU-2026-0001</strong>
               </div>
               <div class="card-data-row">
-                <span class="card-info-lbl">المستوى / Niveau:</span>
+                <span class="card-info-lbl" id="cardInfoLevelLbl" data-i18n="lbl_card_level">Niveau :</span>
                 <strong class="card-info-val" id="cardStudentLevel">3AS - BAC</strong>
               </div>
               <div class="card-data-row">
-                <span class="card-info-lbl">الهاتف / Tél:</span>
+                <span class="card-info-lbl" id="cardInfoPhoneLbl" data-i18n="lbl_card_phone">Tél :</span>
                 <span class="card-info-val" id="cardStudentPhone">0550 00 00 00</span>
               </div>
             </div>
@@ -2785,7 +3671,7 @@
             <svg id="cardBarcodeSvg"></svg>
             <div class="card-barcode-sublabel">
               <i class="fa-solid fa-barcode"></i>
-              <span>رمز تسجيل الحضور السريع • Pointage Automatique</span>
+              <span id="cardBarcodeSublabel" data-i18n="card_barcode_sublabel">Pointage Automatique & Présence</span>
             </div>
           </div>
         </div>
@@ -2799,20 +3685,104 @@
         <button type="button" class="btn-secondary" onclick="app.copyStudentBarcodeMatricule()"
           title="Copier le matricule">
           <i class="fa-solid fa-copy"></i>
-          <span>نسخ الكود</span>
+          <span data-i18n="btn_copy_code">Copier le code</span>
         </button>
         <button type="button" class="btn-primary" id="btnDownloadCardPdf"
           style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border-color: #dc2626;"
           onclick="app.downloadStudentCardPdf()"
           title="Télécharger la carte scolaire au format PDF">
           <i class="fa-solid fa-file-pdf"></i>
-          <span data-i18n="btn_download_card_pdf">تحميل البطاقة (PDF)</span>
+          <span data-i18n="btn_download_card_pdf">Télécharger (PDF)</span>
         </button>
         <button type="button" class="btn-primary"
           style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-color: #059669;"
           onclick="app.printSingleStudentCard()">
           <i class="fa-solid fa-print"></i>
-          <span>طباعة البطاقة (CR-80)</span>
+          <span data-i18n="btn_print_card">Imprimer (CR-80)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: CARTE ENSEIGNANT PROFESSIONNELLE ==================== -->
+  <div class="modal-overlay" id="modalTeacherCard">
+    <div class="modal-content" style="max-width: 580px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-id-badge" style="color: #f97316; font-size: 20px;"></i>
+          <h3 class="modal-title" data-i18n="modal_teacher_card_title">Badge Professionnel Enseignant</h3>
+        </div>
+        <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <!-- Teacher Card Preview Wrapper -->
+      <div class="student-card-wrapper">
+        <div id="printableTeacherCard" class="student-card-preview theme-teacher" style="border-top: 4px solid #ea580c;">
+          <!-- Card Header / Brand -->
+          <div class="card-header-bar">
+            <div class="card-brand-left">
+              <div class="card-logo-box">
+                <img id="cardTeacherSchoolLogo" src="/img/logo-icon.png" alt="Logo">
+              </div>
+              <div class="card-school-info">
+                <div class="card-school-title" id="cardTeacherSchoolName">EDUMIND ACADEMY</div>
+                <div class="card-school-sub" id="cardTeacherSchoolSub" data-i18n="card_teacher_school_sub">CORPS ENSEIGNANT</div>
+              </div>
+            </div>
+            <div class="card-badge-right">
+              <span class="card-official-tag" id="cardTeacherOfficialTag" data-i18n="card_tag_teacher" style="background: rgba(249, 115, 22, 0.2); color: #f97316; border-color: rgba(249, 115, 22, 0.4);">ENSEIGNANT</span>
+              <span class="card-year-badge" id="cardTeacherSchoolYear">2025/2026</span>
+            </div>
+          </div>
+
+          <!-- Card Body: Avatar & Information -->
+          <div class="card-main-body">
+            <div class="card-avatar-wrapper">
+              <div class="card-avatar-frame" id="cardTeacherAvatarContainer">
+                <i class="fa-solid fa-chalkboard-user" style="font-size: 36px; opacity: 0.8; color: #f97316;"></i>
+              </div>
+              <span class="card-verified-ribbon" id="cardTeacherVerifiedRibbon" style="background: #ea580c;"><i class="fa-solid fa-circle-check"></i> <span data-i18n="card_verified">OFFICIEL</span></span>
+            </div>
+            <div class="card-info-col">
+              <h3 class="card-name-text" id="cardTeacherName">Nom de l'enseignant</h3>
+              <div class="card-matricule-badge" style="background: rgba(249, 115, 22, 0.15); color: #f97316;" title="Matricule Enseignant">
+                <i class="fa-solid fa-fingerprint"></i>
+                <strong id="cardTeacherMatricule">ENS-001</strong>
+              </div>
+              <div class="card-data-row">
+                <span class="card-info-lbl" id="cardTeacherSubjectLbl" data-i18n="lbl_teacher_subject">Matière :</span>
+                <strong class="card-info-val" id="cardTeacherSubject" style="color: #60a5fa;">Mathématiques</strong>
+              </div>
+              <div class="card-data-row">
+                <span class="card-info-lbl" id="cardTeacherPhoneLbl" data-i18n="lbl_card_phone">Tél :</span>
+                <span class="card-info-val" id="cardTeacherPhone">0550 00 00 00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- High-Contrast Clean Barcode Container -->
+          <div class="card-barcode-box">
+            <svg id="cardTeacherBarcodeSvg"></svg>
+            <div class="card-barcode-sublabel">
+              <i class="fa-solid fa-barcode"></i>
+              <span id="cardTeacherBarcodeSublabel" data-i18n="card_teacher_barcode_sublabel">Pointage d'Entrée & Contrôle d'Accès</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 14px;">
+        <button type="button" class="btn-secondary" onclick="app.closeModals()">
+          <span data-i18n="btn_cancel">Fermer</span>
+        </button>
+        <button type="button" class="btn-secondary" onclick="app.copyTeacherBarcodeMatricule()" title="Copier le matricule">
+          <i class="fa-solid fa-copy"></i>
+          <span data-i18n="btn_copy_code">Copier le code</span>
+        </button>
+        <button type="button" class="btn-primary" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-color: #059669;" onclick="app.printSingleTeacherCard()">
+          <i class="fa-solid fa-print"></i>
+          <span data-i18n="btn_print_card">Imprimer (CR-80)</span>
         </button>
       </div>
     </div>
@@ -2823,12 +3793,12 @@
     <div class="modal-content" style="max-width: 680px;">
       <div class="modal-header">
         <div style="display: flex; align-items: center; gap: 10px;">
-          <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(59, 130, 246, 0.15); display: flex; align-items: center; justify-content: center; color: #3b82f6; font-size: 19px; flex-shrink: 0;">
+          <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(16, 185, 129, 0.15); display: flex; align-items: center; justify-content: center; color: #10b981; font-size: 19px; flex-shrink: 0;">
             <i class="fa-solid fa-id-card"></i>
           </div>
           <div>
-            <h3 class="modal-title" style="margin: 0; font-size: 17px;">طباعة بطاقات متعددة • Impression Groupée des Badges</h3>
-            <span style="font-size: 12px; color: var(--text-muted);">توليد وطباعة بطاقات مدرسية احترافية مع الباركود بتنسيق A4 (8 بطاقات لكل ورقة)</span>
+            <h3 class="modal-title" style="margin: 0; font-size: 17px;" data-i18n="modal_batch_badges_title">Impression Groupée des Badges</h3>
+            <span style="font-size: 12px; color: var(--text-muted);" data-i18n="modal_batch_badges_desc">Génération et impression de cartes scolaires professionnelles au format A4 (8 cartes par page)</span>
           </div>
         </div>
         <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
@@ -2838,15 +3808,15 @@
       <div style="background: var(--bg-hover); padding: 14px 16px; border-radius: 10px; margin: 14px 0; border: 1px solid var(--border-color);">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px;">
           <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label" style="font-size: 12px; margin-bottom: 4px;">تصفية حسب المستوى الدراسي</label>
+            <label class="form-label" style="font-size: 12px; margin-bottom: 4px;" data-i18n="lbl_filter_level">Filtrer par niveau scolaire</label>
             <select id="batchBadgesFilterLevel" class="form-control" style="font-size: 13px;" onchange="app.filterBatchBadgesList()">
-              <option value="">-- كل المستويات --</option>
+              <option value="" data-i18n="opt_all_levels">-- Tous les niveaux --</option>
             </select>
           </div>
           <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label" style="font-size: 12px; margin-bottom: 4px;">تصفية حسب الفوج الدراسي</label>
+            <label class="form-label" style="font-size: 12px; margin-bottom: 4px;" data-i18n="lbl_filter_group">Filtrer par groupe</label>
             <select id="batchBadgesFilterGroup" class="form-control" style="font-size: 13px;" onchange="app.filterBatchBadgesList()">
-              <option value="">-- كل الأفواج --</option>
+              <option value="" data-i18n="opt_all_groups">-- Tous les groupes --</option>
             </select>
           </div>
         </div>
@@ -2855,12 +3825,12 @@
           <div class="schoolaris-search-box" style="flex: 1; margin: 0; height: 38px;">
             <i class="fa-solid fa-magnifying-glass" style="font-size: 12px;"></i>
             <input type="text" id="batchBadgesSearchInput" class="schoolaris-search-input" style="font-size: 12px;"
-              placeholder="بحث بالاسم أو اللقب أو رقم القيد..." oninput="app.filterBatchBadgesList()">
+              placeholder="Rechercher par nom, matricule ou téléphone..." oninput="app.filterBatchBadgesList()">
           </div>
           <button type="button" class="btn-secondary" style="height: 38px; padding: 0 14px; font-size: 12px; white-space: nowrap;"
             onclick="app.toggleSelectAllBatchModal()">
             <i class="fa-solid fa-check-double"></i>
-            <span id="batchModalToggleAllText">تحديد الكل</span>
+            <span id="batchModalToggleAllText" data-i18n="btn_select_all">Tout sélectionner</span>
           </button>
         </div>
       </div>
@@ -2868,53 +3838,53 @@
       <!-- Students Selection List (Scrollable) -->
       <div style="margin-bottom: 14px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-          <span style="font-size: 12px; font-weight: 700; color: var(--text-heading);">قائمة التلاميذ المتاحين (<span id="batchListCount">0</span>):</span>
-          <span style="font-size: 12px; font-weight: 700; color: #3b82f6;">تم تحديد: <span id="batchModalCheckedCount">0</span> تلميذ</span>
+          <span style="font-size: 12px; font-weight: 700; color: var(--text-heading);"><span data-i18n="lbl_available_students">Élèves disponibles</span> (<span id="batchListCount">0</span>) :</span>
+          <span style="font-size: 12px; font-weight: 700; color: #10b981;"><span data-i18n="lbl_selected_students">Sélectionnés</span> : <span id="batchModalCheckedCount">0</span></span>
         </div>
         <div id="batchBadgesStudentsContainer" style="max-height: 220px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; background: rgba(0,0,0,0.15); padding: 6px;">
           <!-- Injected via JS -->
         </div>
       </div>
 
-      <!-- Theme Selector & Format Options -->
-      <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(59, 130, 246, 0.06); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+      <!-- Theme Selector & Format Options (No Blue - Emerald Green is Default) -->
+      <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(16, 185, 129, 0.06); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
         <div>
-          <div style="font-size: 12px; font-weight: 700; margin-bottom: 6px; color: var(--text-heading);">تصميم ولون البطاقات:</div>
+          <div style="font-size: 12px; font-weight: 700; margin-bottom: 6px; color: var(--text-heading);" data-i18n="lbl_badges_theme">Thème et style des cartes :</div>
           <div class="student-card-theme-bar" style="margin: 0;">
-            <button type="button" class="btn-card-theme active" id="btnBatchThemeBlue" onclick="app.setBatchTheme('blue')">
-              <span style="width: 10px; height: 10px; border-radius: 50%; background: #2563eb; display: inline-block;"></span>
-              <span>أزرق ملكي</span>
-            </button>
-            <button type="button" class="btn-card-theme" id="btnBatchThemeEmerald" onclick="app.setBatchTheme('emerald')">
+            <button type="button" class="btn-card-theme active" id="btnBatchThemeEmerald" onclick="app.setBatchTheme('emerald')">
               <span style="width: 10px; height: 10px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
-              <span>زمردي</span>
+              <span data-i18n="theme_emerald">Vert Émeraude</span>
+            </button>
+            <button type="button" class="btn-card-theme" id="btnBatchThemePurple" onclick="app.setBatchTheme('purple')">
+              <span style="width: 10px; height: 10px; border-radius: 50%; background: #8b5cf6; display: inline-block;"></span>
+              <span data-i18n="theme_purple">Pourpre Royal</span>
             </button>
             <button type="button" class="btn-card-theme" id="btnBatchThemeGold" onclick="app.setBatchTheme('gold')">
               <span style="width: 10px; height: 10px; border-radius: 50%; background: #f59e0b; display: inline-block;"></span>
-              <span>ذهبي</span>
+              <span data-i18n="theme_gold">Noir & Or</span>
             </button>
             <button type="button" class="btn-card-theme" id="btnBatchThemeWhite" onclick="app.setBatchTheme('white')">
               <span style="width: 10px; height: 10px; border-radius: 50%; background: #ffffff; border: 1px solid #94a3b8; display: inline-block;"></span>
-              <span>أبيض اقتصادي</span>
+              <span data-i18n="theme_white">Blanc Économique</span>
             </button>
           </div>
         </div>
         <div style="text-align: right; font-size: 12px; color: var(--text-muted);">
-          <div><i class="fa-solid fa-print"></i> <strong>ورق A4 قياسي</strong></div>
-          <div style="color: #10b981; font-weight: 600; margin-top: 2px;" id="batchPagesEstimateInfo">8 بطاقات لكل ورقة</div>
+          <div><i class="fa-solid fa-print"></i> <strong data-i18n="lbl_a4_format">Format standard A4</strong></div>
+          <div style="color: #10b981; font-weight: 600; margin-top: 2px;" id="batchPagesEstimateInfo" data-i18n="lbl_cards_per_page">8 cartes par page</div>
         </div>
       </div>
 
       <!-- Action Buttons -->
       <div style="display: flex; gap: 10px; justify-content: flex-end; align-items: center;">
         <button type="button" class="btn-secondary" onclick="app.closeModals()">
-          <span>إلغاء</span>
+          <span data-i18n="btn_cancel">Fermer</span>
         </button>
         <button type="button" class="btn-primary" id="btnExecuteBatchPrint"
-          style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); padding: 10px 24px; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px;"
+          style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 10px 24px; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px;"
           onclick="app.startBatchBadgesPrint()">
           <i class="fa-solid fa-print"></i>
-          <span id="btnExecuteBatchPrintText">معاينة وطباعة البطاقات</span>
+          <span id="btnExecuteBatchPrintText" data-i18n="btn_print_badges">Imprimer les badges</span>
         </button>
       </div>
     </div>
@@ -3092,7 +4062,7 @@
           </div>
         </div>
 
-        <table class="receipt-table">
+        <table class="receipt-table" id="rcptSingleTable">
           <thead>
             <tr>
               <th>DÉSIGNATION</th>
@@ -3115,9 +4085,51 @@
           </tbody>
         </table>
 
+        <!-- Itemized Multi-Course Receipt Table -->
+        <table class="receipt-table" id="rcptMultiTable" style="display: none; width: 100%; margin-top: 10px; font-size: 11px;">
+          <thead>
+            <tr>
+              <th style="text-align: center; width: 25px;">#</th>
+              <th>GROUPE / MATIÈRE</th>
+              <th>PÉRIODE</th>
+              <th style="text-align: right;">TARIF</th>
+              <th style="text-align: right;">REMISE</th>
+              <th style="text-align: right;">PAYÉ</th>
+              <th style="text-align: right;">RESTE</th>
+            </tr>
+          </thead>
+          <tbody id="rcptMultiTableBody">
+            <!-- Dynamic rows -->
+          </tbody>
+        </table>
+
+        <!-- Itemized Family Receipt Table (Multi-Children) -->
+        <table class="receipt-table" id="rcptFamilyTable" style="display: none; width: 100%; margin-top: 10px; font-size: 11px;">
+          <thead>
+            <tr>
+              <th style="text-align: center; width: 25px;">#</th>
+              <th>ÉLÈVE / التلميذ</th>
+              <th>GROUPE / MATIÈRE</th>
+              <th>PÉRIODE</th>
+              <th style="text-align: right;">TARIF</th>
+              <th style="text-align: right;">REMISE</th>
+              <th style="text-align: right;">PAYÉ</th>
+              <th style="text-align: right;">RESTE</th>
+            </tr>
+          </thead>
+          <tbody id="rcptFamilyTableBody">
+            <!-- Dynamic rows -->
+          </tbody>
+        </table>
+
         <div class="receipt-total-box">
           <span class="receipt-total-title">MONTANT VERSÉ / المحصّل</span>
           <span class="receipt-total-amount" id="rcptTotalPaid">2,500.00 DA</span>
+        </div>
+
+        <div id="rcptFamilyRemainingBox" style="display: none; justify-content: space-between; align-items: center; padding: 7px 14px; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 6px; margin-top: 6px; font-size: 12px; color: #ef4444; font-weight: 700;">
+          <span>RESTE DÛ / المتبقي كدين :</span>
+          <span id="rcptFamilyTotalRemaining">0.00 DA</span>
         </div>
 
         <div class="receipt-footer">
@@ -3218,8 +4230,7 @@
           <div
             style="padding: 12px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 8px; font-size: 13px; color: #93c5fd;">
             <i class="fa-solid fa-circle-info" style="margin-right: 6px;"></i>
-            <span data-i18n="msg_export_all_hint">سيتم استخراج وتصدير السجل الكامل لجميع عمليات الدفع المسجلة منذ بداية
-              النظام.</span>
+            <span data-i18n="msg_export_all_hint">Le journal complet de toutes les opérations de paiement enregistrées sera extrait et exporté.</span>
           </div>
         </div>
 
@@ -3228,16 +4239,16 @@
           <div class="form-group">
             <label class="form-label" data-i18n="lbl_filter_group">تصفية حسب الفوج (اختياري) :</label>
             <select id="exportGroupSelect" class="form-control" onchange="app.updateExportPaymentsPreview()">
-              <option value="all">كل الأفواج (Tous les groupes)</option>
+              <option value="all" data-i18n="opt_all_groups">-- Tous les groupes --</option>
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label" data-i18n="lbl_filter_method">وسيلة الدفع (اختياري) :</label>
+            <label class="form-label" data-i18n="lbl_filter_method">Mode de paiement (Optionnel) :</label>
             <select id="exportMethodSelect" class="form-control" onchange="app.updateExportPaymentsPreview()">
-              <option value="all">كل الوسائل (Tous)</option>
-              <option value="espece">نقداً / Espèces</option>
-              <option value="baridimob">بريدي موب / BaridiMob / CCP</option>
-              <option value="cheque">شيك / Chèque</option>
+              <option value="all" data-i18n="opt_all_methods">Tous les modes</option>
+              <option value="espece" data-i18n="opt_method_cash">Espèces</option>
+              <option value="baridimob" data-i18n="opt_method_baridimob">BaridiMob / CCP</option>
+              <option value="cheque" data-i18n="opt_method_cheque">Chèque</option>
             </select>
           </div>
         </div>
@@ -3327,13 +4338,12 @@
         <!-- Mode 2: Multiple Months Checkboxes -->
         <div id="exportCaisseSectionMulti" class="form-group" style="display: none;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <label class="form-label" style="margin: 0;" data-i18n="lbl_choose_multi_months">حدد الأشهر المطلوبة للتصدير
-              :</label>
+            <label class="form-label" style="margin: 0;" data-i18n="lbl_choose_multi_months">Sélectionnez les mois à exporter :</label>
             <div style="display: flex; gap: 8px;">
               <button type="button" class="btn-secondary" style="padding: 3px 10px; font-size: 11px;"
-                onclick="app.toggleAllExportCaisseMonths(true)" data-i18n="btn_select_all">تحديد الكل</button>
+                onclick="app.toggleAllExportCaisseMonths(true)" data-i18n="btn_select_all">Tout sélectionner</button>
               <button type="button" class="btn-secondary" style="padding: 3px 10px; font-size: 11px;"
-                onclick="app.toggleAllExportCaisseMonths(false)" data-i18n="btn_deselect_all">إلغاء التحديد</button>
+                onclick="app.toggleAllExportCaisseMonths(false)" data-i18n="btn_deselect_all">Tout désélectionner</button>
             </div>
           </div>
           <div id="exportCaisseMultiMonthsGrid" class="months-checkbox-grid">
@@ -3344,12 +4354,12 @@
         <!-- Mode 3: Date Range -->
         <div id="exportCaisseSectionRange" class="form-row" style="display: none;">
           <div class="form-group">
-            <label class="form-label" data-i18n="lbl_from_date">من تاريخ :</label>
+            <label class="form-label" data-i18n="lbl_from_date">Du :</label>
             <input type="date" id="exportCaisseRangeFromDate" class="form-control"
               onchange="app.updateExportCaissePreview()">
           </div>
           <div class="form-group">
-            <label class="form-label" data-i18n="lbl_to_date">إلى تاريخ :</label>
+            <label class="form-label" data-i18n="lbl_to_date">Au :</label>
             <input type="date" id="exportCaisseRangeToDate" class="form-control"
               onchange="app.updateExportCaissePreview()">
           </div>
@@ -3360,34 +4370,33 @@
           <div
             style="padding: 12px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 8px; font-size: 13px; color: #fbbf24;">
             <i class="fa-solid fa-circle-info" style="margin-right: 6px;"></i>
-            <span data-i18n="msg_export_caisse_all_hint">سيتم استخراج وتصدير السجل الكامل لجميع حركات الصندوق والخزينة
-              (مداخيل ومصاريف) المسجلة في النظام.</span>
+            <span data-i18n="msg_export_caisse_all_hint">Le journal complet de tous les mouvements de caisse et de trésorerie (entrées et dépenses) sera extrait et exporté.</span>
           </div>
         </div>
 
         <!-- Optional Filters Row: Flux Type, Category, Method -->
         <div class="form-row" style="margin-top: 10px;">
           <div class="form-group">
-            <label class="form-label" data-i18n="lbl_filter_caisse_type">نوع الحركة (Flux) :</label>
+            <label class="form-label" data-i18n="lbl_filter_caisse_type">Type de mouvement (Flux) :</label>
             <select id="exportCaisseTypeSelect" class="form-control" onchange="app.updateExportCaissePreview()">
-              <option value="all" data-i18n="opt_all_flux">كل الحركات (المداخيل والمصاريف)</option>
-              <option value="entree" data-i18n="opt_entrees_only">مداخيل فقط / Entrées (+)</option>
-              <option value="sortie" data-i18n="opt_sorties_only">مصاريف فقط / Sorties (-)</option>
+              <option value="all" data-i18n="opt_all_flux">Tous les flux (Entrées & Dépenses)</option>
+              <option value="entree" data-i18n="opt_entrees_only">Entrées uniquement (+)</option>
+              <option value="sortie" data-i18n="opt_sorties_only">Dépenses uniquement (-)</option>
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label" data-i18n="lbl_filter_category">التصنيف (Catégorie) :</label>
+            <label class="form-label" data-i18n="lbl_filter_category">Catégorie :</label>
             <select id="exportCaisseCategorySelect" class="form-control" onchange="app.updateExportCaissePreview()">
-              <option value="all" data-i18n="opt_all_categories">كل التصنيفات (Toutes)</option>
+              <option value="all" data-i18n="opt_all_categories">Toutes les catégories</option>
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label" data-i18n="lbl_filter_method">وسيلة الدفع :</label>
+            <label class="form-label" data-i18n="lbl_filter_method">Mode de paiement :</label>
             <select id="exportCaisseMethodSelect" class="form-control" onchange="app.updateExportCaissePreview()">
-              <option value="all" data-i18n="opt_all_methods">كل الوسائل (Tous)</option>
-              <option value="espece">نقداً / Espèces</option>
-              <option value="baridimob">بريدي موب / BaridiMob / CCP</option>
-              <option value="cheque">شيك / Chèque</option>
+              <option value="all" data-i18n="opt_all_methods">Tous les modes</option>
+              <option value="espece" data-i18n="opt_method_cash">Espèces</option>
+              <option value="baridimob" data-i18n="opt_method_baridimob">BaridiMob / CCP</option>
+              <option value="cheque" data-i18n="opt_method_cheque">Chèque</option>
             </select>
           </div>
         </div>
@@ -3397,22 +4406,22 @@
           style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(180, 83, 9, 0.08)); border-color: rgba(245, 158, 11, 0.3);">
           <div class="export-preview-item">
             <span class="export-preview-val" id="exportCaissePreviewCount" style="color: #f59e0b;">0</span>
-            <span class="export-preview-lbl" data-i18n="lbl_count_caisse_ops">عدد الحركات</span>
+            <span class="export-preview-lbl" data-i18n="lbl_count_caisse_ops">Nombre d'opérations</span>
           </div>
           <div style="width: 1px; height: 35px; background: rgba(245, 158, 11, 0.2);"></div>
           <div class="export-preview-item">
             <span class="export-preview-val" id="exportCaissePreviewIn" style="color: #10b981;">0 DA</span>
-            <span class="export-preview-lbl" data-i18n="lbl_total_entrees">إجمالي المداخيل</span>
+            <span class="export-preview-lbl" data-i18n="lbl_total_entrees">Total Entrées</span>
           </div>
           <div style="width: 1px; height: 35px; background: rgba(245, 158, 11, 0.2);"></div>
           <div class="export-preview-item">
             <span class="export-preview-val" id="exportCaissePreviewOut" style="color: #ef4444;">0 DA</span>
-            <span class="export-preview-lbl" data-i18n="lbl_total_sorties">إجمالي المصاريف</span>
+            <span class="export-preview-lbl" data-i18n="lbl_total_sorties">Total Dépenses</span>
           </div>
           <div style="width: 1px; height: 35px; background: rgba(245, 158, 11, 0.2);"></div>
           <div class="export-preview-item">
             <span class="export-preview-val" id="exportCaissePreviewNet" style="color: #3b82f6;">0 DA</span>
-            <span class="export-preview-lbl" data-i18n="lbl_solde_net">الرصيد الصافي</span>
+            <span class="export-preview-lbl" data-i18n="lbl_solde_net">Solde Net</span>
           </div>
         </div>
 
@@ -3422,17 +4431,17 @@
         <!-- Modal Footer Actions -->
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
           <button type="button" class="btn-secondary" onclick="app.closeModals()">
-            <span data-i18n="btn_cancel">إلغاء</span>
+            <span data-i18n="btn_cancel">Annuler</span>
           </button>
           <button type="button" class="btn-primary"
             style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-color: #d97706;"
             onclick="app.executeExportCaisse('print')">
             <i class="fa-solid fa-print"></i>
-            <span data-i18n="btn_print_report">طباعة تقرير PDF</span>
+            <span data-i18n="btn_print_report">Imprimer Rapport PDF</span>
           </button>
           <button type="button" class="btn-excel" onclick="app.executeExportCaisse('excel')">
             <i class="fa-solid fa-file-excel"></i>
-            <span data-i18n="btn_download_excel">تحميل ملف Excel (CSV)</span>
+            <span data-i18n="btn_download_excel">Exporter Excel (CSV)</span>
           </button>
         </div>
       </div>
@@ -3788,7 +4797,7 @@
 
   <!-- Modal: Règlement des Honoraires Enseignant (8 Modes) -->
   <div class="modal-overlay" id="modalTeacherPayout">
-    <div class="modal-content" style="max-width: 720px;">
+    <div class="modal-content" style="max-width: 780px;">
       <div class="modal-header">
         <h3 class="modal-title" style="display: flex; align-items: center; gap: 8px;">
           <i class="fa-solid fa-file-invoice-dollar" style="color: #f97316;"></i>
@@ -3807,7 +4816,7 @@
 
         <!-- Teacher Profile Bar & Period -->
         <div
-          style="background: var(--bg-hover); padding: 14px 18px; border-radius: 10px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          style="background: var(--bg-hover); padding: 14px 18px; border-radius: 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
           <div>
             <h4 id="payoutTeacherName" style="font-size: 16px; font-weight: 700; margin: 0; color: var(--text-main);">
               Professeur</h4>
@@ -3816,31 +4825,55 @@
           </div>
           <div style="display: flex; align-items: center; gap: 8px;">
             <label style="font-size: 12px; font-weight: 600;">Mois concerné:</label>
-            <input type="month" id="payoutPeriod" class="form-control" style="width: auto; padding: 6px 10px;"
+            <input type="month" id="payoutPeriod" class="form-control" style="width: auto; padding: 6px 10px; font-weight: 600;"
               onchange="app.refreshTeacherPayoutData()">
           </div>
         </div>
 
+        <!-- Dynamic Financial Status Banner (Settled / Partial / Pending) -->
+        <div id="payoutStatusBanner" style="margin-bottom: 14px; display: none;"></div>
+
+        <!-- Financial Summary KPI Cards (Gross, Already Paid, Remaining) -->
+        <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 14px; gap: 10px;">
+          <div class="stat-card" style="padding: 12px; border-left: 4px solid #3b82f6;">
+            <span class="stat-title" style="font-size: 11px;">Total Brut Estimé</span>
+            <div class="stat-value" id="payoutSummaryGross" style="font-size: 19px; color: #1e40af;">0 DA</div>
+          </div>
+          <div class="stat-card" style="padding: 12px; border-left: 4px solid #10b981;">
+            <span class="stat-title" style="font-size: 11px;">Déjà Réglé (Ce Mois)</span>
+            <div class="stat-value" id="payoutSummaryPaid" style="font-size: 19px; color: #059669;">0 DA</div>
+          </div>
+          <div class="stat-card" style="padding: 12px; border-left: 4px solid #f97316;">
+            <span class="stat-title" style="font-size: 11px;">Reste Net à Payer</span>
+            <div class="stat-value" id="payoutSummaryRemaining" style="font-size: 19px; color: #ea580c;">0 DA</div>
+          </div>
+        </div>
+
         <!-- Groups & Collections Summary -->
-        <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 16px;">
-          <div class="stat-card" style="padding: 12px;">
-            <span class="stat-title">Élèves Inscrits</span>
-            <div class="stat-value" id="payoutTotalStudents" style="font-size: 20px;">0</div>
+        <div style="background: var(--card-bg, #fff); border: 1px solid var(--border-color, #e2e8f0); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; display: flex; justify-content: space-around; text-align: center;">
+          <div>
+            <div style="font-size: 11px; color: var(--text-muted);">Élèves Inscrits</div>
+            <strong id="payoutTotalStudents" style="font-size: 16px;">0</strong>
           </div>
-          <div class="stat-card" style="padding: 12px;">
-            <span class="stat-title">Séances du Mois</span>
-            <div class="stat-value" id="payoutTotalSessions" style="font-size: 20px;">0</div>
+          <div style="border-right: 1px solid var(--border-color, #e2e8f0);"></div>
+          <div>
+            <div style="font-size: 11px; color: var(--text-muted);">Séances / Volume</div>
+            <strong id="payoutTotalSessions" style="font-size: 16px;">0 (0h)</strong>
           </div>
-          <div class="stat-card" style="padding: 12px;">
-            <span class="stat-title">Frais Encaissés</span>
-            <div class="stat-value" id="payoutTotalCollected" style="font-size: 20px; color: #10b981;">0 DA</div>
+          <div style="border-right: 1px solid var(--border-color, #e2e8f0);"></div>
+          <div>
+            <div style="font-size: 11px; color: var(--text-muted);">Frais Encaissés (Élèves)</div>
+            <strong id="payoutTotalCollected" style="font-size: 16px; color: #10b981;">0 DA</strong>
           </div>
         </div>
 
         <!-- 8 Modes Selection Grid -->
         <div style="margin-bottom: 14px;">
-          <label class="form-label" style="font-weight: 700;">Choisissez le mode de calcul appliqué :</label>
-          <div id="payoutModesGrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label class="form-label" style="font-weight: 700; margin: 0;">Mode de calcul des honoraires :</label>
+            <span style="font-size: 11px; color: var(--text-muted);"><i class="fa-solid fa-arrows-rotate"></i> Cliquez pour comparer</span>
+          </div>
+          <div id="payoutModesGrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-height: 200px; overflow-y: auto; padding-right: 4px;">
             <!-- 8 mode cards injected via JS -->
           </div>
         </div>
@@ -3848,20 +4881,24 @@
         <!-- Payout Adjustment & Validation Box -->
         <div
           style="background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 10px; padding: 14px 18px; margin-bottom: 16px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <span style="font-size: 13px; font-weight: 600; color: #1e40af;">Montant calculé selon le mode
-              sélectionné:</span>
-            <span id="payoutCalculatedAmountBadge" style="font-size: 18px; font-weight: 800; color: #1e40af;">0
-              DA</span>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 6px;">
+            <div>
+              <span style="font-size: 12px; font-weight: 600; color: #1e40af;">Montant calculé : </span>
+              <strong id="payoutCalculatedAmountBadge" style="font-size: 14px; color: #1e3a8a;">0 DA</strong>
+            </div>
+            <div>
+              <span style="font-size: 12px; font-weight: 600; color: #b45309;">Reste à verser : </span>
+              <strong id="payoutRemainingAmountBadge" style="font-size: 16px; color: #b45309; font-weight: 800;">0 DA</strong>
+            </div>
           </div>
           <div class="form-row">
-            <div class="form-group">
-              <label class="form-label" style="color: #1e3a8a;">Montant à verser (DA) *</label>
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" style="color: #1e3a8a; font-weight: 600;">Montant du versement (DA) *</label>
               <input type="number" id="payoutAmountPaid" class="form-control"
-                style="font-size: 16px; font-weight: 700; color: #1e40af; border-color: #93c5fd;" required>
+                style="font-size: 16px; font-weight: 700; color: #1e40af; border-color: #93c5fd;" required min="1">
             </div>
-            <div class="form-group">
-              <label class="form-label" style="color: #1e3a8a;">Mode de règlement</label>
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" style="color: #1e3a8a; font-weight: 600;">Mode de règlement</label>
               <select id="payoutPaymentMethod" class="form-control" style="border-color: #93c5fd;">
                 <option value="espece">Espèces (Caisse)</option>
                 <option value="baridimob">BaridiMob / Virement</option>
@@ -3870,23 +4907,47 @@
             </div>
           </div>
           <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label" style="color: #1e3a8a;">Notes / Observations</label>
+            <label class="form-label" style="color: #1e3a8a; font-size: 12px;">Notes / Observations</label>
             <input type="text" id="payoutNotes" class="form-control" placeholder="Règlement honoraires du mois..."
-              style="border-color: #93c5fd;">
+              style="border-color: #93c5fd; padding: 6px 10px; font-size: 13px;">
           </div>
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
           <span style="font-size: 12px; color: var(--text-muted);">
             <i class="fa-solid fa-circle-info" style="color: #3b82f6;"></i>
             Ce versement sera automatiquement déduit du <strong>Solde de Caisse</strong>.
           </span>
           <div style="display: flex; gap: 10px;">
-            <button type="button" class="btn-secondary" onclick="app.closeModals()">Annuler</button>
-            <button type="submit" class="btn-primary"
+            <button type="button" class="btn-secondary" onclick="app.closeModals()">Fermer</button>
+            <button type="submit" id="btnSubmitPayout" class="btn-primary"
               style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);">
-              <i class="fa-solid fa-check"></i> Valider & Décaisser
+              <i class="fa-solid fa-check"></i> <span id="btnSubmitPayoutText">Valider & Décaisser</span>
             </button>
+          </div>
+        </div>
+
+        <!-- Period Existing Payouts Section (Payments History for this specific month) -->
+        <div id="payoutPeriodHistorySection" style="margin-top: 18px; border-top: 1px solid var(--border-color, #e2e8f0); padding-top: 14px;">
+          <h5 style="font-size: 13px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+            <span><i class="fa-solid fa-clock-rotate-left" style="color: #f97316;"></i> Versements effectués pour cette période</span>
+            <span id="payoutPeriodHistoryCount" style="font-size: 11px; font-weight: 500; color: var(--text-muted);">0 versement</span>
+          </h5>
+          <div class="table-responsive" style="max-height: 150px; overflow-y: auto;">
+            <table class="edumind-table" style="font-size: 12px;">
+              <thead>
+                <tr>
+                  <th>DATE & HEURE</th>
+                  <th>MONTANT</th>
+                  <th>MODE DE CALCUL</th>
+                  <th>PAIEMENT</th>
+                  <th>ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody id="payoutPeriodHistoryBody">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
           </div>
         </div>
       </form>
@@ -3897,7 +4958,7 @@
   <div class="modal-overlay" id="modalBulletinPaie">
     <div class="modal-content" style="max-width: 650px;">
       <div class="modal-header">
-        <h3 class="modal-title">Bulletin de Paie / كشف أتعاب</h3>
+        <h3 class="modal-title" data-i18n="modal_payroll_slip_title">Bulletin de Paie / Fiche d'Honoraires</h3>
         <button class="btn-icon" onclick="app.closeModals()"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
@@ -4265,7 +5326,7 @@
             <i class="fa-solid fa-magnifying-glass"
               style="position: absolute; left: 10px; top: 11px; color: var(--text-muted); font-size: 12px;"></i>
             <input type="text" id="matrixSearchStudent" class="form-control"
-              style="padding-left: 32px; height: 38px; font-size: 12px;" placeholder="بحث عن تلميذ..."
+              style="padding-left: 32px; height: 38px; font-size: 12px;" placeholder="Rechercher un élève..."
               oninput="app.filterMatrixStudents(this.value)">
           </div>
         </div>
@@ -4273,11 +5334,11 @@
         <div style="display: flex; gap: 16px; align-items: center; font-size: 13px;">
           <div style="color: var(--text-muted);">
             <strong style="color: var(--text-heading); font-size: 15px;" id="matrixCountSessions">0</strong> <span
-              data-i18n="lbl_seances_count">حصص معروضة</span>
+              data-i18n="lbl_seances_count">séances affichées</span>
           </div>
           <div style="color: var(--text-muted);">
             <strong style="color: #10b981; font-size: 15px;" id="matrixAvgAttendance">0%</strong> <span
-              data-i18n="lbl_avg_presence">معدل الحضور</span>
+              data-i18n="lbl_avg_presence">taux de présence</span>
           </div>
         </div>
       </div>
@@ -4356,11 +5417,11 @@
             <i class="fa-solid fa-user-plus"></i>
           </div>
           <div>
-            <h3 class="modal-title" style="margin: 0; font-size: 16px; font-weight: 700;" data-i18n="wizard_title">تسجيل تلميذ في فوج دراسي</h3>
-            <span style="font-size: 12px; color: var(--text-muted);" data-i18n="wizard_subtitle">خطوات متسلسلة وسهلة لإتمام التسجيل</span>
+            <h3 class="modal-title" style="margin: 0; font-size: 16px; font-weight: 700;" data-i18n="wizard_title">Inscrire un Élève dans un Groupe</h3>
+            <span style="font-size: 12px; color: var(--text-muted);" data-i18n="wizard_subtitle">Étapes guidées pour finaliser l'inscription</span>
           </div>
         </div>
-        <button class="btn-icon" onclick="app.closeEnrollmentWizard()" title="إغلاق"><i class="fa-solid fa-xmark"></i></button>
+        <button class="btn-icon" onclick="app.closeEnrollmentWizard()" title="Fermer"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
       <!-- Stepper Indicator -->
@@ -4368,24 +5429,24 @@
         <div class="wizard-step-item active" id="wizardStepIndicator1" onclick="app.goToEnrollmentStep(1)">
           <div class="wizard-step-bubble">1</div>
           <div class="wizard-step-text">
-            <span class="wizard-step-title" data-i18n="wizard_step1_title">1. التلميذ</span>
-            <span class="wizard-step-sub" data-i18n="wizard_step1_sub">اختيار التلميذ</span>
+            <span class="wizard-step-title" data-i18n="wizard_step1_title">1. Élève</span>
+            <span class="wizard-step-sub" data-i18n="wizard_step1_sub">Sélection de l'élève</span>
           </div>
         </div>
         <div class="wizard-step-line" id="wizardStepLine1"></div>
         <div class="wizard-step-item" id="wizardStepIndicator2" onclick="app.goToEnrollmentStep(2)">
           <div class="wizard-step-bubble">2</div>
           <div class="wizard-step-text">
-            <span class="wizard-step-title" data-i18n="wizard_step2_title">2. المستوى</span>
-            <span class="wizard-step-sub" data-i18n="wizard_step2_sub">المستوى الدراسي</span>
+            <span class="wizard-step-title" data-i18n="wizard_step2_title">2. Niveau</span>
+            <span class="wizard-step-sub" data-i18n="wizard_step2_sub">Niveau scolaire</span>
           </div>
         </div>
         <div class="wizard-step-line" id="wizardStepLine2"></div>
         <div class="wizard-step-item" id="wizardStepIndicator3" onclick="app.goToEnrollmentStep(3)">
           <div class="wizard-step-bubble">3</div>
           <div class="wizard-step-text">
-            <span class="wizard-step-title" data-i18n="wizard_step3_title">3. المادة والفوج</span>
-            <span class="wizard-step-sub" data-i18n="wizard_step3_sub">الفوج والتأكيد</span>
+            <span class="wizard-step-title" data-i18n="wizard_step3_title">3. Matière & Groupe</span>
+            <span class="wizard-step-sub" data-i18n="wizard_step3_sub">Groupe & Confirmation</span>
           </div>
         </div>
       </div>
@@ -4394,11 +5455,11 @@
       <div class="wizard-step-pane active" id="wizardStepPane1">
         <div style="margin-bottom: 16px;">
           <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">
-            <i class="fa-solid fa-user-graduate" style="color: #38bdf8; margin-left: 6px;"></i>
-            <span data-i18n="wizard_pane1_heading">الخطوة الأولى: ابحث عن التلميذ واختره</span>
+            <i class="fa-solid fa-user-graduate" style="color: #38bdf8; margin-right: 6px;"></i>
+            <span data-i18n="wizard_pane1_heading">Étape 1 : Rechercher et sélectionner l'élève</span>
           </h4>
           <p style="font-size: 12px; color: var(--text-muted); margin: 0;" data-i18n="wizard_pane1_desc">
-            اكتب اسم التلميذ، لقبه، رقم القيد (Matricule)، أو رقم الهاتف للاختيار السريع.
+            Saisissez le nom, prénom, matricule ou téléphone de l'élève.
           </p>
         </div>
 
@@ -4406,11 +5467,11 @@
         <div class="schoolaris-search-box" style="margin-bottom: 12px; width: 100%; position: relative;">
           <i class="fa-solid fa-magnifying-glass"></i>
           <input type="text" id="wizardStudentSearchInput" class="schoolaris-search-input"
-            placeholder="ابحث باسم التلميذ أو لقبه أو رقمه..."
+            placeholder="Rechercher par nom, prénom ou matricule..."
             oninput="app.searchWizardStudents(this.value)"
             autocomplete="off">
           <button type="button" id="btnClearWizardStudentSearch" onclick="app.clearWizardStudentSearch()"
-            style="display: none; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px;">
+            style="display: none; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px;">
             <i class="fa-solid fa-xmark"></i>
           </button>
         </div>
@@ -4433,9 +5494,9 @@
                 </div>
               </div>
             </div>
-            <button type="button" class="smart-change-btn" onclick="app.resetWizardStudentSelection()" title="تغيير التلميذ">
+            <button type="button" class="smart-change-btn" onclick="app.resetWizardStudentSelection()" title="Changer d'élève">
               <i class="fa-solid fa-rotate-left"></i>
-              <span>تغيير</span>
+              <span>Changer</span>
             </button>
           </div>
           <div id="wizardSelectedStudentGroups" style="margin-top: 10px; font-size: 12px; border-top: 1px dashed rgba(148, 163, 184, 0.2); padding-top: 8px;">
@@ -4453,17 +5514,17 @@
       <div class="wizard-step-pane" id="wizardStepPane2">
         <div style="margin-bottom: 16px;">
           <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">
-            <i class="fa-solid fa-layer-group" style="color: #60a5fa; margin-left: 6px;"></i>
-            <span data-i18n="wizard_pane2_heading">الخطوة الثانية: حدد المستوى الدراسي المطلوب</span>
+            <i class="fa-solid fa-layer-group" style="color: #60a5fa; margin-right: 6px;"></i>
+            <span data-i18n="wizard_pane2_heading">Étape 2 : Définir le niveau scolaire souhaité</span>
           </h4>
           <p style="font-size: 12px; color: var(--text-muted); margin: 0;" data-i18n="wizard_pane2_desc">
-            اختر المستوى الدراسي لعرض الأفواج المتاحة الخاصة بهذا المستوى فقط.
+            Choisissez le niveau scolaire pour filtrer les groupes disponibles pour ce niveau.
           </p>
         </div>
 
         <!-- Student summary banner -->
         <div id="wizardStudentLevelBanner" style="display: flex; align-items: center; justify-content: space-between; background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 8px; padding: 8px 12px; margin-bottom: 14px; font-size: 12px; color: #38bdf8;">
-          <span><i class="fa-solid fa-user-check"></i> <span data-i18n="wizard_selected_student_lbl">التلميذ المختار :</span> <strong id="wizardStep2StudentName">-</strong></span>
+          <span><i class="fa-solid fa-user-check"></i> <span data-i18n="wizard_selected_student_lbl">Élève sélectionné :</span> <strong id="wizardStep2StudentName">-</strong></span>
           <span id="wizardStep2StudentOrigLevel" class="badge-pill badge-cyan" style="font-size: 11px;">-</span>
         </div>
 
@@ -4477,11 +5538,11 @@
       <div class="wizard-step-pane" id="wizardStepPane3">
         <div style="margin-bottom: 14px;">
           <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">
-            <i class="fa-solid fa-book-open" style="color: #10b981; margin-left: 6px;"></i>
-            <span data-i18n="wizard_pane3_heading">الخطوة الثالثة: اختر المادة والفوج الدراسي وأكد التسجيل</span>
+            <i class="fa-solid fa-book-open" style="color: #10b981; margin-right: 6px;"></i>
+            <span data-i18n="wizard_pane3_heading">Étape 3 : Choisir la matière, le groupe et confirmer</span>
           </h4>
           <p style="font-size: 12px; color: var(--text-muted); margin: 0;" data-i18n="wizard_pane3_desc">
-            اختر الفوج المناسب وحدد التخفيض الشهري إن وجد ثم أكد التسجيل.
+            Sélectionnez le groupe adéquat et définissez la remise éventuelle puis confirmez l'inscription.
           </p>
         </div>
 
@@ -4501,19 +5562,19 @@
             
             <!-- Registration Date -->
             <div>
-              <label class="form-label" style="font-size: 12px; font-weight: 600; margin-bottom: 4px;" data-i18n="wizard_lbl_reg_date">تاريخ التسجيل</label>
+              <label class="form-label" style="font-size: 12px; font-weight: 600; margin-bottom: 4px;" data-i18n="wizard_lbl_reg_date">Date d'inscription</label>
               <input type="date" id="wizardRegDate" class="form-control" style="padding: 6px 10px; font-size: 12.5px;">
             </div>
 
             <!-- Monthly Discount with Presets -->
             <div>
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                <label class="form-label" style="font-size: 12px; font-weight: 600; margin-bottom: 0;" data-i18n="wizard_lbl_discount">تخفيض شهري (DA)</label>
+                <label class="form-label" style="font-size: 12px; font-weight: 600; margin-bottom: 0;" data-i18n="wizard_lbl_discount">Remise mensuelle (DA)</label>
                 <div style="display: flex; gap: 3px;">
                   <button type="button" class="discount-preset-btn" onclick="app.setWizardDiscount(0)">0</button>
                   <button type="button" class="discount-preset-btn" onclick="app.setWizardDiscount(500)">500</button>
                   <button type="button" class="discount-preset-btn" onclick="app.setWizardDiscount(1000)">1000</button>
-                  <button type="button" class="discount-preset-btn" onclick="app.setWizardDiscount('free')" data-i18n="wizard_lbl_free">مجاني</button>
+                  <button type="button" class="discount-preset-btn" onclick="app.setWizardDiscount('free')" data-i18n="wizard_lbl_free">Gratuit</button>
                 </div>
               </div>
               <input type="number" id="wizardDiscountInput" class="form-control" placeholder="0" value="0" min="0" oninput="app.updateWizardCalculations()" style="padding: 6px 10px; font-size: 12.5px;">
@@ -4521,7 +5582,7 @@
 
             <!-- Net Price Display Box -->
             <div style="text-align: center; background: rgba(0,0,0,0.25); border-radius: 8px; padding: 8px 12px; border: 1px solid rgba(6, 182, 212, 0.3);">
-              <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;" data-i18n="wizard_lbl_net_price">المبلغ الصافي شهرياً</div>
+              <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;" data-i18n="wizard_lbl_net_price">Tarif Net Mensuel</div>
               <strong id="wizardNetPrice" style="font-size: 20px; color: #38bdf8; font-weight: 800; display: block; margin-top: 2px;">0 DA</strong>
               <span id="wizardDiscountNotice" style="font-size: 10.5px; color: #f59e0b; display: none;"></span>
             </div>
@@ -4535,24 +5596,182 @@
         <div>
           <button type="button" class="btn-secondary" id="btnWizardPrev" onclick="app.goToPrevEnrollmentStep()" style="display: none; padding: 9px 16px;">
             <i class="fa-solid fa-arrow-left" style="margin-right: 8px;"></i>
-            <span data-i18n="btn_prev">السابق</span>
+            <span data-i18n="btn_prev">Précédent</span>
           </button>
         </div>
         <div style="display: flex; gap: 8px;">
           <button type="button" class="btn-secondary" id="btnWizardCancel" onclick="app.closeEnrollmentWizard()" style="padding: 9px 14px;">
-            <span data-i18n="btn_cancel">إلغاء</span>
+            <span data-i18n="btn_cancel">Annuler</span>
           </button>
           <button type="button" class="btn-primary" id="btnWizardNext" onclick="app.goToNextEnrollmentStep()" style="background: linear-gradient(135deg, #0284c7, #06b6d4); font-weight: 700; padding: 9px 18px;">
-            <span>التالي: اختيار المستوى</span>
+            <span>Suivant : Niveau scolaire</span>
             <i class="fa-solid fa-arrow-right" style="margin-left: 8px;"></i>
           </button>
           <button type="button" class="btn-primary" id="btnWizardConfirm" onclick="app.confirmWizardEnrollment(false)" style="display: none; background: linear-gradient(135deg, #0284c7, #06b6d4); font-weight: 700; padding: 9px 18px;">
-            <i class="fa-solid fa-check-double" style="margin-left: 6px;"></i>
-            <span data-i18n="wizard_btn_confirm">تأكيد التسجيل</span>
+            <i class="fa-solid fa-check-double" style="margin-right: 6px;"></i>
+            <span data-i18n="wizard_btn_confirm">Confirmer l'inscription</span>
           </button>
-          <button type="button" class="btn-primary" id="btnWizardConfirmAndPay" onclick="app.confirmWizardEnrollment(true)" style="display: none; background: linear-gradient(135deg, #059669, #10b981); font-weight: 700; padding: 9px 16px;" title="تأكيد التسجيل وفتح وصل الدفع فوراً">
-            <i class="fa-solid fa-cash-register" style="margin-left: 6px;"></i>
-            <span data-i18n="wizard_btn_confirm_pay">تسجيل ودفع فوري</span>
+          <button type="button" class="btn-primary" id="btnWizardConfirmAndPay" onclick="app.confirmWizardEnrollment(true)" style="display: none; background: linear-gradient(135deg, #059669, #10b981); font-weight: 700; padding: 9px 16px;" title="Confirmer et encaisser immédiatement">
+            <i class="fa-solid fa-cash-register" style="margin-right: 6px;"></i>
+            <span data-i18n="wizard_btn_confirm_pay">Inscrire & Encaisser</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal: Inscription Groupée (Multi-élèves & Multi-groupes) -->
+  <div class="modal-overlay" id="modalBulkEnrollment">
+    <div class="modal-content" style="max-width: 1100px; width: 95%; max-height: 92vh; display: flex; flex-direction: column; overflow: hidden; border-radius: 16px; border: 1px solid rgba(124, 58, 237, 0.4); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); padding: 0;">
+      
+      <!-- Modal Header -->
+      <div class="modal-header" style="padding: 16px 24px; border-bottom: 1px solid var(--border-color); background: var(--bg-card); display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 40px; height: 40px; border-radius: 12px; background: rgba(124, 58, 237, 0.15); display: flex; align-items: center; justify-content: center; color: #a78bfa; font-size: 20px;">
+            <i class="fa-solid fa-users-line"></i>
+          </div>
+          <div>
+            <h3 class="modal-title" style="margin: 0; font-size: 16.5px; font-weight: 800;" data-i18n="bulk_enroll_title">Inscription Groupée (Multi-élèves & Groupes)</h3>
+            <span style="font-size: 12.5px; color: var(--text-muted);" data-i18n="bulk_enroll_subtitle">Sélectionnez la liste des élèves et des groupes cibles pour les inscrire en un seul clic</span>
+          </div>
+        </div>
+        <button type="button" class="btn-icon" onclick="app.closeModals()" title="Fermer"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <!-- Top Settings Bar (Common options) -->
+      <div style="background: rgba(0, 0, 0, 0.2); border-bottom: 1px solid var(--border-color); padding: 12px 24px; display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+        <!-- Registration Date -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <label style="font-size: 12.5px; font-weight: 700; color: var(--text-heading); white-space: nowrap;" data-i18n="wizard_lbl_reg_date">Date d'inscription :</label>
+          <input type="date" id="bulkEnrollRegDate" class="form-control" style="width: 150px; padding: 6px 10px; font-size: 12.5px;">
+        </div>
+
+        <!-- Monthly Discount -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <label style="font-size: 12.5px; font-weight: 700; color: var(--text-heading); white-space: nowrap;" data-i18n="wizard_lbl_discount">Remise mensuelle (DA) :</label>
+          <input type="number" id="bulkEnrollDiscount" class="form-control" style="width: 100px; padding: 6px 10px; font-size: 12.5px;" value="0" min="0" placeholder="0">
+          <div style="display: flex; gap: 4px;">
+            <button type="button" class="discount-preset-btn" onclick="document.getElementById('bulkEnrollDiscount').value=0; app.updateBulkEnrollmentSummary();">0</button>
+            <button type="button" class="discount-preset-btn" onclick="document.getElementById('bulkEnrollDiscount').value=500; app.updateBulkEnrollmentSummary();">500</button>
+            <button type="button" class="discount-preset-btn" onclick="document.getElementById('bulkEnrollDiscount').value=1000; app.updateBulkEnrollmentSummary();">1000</button>
+          </div>
+        </div>
+
+        <!-- School Year -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <label style="font-size: 12.5px; font-weight: 700; color: var(--text-heading); white-space: nowrap;" data-i18n="th_annee_scolaire">Année scolaire :</label>
+          <select id="bulkEnrollSchoolYear" class="form-control" style="width: 130px; padding: 6px 10px; font-size: 12.5px;">
+            <option value="2025-2026">2025-2026</option>
+            <option value="2024-2025">2024-2025</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Split-Screen Body: Students on Left/Right, Groups on Other Side -->
+      <div class="modal-body" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 18px 24px; overflow-y: auto; flex: 1;">
+        
+        <!-- ================= PANEL 1: SELECTION DES ELEVES ================= -->
+        <div style="display: flex; flex-direction: column; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; overflow: hidden;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-user-graduate" style="color: #38bdf8;"></i>
+              <strong style="font-size: 14px; color: var(--text-heading);" data-i18n="bulk_panel_students">1. Sélection des élèves</strong>
+            </div>
+            <span id="bulkStudentsBadgeCount" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-weight: 700; font-size: 11.5px; padding: 3px 8px; border-radius: 6px;">0 sélectionné(s)</span>
+          </div>
+
+          <!-- Filter & Search Students -->
+          <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+            <div class="schoolaris-search-box" style="flex: 1; min-width: 0;">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="bulkStudentSearchInput" class="schoolaris-search-input" placeholder="Rechercher un élève..." oninput="app.filterBulkStudents()">
+            </div>
+            <select id="bulkStudentLevelFilter" class="schoolaris-select" style="max-width: 140px; padding: 6px 8px; font-size: 12px;" onchange="app.filterBulkStudents()">
+              <option value="">Tous les niveaux</option>
+            </select>
+          </div>
+
+          <!-- Select All / Deselect All Bar -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 4px 8px; background: rgba(0,0,0,0.15); border-radius: 6px;">
+            <label style="font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; margin: 0;">
+              <input type="checkbox" id="chkBulkSelectAllStudents" onchange="app.toggleAllBulkStudents(this.checked)">
+              <span data-i18n="bulk_select_all_students">Tout sélectionner</span>
+            </label>
+            <span style="font-size: 11.5px; color: var(--text-muted);" id="bulkStudentsVisibleCount">0 élève(s)</span>
+          </div>
+
+          <!-- Scrollable Students List -->
+          <div id="bulkStudentsListContainer" style="flex: 1; overflow-y: auto; max-height: 380px; display: flex; flex-direction: column; gap: 6px; padding-right: 4px;">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- ================= PANEL 2: SELECTION DES GROUPES ================= -->
+        <div style="display: flex; flex-direction: column; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; overflow: hidden;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-users" style="color: #a78bfa;"></i>
+              <strong style="font-size: 14px; color: var(--text-heading);" data-i18n="bulk_panel_groups">2. Sélection des groupes</strong>
+            </div>
+            <span id="bulkGroupsBadgeCount" style="background: rgba(167, 139, 250, 0.15); color: #a78bfa; font-weight: 700; font-size: 11.5px; padding: 3px 8px; border-radius: 6px;">0 sélectionné(s)</span>
+          </div>
+
+          <!-- Filter & Search Groups -->
+          <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+            <div class="schoolaris-search-box" style="flex: 1; min-width: 0;">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="bulkGroupSearchInput" class="schoolaris-search-input" placeholder="Rechercher un groupe ou matière..." oninput="app.filterBulkGroups()">
+            </div>
+            <select id="bulkGroupLevelFilter" class="schoolaris-select" style="max-width: 140px; padding: 6px 8px; font-size: 12px;" onchange="app.filterBulkGroups()">
+              <option value="">Tous les niveaux</option>
+            </select>
+          </div>
+
+          <!-- Select All / Deselect All Bar -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 4px 8px; background: rgba(0,0,0,0.15); border-radius: 6px;">
+            <label style="font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; margin: 0;">
+              <input type="checkbox" id="chkBulkSelectAllGroups" onchange="app.toggleAllBulkGroups(this.checked)">
+              <span data-i18n="bulk_select_all_groups">Tous les groupes</span>
+            </label>
+            <span style="font-size: 11.5px; color: var(--text-muted);" id="bulkGroupsVisibleCount">0 groupe(s)</span>
+          </div>
+
+          <!-- Scrollable Groups List -->
+          <div id="bulkGroupsListContainer" style="flex: 1; overflow-y: auto; max-height: 380px; display: flex; flex-direction: column; gap: 6px; padding-right: 4px;">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Live Calculation & Summary Bar -->
+      <div style="background: rgba(0, 0, 0, 0.3); border-top: 1px solid var(--border-color); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+          <div>
+            <span style="font-size: 11.5px; color: var(--text-muted); display: block;" data-i18n="bulk_lbl_sel_students">Élèves sélectionnés</span>
+            <strong id="bulkSummaryStudents" style="font-size: 15px; color: #38bdf8;">0 élève(s)</strong>
+          </div>
+          <div style="color: var(--text-muted); font-size: 18px;">×</div>
+          <div>
+            <span style="font-size: 11.5px; color: var(--text-muted); display: block;" data-i18n="bulk_lbl_sel_groups">Groupes sélectionnés</span>
+            <strong id="bulkSummaryGroups" style="font-size: 15px; color: #a78bfa;">0 groupe(s)</strong>
+          </div>
+          <div style="color: var(--text-muted); font-size: 18px;">=</div>
+          <div>
+            <span style="font-size: 11.5px; color: var(--text-muted); display: block;" data-i18n="bulk_lbl_total_enrollments">Total des inscriptions</span>
+            <strong id="bulkSummaryTotal" style="font-size: 18px; color: #10b981;">0 inscription(s)</strong>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button type="button" class="btn-secondary" onclick="app.closeModals()">
+            <span data-i18n="btn_cancel">Annuler</span>
+          </button>
+          <button type="button" class="btn-primary" id="btnConfirmBulkEnrollment" onclick="app.confirmBulkEnrollment()" disabled
+            style="background: linear-gradient(135deg, #7c3aed, #6366f1); font-weight: 700; padding: 10px 22px; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35); display: inline-flex; align-items: center; gap: 8px; cursor: not-allowed; opacity: 0.5;">
+            <i class="fa-solid fa-check-double"></i>
+            <span id="btnConfirmBulkEnrollText" data-i18n="bulk_btn_confirm">Confirmer les inscriptions groupées</span>
           </button>
         </div>
       </div>
@@ -4565,7 +5784,7 @@
   <!-- Hidden Printable Area for Attendance Matrix -->
   <div id="attendancePrintMatrix" class="printable-area" style="display: none;"></div>
 
-  <script src="/js/app.js?v=3.9"></script>
+  <script src="/js/app.js?v=4.0"></script>
 </body>
 
 </html>

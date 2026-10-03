@@ -1,7 +1,7 @@
 {
-  "version": "1.0.3",
-  "releaseDate": "2026-09-27",
-  "zipUrl": "https://github.com/BELMAHDI6/EDUMIND/releases/download/v1.0.3/edumind_patch_v1.0.3.zip",
-  "notes": "Optimisations majeures de performance, indexation SQLite, et fluidite d'interface",
-  "notes_ar": "Optimisations majeures de performance, indexation SQLite, et fluidite d'interface"
+  "version": "1.0.6",
+  "releaseDate": "2026-10-03",
+  "zipUrl": "https://github.com/BELMAHDI6/EDUMIND/releases/download/v1.0.6/edumind_patch_v1.0.6.zip",
+  "notes": "Résolution définitive du blocage multi-postes : transactions atomiques, sécurité anti-collision élèves/enseignants et mode réseau local LAN",
+  "notes_ar": "حل نهائي لمشكل ثقل وتجمد البرنامج عند العمل المتزامن لعدة مستخدمين: معاملات ذرية فورية، حماية من تضارب تسجيل التلاميذ والأساتذة، ودعم كامل للربط الشبكي المحلي LAN"
 }

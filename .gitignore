@@ -2,3 +2,22 @@ node_modules/
 EDUMIND_Setup.exe
 *.exe
 bin/
+
+# Large files & temp
+temp_app.zip
+*.zip
+temp_*/
+
+# Database files (never push - contains client data)
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+
+# Excel test files
+*.xlsx
+*.xls
+
+# Installer source
+installer.cs
+launcher.cs
+build_setup.js

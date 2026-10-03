@@ -1512,15 +1512,15 @@ table.edumind-table tbody tr:hover {
 }
 
 .btn-card-theme:hover {
-  border-color: #3b82f6;
+  border-color: #10b981;
   color: var(--text-color);
 }
 
 .btn-card-theme.active {
-  background: rgba(59, 130, 246, 0.15);
-  border-color: #3b82f6;
-  color: #60a5fa;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+  background: rgba(16, 185, 129, 0.15);
+  border-color: #10b981;
+  color: #34d399;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
 }
 
 .student-card-wrapper {
@@ -1540,26 +1540,44 @@ table.edumind-table tbody tr:hover {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
   transition: all 0.3s ease;
   user-select: none;
-  border: 2px solid #3b82f6;
+  border: 2px solid #10b981;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 
-/* Theme: Blue Royal (Default) */
-.student-card-preview.theme-blue {
-  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 55%, #172554 100%);
-  border-color: #3b82f6;
+/* Theme: Royal Purple (Alternative Student Theme) */
+.student-card-preview.theme-purple {
+  background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 55%, #2e1065 100%);
+  border-color: #8b5cf6;
 }
 
-.student-card-preview.theme-blue::before {
+.student-card-preview.theme-purple::before {
   content: '';
   position: absolute;
   top: -40px;
   right: -40px;
   width: 140px;
   height: 140px;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Theme: Dedicated Teacher Card (Executive Amber & Dark Slate) */
+.student-card-preview.theme-teacher {
+  background: linear-gradient(135deg, #1c1917 0%, #292524 55%, #0c0a09 100%);
+  border-color: #ea580c;
+}
+
+.student-card-preview.theme-teacher::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle, rgba(234, 88, 12, 0.3) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
 }
@@ -6475,4 +6493,135 @@ body.light-theme .license-input-key {
 
 .batch-student-row.selected {
   background: rgba(59, 130, 246, 0.14);
+}
+
+/* ==========================================================================
+   Entrance Attendance Borne & Gate Kiosk Mode
+   ========================================================================== */
+.entrance-mode-group {
+  display: inline-flex;
+  background: var(--bg-card, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 10px;
+  padding: 3px;
+  gap: 4px;
+}
+
+.btn-entrance-mode {
+  border: none;
+  background: transparent;
+  color: var(--text-muted, #94a3b8);
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 7px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-entrance-mode:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.btn-entrance-mode.active {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+}
+
+.entrance-live-clock-pill {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 16px;
+  font-weight: 800;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 8px 16px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 1px;
+}
+
+/* Kiosk Mode Fullscreen */
+body.entrance-kiosk-active .sidebar,
+body.entrance-kiosk-active .top-navbar,
+body.entrance-kiosk-active .att-tabs-nav,
+body.entrance-kiosk-active .sidebar-footer {
+  display: none !important;
+}
+
+body.entrance-kiosk-active .main-content {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
+  padding: 24px 36px !important;
+}
+
+body.entrance-kiosk-active #attendanceEntranceView {
+  animation: fadeIn 0.3s ease;
+}
+
+/* Entrance Role Badges */
+.badge-role-student {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-role-teacher {
+  background: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ==========================================================================
+   BARCODE SCANNER (DOUCHETTE) HARDWARE STATUS & INDICATORS
+   ========================================================================== */
+@keyframes scannerPulse {
+  0% { transform: scale(0.9); opacity: 0.5; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { transform: scale(1.15); opacity: 1; box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.9); opacity: 0.5; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.scanner-ready-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #10b981;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12.5px;
+  font-weight: 700;
+  margin-top: 10px;
+}
+
+.scanner-pulse-dot {
+  width: 9px;
+  height: 9px;
+  background-color: #10b981;
+  border-radius: 50%;
+  animation: scannerPulse 1.8s infinite;
 }

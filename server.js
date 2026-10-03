@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 const DB = require('./database');
 
 const app = express();
@@ -87,9 +88,38 @@ app.post('/api/updates/restart', (req, res) => {
   }, 1000);
 });
 
+// Network & Multi-Device LAN Info
+app.get('/api/network/info', (req, res) => {
+  try {
+    const interfaces = os.networkInterfaces();
+    const addresses = [];
+    for (const [name, netList] of Object.entries(interfaces)) {
+      for (const net of netList) {
+        if (net.family === 'IPv4' && !net.internal) {
+          addresses.push({
+            name,
+            ip: net.address,
+            url: `http://${net.address}:${PORT}`
+          });
+        }
+      }
+    }
+    res.json({
+      success: true,
+      hostname: os.hostname(),
+      port: PORT,
+      localUrl: `http://localhost:${PORT}`,
+      addresses,
+      primaryUrl: addresses.length > 0 ? addresses[0].url : `http://localhost:${PORT}`
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // API Protection Middleware: Blocks database access if license is expired or invalid
 app.use('/api', (req, res, next) => {
-  if (req.path.startsWith('/license/') || req.path.startsWith('/updates/')) {
+  if (req.path.startsWith('/license/') || req.path.startsWith('/updates/') || req.path.startsWith('/network/')) {
     return next();
   }
 
@@ -148,8 +178,9 @@ app.get('/api/dashboard/stats', (req, res) => {
     const totalUnpaid = Math.max(0, expectedMonthly - thisMonthCollected);
     const recoveryRate = expectedMonthly > 0 ? Math.min(100, Math.round((thisMonthCollected / expectedMonthly) * 100)) : 100;
 
-    // 6. Teachers & Subjects count
+    // 6. Teachers, Parents & Subjects count
     const teachersCount = DB.queryOne("SELECT COUNT(*) as count FROM teachers WHERE active = 1").count;
+    const parentsCount = DB.queryOne("SELECT COUNT(*) as count FROM parents WHERE active = 1")?.count || 0;
     const subjectsCount = DB.queryOne("SELECT COUNT(*) as count FROM subjects").count;
     const roomsCount = DB.queryOne("SELECT COUNT(*) as count FROM rooms").count;
 
@@ -245,6 +276,7 @@ app.get('/api/dashboard/stats', (req, res) => {
         totalUnpaid,
         recoveryRate,
         teachersCount,
+        parentsCount,
         subjectsCount,
         roomsCount
       },
@@ -280,9 +312,9 @@ app.get('/api/students', (req, res) => {
     }
 
     if (search && search.trim()) {
-      whereClauses.push("(s.first_name LIKE ? OR s.last_name LIKE ? OR (s.last_name || ' ' || s.first_name) LIKE ? OR s.matricule LIKE ? OR s.phone LIKE ? OR s.parent_phone LIKE ?)");
+      whereClauses.push("(s.first_name LIKE ? OR s.last_name LIKE ? OR (s.last_name || ' ' || s.first_name) LIKE ? OR s.matricule LIKE ? OR s.phone LIKE ? OR s.parent_phone LIKE ? OR s.parent_name LIKE ? OR pr.full_name LIKE ? OR pr.phone LIKE ?)");
       const term = `%${search.trim()}%`;
-      params.push(term, term, term, term, term, term);
+      params.push(term, term, term, term, term, term, term, term, term);
     }
 
     if (level_id) {
@@ -310,11 +342,15 @@ app.get('/api/students', (req, res) => {
       )
       SELECT s.*,
              COALESCE(l.name, '-') as level_name,
+             COALESCE(pr.full_name, s.parent_name) as parent_name,
+             COALESCE(pr.phone, s.parent_phone) as parent_phone,
+             COALESCE(pr.discount_percent, 0) as parent_discount_percent,
              COALESCE(se.active_groups_count, 0) as active_groups_count,
              COALESCE(se.total_billed, 0) as total_billed,
              COALESCE(sp.total_paid, 0) as total_paid
       FROM students s
       LEFT JOIN levels l ON s.level_id = l.id
+      LEFT JOIN parents pr ON s.parent_id = pr.id
       LEFT JOIN student_enr se ON s.id = se.student_id
       LEFT JOIN student_pay sp ON s.id = sp.student_id
       ${whereSql}
@@ -351,9 +387,13 @@ app.get('/api/students/:id', (req, res) => {
   try {
     const { id } = req.params;
     const student = DB.queryOne(`
-      SELECT s.*, COALESCE(l.name, '-') as level_name
+      SELECT s.*, COALESCE(l.name, '-') as level_name,
+             COALESCE(pr.full_name, s.parent_name) as parent_name,
+             COALESCE(pr.phone, s.parent_phone) as parent_phone,
+             COALESCE(pr.discount_percent, 0) as parent_discount_percent
       FROM students s
       LEFT JOIN levels l ON s.level_id = l.id
+      LEFT JOIN parents pr ON s.parent_id = pr.id
       WHERE s.id = ?
     `, [id]);
 
@@ -468,51 +508,77 @@ app.patch('/api/students/:id/toggle-status', (req, res) => {
 
 app.post('/api/students', (req, res) => {
   try {
-    const { matricule: customMatricule, first_name, last_name, gender, birth_date, phone, parent_name, parent_phone, address, level_id, notes } = req.body;
+    const { matricule: customMatricule, first_name, last_name, gender, birth_date, birth_place, phone, parent_id, parent_name, parent_phone, address, level_id, notes } = req.body;
     if (!first_name || !last_name) {
       return res.status(400).json({ success: false, error: 'Nom et Prénom sont requis' });
     }
 
-    let matricule = (customMatricule || '').trim();
+    const newStudent = DB.transaction(() => {
+      let matricule = (customMatricule || '').trim();
 
-    if (matricule) {
-      // Check if custom matricule is already used
-      const existing = DB.queryOne("SELECT id FROM students WHERE matricule = ? COLLATE NOCASE", [matricule]);
-      if (existing) {
-        return res.status(400).json({ success: false, error: `Le matricule "${matricule}" est déjà utilisé par un autre élève.` });
-      }
-    } else {
-      // Standardized, collision-proof Matricule: EDU-YYYY-XXXX
-      const activeYearSetting = DB.queryOne("SELECT value FROM settings WHERE key = 'active_year'")?.value || '2025-2026';
-      const yearMatch = activeYearSetting.match(/\d{4}$/) || [new Date().getFullYear().toString()];
-      const currentYear = yearMatch[0];
+      if (matricule) {
+        const existing = DB.queryOne("SELECT id FROM students WHERE matricule = ? COLLATE NOCASE", [matricule]);
+        if (existing) {
+          throw new Error(`Le matricule "${matricule}" est déjà utilisé par un autre élève.`);
+        }
+      } else {
+        const activeYearSetting = DB.queryOne("SELECT value FROM settings WHERE key = 'active_year'")?.value || '2025-2026';
+        const yearMatch = activeYearSetting.match(/\d{4}$/) || [new Date().getFullYear().toString()];
+        const currentYear = yearMatch[0];
 
-      let candidateNum = (DB.queryOne("SELECT MAX(id) as max_id FROM students")?.max_id || 0) + 1;
-      matricule = `EDU-${currentYear}-${String(candidateNum).padStart(4, '0')}`;
-      while (DB.queryOne("SELECT id FROM students WHERE matricule = ? COLLATE NOCASE", [matricule])) {
-        candidateNum++;
+        let candidateNum = (DB.queryOne("SELECT MAX(id) as max_id FROM students")?.max_id || 0) + 1;
         matricule = `EDU-${currentYear}-${String(candidateNum).padStart(4, '0')}`;
+        while (DB.queryOne("SELECT id FROM students WHERE matricule = ? COLLATE NOCASE", [matricule])) {
+          candidateNum++;
+          matricule = `EDU-${currentYear}-${String(candidateNum).padStart(4, '0')}`;
+        }
       }
-    }
 
-    const qr_code = matricule;
+      const qr_code = matricule;
 
-    const result = DB.run(`
-      INSERT INTO students (matricule, first_name, last_name, gender, birth_date, phone, parent_name, parent_phone, address, level_id, qr_code, notes)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, [matricule, first_name.trim(), last_name.trim(), gender || 'M', birth_date || null, phone || null, parent_name || null, parent_phone || null, address || null, toNullableId(level_id), qr_code, notes || null]);
+      // Resolve parent linkage
+      let parentId = toNullableId(parent_id);
+      let pName = parent_name ? parent_name.trim() : null;
+      let pPhone = parent_phone ? parent_phone.trim() : null;
 
-    const newStudent = DB.queryOne("SELECT * FROM students WHERE id = ?", [result.lastInsertRowid]);
+      if (parentId) {
+        const pRecord = DB.queryOne("SELECT full_name, phone FROM parents WHERE id = ?", [parentId]);
+        if (pRecord) {
+          pName = pRecord.full_name;
+          if (!pPhone) pPhone = pRecord.phone;
+        }
+      } else if (pName) {
+        let existingP = DB.queryOne("SELECT id, phone FROM parents WHERE LOWER(TRIM(full_name)) = LOWER(?)", [pName]);
+        if (existingP) {
+          parentId = existingP.id;
+          if (!pPhone) pPhone = existingP.phone;
+        } else {
+          const pIns = DB.run(
+            "INSERT INTO parents (full_name, phone, address, discount_percent) VALUES (?, ?, ?, 0)",
+            [pName, pPhone || '', address || null]
+          );
+          parentId = pIns.lastInsertRowid;
+        }
+      }
+
+      const result = DB.run(`
+        INSERT INTO students (matricule, first_name, last_name, gender, birth_date, birth_place, phone, parent_id, parent_name, parent_phone, address, level_id, qr_code, notes)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [matricule, first_name.trim(), last_name.trim(), gender || 'M', birth_date || null, birth_place || null, phone || null, parentId, pName, pPhone, address || null, toNullableId(level_id), qr_code, notes || null]);
+
+      return DB.queryOne("SELECT * FROM students WHERE id = ?", [result.lastInsertRowid]);
+    });
+
     res.json({ success: true, student: newStudent });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    res.status(400).json({ success: false, error: err.message });
   }
 });
 
 app.put('/api/students/:id', (req, res) => {
   try {
     const { id } = req.params;
-    const { matricule: customMatricule, first_name, last_name, gender, birth_date, phone, parent_name, parent_phone, address, level_id, notes, photo_url } = req.body;
+    const { matricule: customMatricule, first_name, last_name, gender, birth_date, birth_place, phone, parent_id, parent_name, parent_phone, address, level_id, notes, photo_url } = req.body;
     
     const currentStudent = DB.queryOne("SELECT * FROM students WHERE id = ?", [id]);
     if (!currentStudent) {
@@ -529,12 +595,37 @@ app.put('/api/students/:id', (req, res) => {
       matricule = cleanMatricule;
     }
 
+    // Resolve parent linkage
+    let parentId = toNullableId(parent_id);
+    let pName = parent_name !== undefined ? (parent_name ? parent_name.trim() : null) : currentStudent.parent_name;
+    let pPhone = parent_phone !== undefined ? (parent_phone ? parent_phone.trim() : null) : currentStudent.parent_phone;
+
+    if (parentId) {
+      const pRecord = DB.queryOne("SELECT full_name, phone FROM parents WHERE id = ?", [parentId]);
+      if (pRecord) {
+        pName = pRecord.full_name;
+        if (!pPhone) pPhone = pRecord.phone;
+      }
+    } else if (pName && !parentId) {
+      let existingP = DB.queryOne("SELECT id, phone FROM parents WHERE LOWER(TRIM(full_name)) = LOWER(?)", [pName]);
+      if (existingP) {
+        parentId = existingP.id;
+        if (!pPhone) pPhone = existingP.phone;
+      } else {
+        const pIns = DB.run(
+          "INSERT INTO parents (full_name, phone, address, discount_percent) VALUES (?, ?, ?, 0)",
+          [pName, pPhone || '', address || null]
+        );
+        parentId = pIns.lastInsertRowid;
+      }
+    }
+
     DB.run(`
       UPDATE students 
-      SET matricule = ?, qr_code = ?, first_name = ?, last_name = ?, gender = ?, birth_date = ?, phone = ?, parent_name = ?, 
-          parent_phone = ?, address = ?, level_id = ?, notes = ?, photo_url = COALESCE(?, photo_url)
+      SET matricule = ?, qr_code = ?, first_name = ?, last_name = ?, gender = ?, birth_date = ?, birth_place = ?, phone = ?, 
+          parent_id = ?, parent_name = ?, parent_phone = ?, address = ?, level_id = ?, notes = ?, photo_url = COALESCE(?, photo_url)
       WHERE id = ?
-    `, [matricule, matricule, first_name.trim(), last_name.trim(), gender || 'M', birth_date || null, phone || null, parent_name || null, parent_phone || null, address || null, toNullableId(level_id), notes || null, photo_url || null, id]);
+    `, [matricule, matricule, first_name.trim(), last_name.trim(), gender || 'M', birth_date || null, birth_place || null, phone || null, parentId, pName, pPhone, address || null, toNullableId(level_id), notes || null, photo_url || null, id]);
 
     res.json({ success: true, message: 'Élève mis à jour avec succès', matricule });
   } catch (err) {
@@ -542,12 +633,536 @@ app.put('/api/students/:id', (req, res) => {
   }
 });
 
-
 app.delete('/api/students/:id', (req, res) => {
   try {
     const { id } = req.params;
     DB.run("UPDATE students SET active = 0 WHERE id = ?", [id]);
     res.json({ success: true, message: 'Élève désactivé avec succès' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Batch import students (Excel, Algerian Rakmana / Tarbiya platform)
+app.post('/api/students/import-batch', (req, res) => {
+  try {
+    const { students = [], duplicateAction = 'skip', defaultLevelId = null, defaultGroupId = null } = req.body;
+    if (!Array.isArray(students) || students.length === 0) {
+      return res.status(400).json({ success: false, error: 'Aucun élève fourni pour l\'importation' });
+    }
+
+    const activeYearSetting = DB.queryOne("SELECT value FROM settings WHERE key = 'active_year'")?.value || '2025-2026';
+    const yearMatch = activeYearSetting.match(/\d{4}$/) || [new Date().getFullYear().toString()];
+    const currentYear = yearMatch[0];
+
+    let candidateNum = (DB.queryOne("SELECT MAX(id) as max_id FROM students")?.max_id || 0) + 1;
+    function generateUniqueMatricule() {
+      let cand = `EDU-${currentYear}-${String(candidateNum++).padStart(4, '0')}`;
+      while (DB.queryOne("SELECT id FROM students WHERE matricule = ? COLLATE NOCASE", [cand])) {
+        cand = `EDU-${currentYear}-${String(candidateNum++).padStart(4, '0')}`;
+      }
+      return cand;
+    }
+
+    const allLevels = DB.queryAll("SELECT id, name FROM levels");
+    const allGroups = DB.queryAll("SELECT id, name, level_id FROM groups WHERE active = 1");
+
+    let importedCount = 0;
+    let updatedCount = 0;
+    let skippedCount = 0;
+    const errors = [];
+    const processed = [];
+
+    DB.exec('BEGIN IMMEDIATE;');
+
+    try {
+      for (let i = 0; i < students.length; i++) {
+        const item = students[i];
+        const firstName = (item.first_name || '').trim();
+        const lastName = (item.last_name || '').trim();
+
+        if (!firstName && !lastName) {
+          errors.push({ row: i + 1, error: 'الاسم واللقب فارغان' });
+          continue;
+        }
+
+        // Normalize gender ('M' or 'F')
+        let gender = 'M';
+        const rawGender = String(item.gender || '').trim().toLowerCase();
+        if (rawGender.includes('أنث') || rawGender.includes('انث') || rawGender === 'f' || rawGender.includes('fille') || rawGender.includes('femme')) {
+          gender = 'F';
+        }
+
+        // Resolve birth date (accepts YYYY-MM-DD or DD/MM/YYYY)
+        let birthDate = item.birth_date ? String(item.birth_date).trim() : null;
+        if (birthDate && birthDate.includes('/')) {
+          const parts = birthDate.split('/');
+          if (parts.length === 3) {
+            if (parts[2].length === 4) {
+              birthDate = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+            }
+          }
+        }
+
+        const birthPlace = (item.birth_place || '').trim() || null;
+        const parentName = (item.parent_name || '').trim() || null;
+        const parentPhone = (item.parent_phone || item.phone || '').trim() || null;
+        const phone = (item.phone || '').trim() || null;
+        const address = (item.address || '').trim() || null;
+        
+        let notes = (item.notes || '').trim();
+        if (item.statut && !notes.includes(item.statut)) {
+          notes = notes ? `${notes} | الصفة: ${item.statut}` : `الصفة: ${item.statut}`;
+        }
+        if (item.raw_group && !notes.includes(item.raw_group)) {
+          notes = notes ? `${notes} | الفوج المدرسي: ${item.raw_group}` : `الفوج المدرسي: ${item.raw_group}`;
+        }
+        notes = notes || null;
+
+        // Resolve level
+        let levelId = toNullableId(item.level_id) || toNullableId(defaultLevelId);
+        if (!levelId && item.level_name) {
+          const rawL = item.level_name.trim().toLowerCase();
+          let matchedL = allLevels.find(l => {
+            const dbL = l.name.toLowerCase();
+            return dbL === rawL || rawL.includes(dbL) || dbL.includes(rawL);
+          });
+          if (!matchedL) {
+            if (rawL.includes('1am') || rawL.includes('1 am') || (rawL.includes('1') && rawL.includes('متوسط'))) {
+              matchedL = allLevels.find(l => l.name.includes('1AM'));
+            } else if (rawL.includes('2am') || rawL.includes('2 am') || (rawL.includes('2') && rawL.includes('متوسط'))) {
+              matchedL = allLevels.find(l => l.name.includes('2AM'));
+            } else if (rawL.includes('3am') || rawL.includes('3 am') || (rawL.includes('3') && rawL.includes('متوسط'))) {
+              matchedL = allLevels.find(l => l.name.includes('3AM'));
+            } else if (rawL.includes('4am') || rawL.includes('4 am') || (rawL.includes('4') && rawL.includes('متوسط')) || rawL.includes('bem') || rawL.includes('بيام')) {
+              matchedL = allLevels.find(l => l.name.includes('4AM') || l.name.includes('BEM'));
+            } else if (rawL.includes('1as') || rawL.includes('1 as') || (rawL.includes('1') && rawL.includes('ثانوي'))) {
+              matchedL = allLevels.find(l => l.name.includes('1AS'));
+            } else if (rawL.includes('2as') || rawL.includes('2 as') || (rawL.includes('2') && rawL.includes('ثانوي'))) {
+              matchedL = allLevels.find(l => l.name.includes('2AS'));
+            } else if (rawL.includes('3as') || rawL.includes('3 as') || (rawL.includes('3') && rawL.includes('ثانوي')) || rawL.includes('bac') || rawL.includes('باك')) {
+              matchedL = allLevels.find(l => l.name.includes('3AS') || l.name.includes('BAC'));
+            } else if (rawL.includes('1ap') || (rawL.includes('1') && rawL.includes('ابتدائي'))) {
+              matchedL = allLevels.find(l => l.name.includes('1AP'));
+            } else if (rawL.includes('2ap') || (rawL.includes('2') && rawL.includes('ابتدائي'))) {
+              matchedL = allLevels.find(l => l.name.includes('2AP'));
+            } else if (rawL.includes('3ap') || (rawL.includes('3') && rawL.includes('ابتدائي'))) {
+              matchedL = allLevels.find(l => l.name.includes('3AP'));
+            } else if (rawL.includes('4ap') || (rawL.includes('4') && rawL.includes('ابتدائي'))) {
+              matchedL = allLevels.find(l => l.name.includes('4AP'));
+            } else if (rawL.includes('5ap') || (rawL.includes('5') && rawL.includes('ابتدائي'))) {
+              matchedL = allLevels.find(l => l.name.includes('5AP'));
+            }
+          }
+          if (matchedL) levelId = matchedL.id;
+        }
+
+        // Resolve group
+        let groupId = toNullableId(item.group_id) || toNullableId(defaultGroupId);
+        if (!groupId && item.group_name) {
+          const cleanGName = String(item.group_name).trim().toLowerCase();
+          const matchedG = allGroups.find(g => g.name.toLowerCase() === cleanGName || g.name.toLowerCase().includes(cleanGName) || (cleanGName.match(/\d+/) && g.name.includes(cleanGName.match(/\d+/)[0])));
+          if (matchedG) groupId = matchedG.id;
+        }
+
+        let customMatricule = (item.matricule ? String(item.matricule).trim() : '');
+
+        // Duplicate lookup: First by matricule if available, otherwise by (first_name + last_name + birth_date)
+        let existingStudent = null;
+        if (customMatricule) {
+          existingStudent = DB.queryOne("SELECT * FROM students WHERE matricule = ? COLLATE NOCASE", [customMatricule]);
+        }
+        if (!existingStudent && firstName && lastName && birthDate) {
+          existingStudent = DB.queryOne(
+            "SELECT * FROM students WHERE LOWER(TRIM(first_name)) = LOWER(?) AND LOWER(TRIM(last_name)) = LOWER(?) AND birth_date = ?",
+            [firstName, lastName, birthDate]
+          );
+        }
+
+        let studentId = null;
+
+        if (existingStudent) {
+          // If the student was archived/deleted (active = 0), reactivate and update them!
+          if (existingStudent.active === 0) {
+            studentId = existingStudent.id;
+            const updatedMatricule = customMatricule || existingStudent.matricule;
+            DB.run(`
+              UPDATE students
+              SET active = 1,
+                  first_name = ?, last_name = ?, gender = ?,
+                  birth_date = COALESCE(?, birth_date),
+                  birth_place = COALESCE(?, birth_place),
+                  phone = COALESCE(?, phone),
+                  parent_name = COALESCE(?, parent_name),
+                  parent_phone = COALESCE(?, parent_phone),
+                  address = COALESCE(?, address),
+                  level_id = COALESCE(?, level_id),
+                  notes = CASE WHEN ? IS NOT NULL THEN (COALESCE(notes || ' | ', '') || ?) ELSE notes END
+              WHERE id = ?
+            `, [
+              firstName, lastName, gender,
+              birthDate, birthPlace, phone, parentName, parentPhone, address,
+              toNullableId(levelId), notes, notes, studentId
+            ]);
+            importedCount++;
+            processed.push({ id: studentId, matricule: updatedMatricule, first_name: firstName, last_name: lastName, action: 'created' });
+          } else if (duplicateAction === 'skip') {
+            skippedCount++;
+            processed.push({ id: existingStudent.id, matricule: existingStudent.matricule, first_name: firstName, last_name: lastName, action: 'skipped' });
+            continue;
+          } else {
+            // Update existing active student
+            studentId = existingStudent.id;
+            const updatedMatricule = customMatricule || existingStudent.matricule;
+            DB.run(`
+              UPDATE students
+              SET active = 1,
+                  first_name = ?, last_name = ?, gender = ?,
+                  birth_date = COALESCE(?, birth_date),
+                  birth_place = COALESCE(?, birth_place),
+                  phone = COALESCE(?, phone),
+                  parent_name = COALESCE(?, parent_name),
+                  parent_phone = COALESCE(?, parent_phone),
+                  address = COALESCE(?, address),
+                  level_id = COALESCE(?, level_id),
+                  notes = CASE WHEN ? IS NOT NULL THEN (COALESCE(notes || ' | ', '') || ?) ELSE notes END
+              WHERE id = ?
+            `, [
+              firstName, lastName, gender,
+              birthDate, birthPlace, phone, parentName, parentPhone, address,
+              toNullableId(levelId), notes, notes, studentId
+            ]);
+            updatedCount++;
+            processed.push({ id: studentId, matricule: updatedMatricule, first_name: firstName, last_name: lastName, action: 'updated' });
+          }
+        } else {
+          // Insert new
+          const finalMatricule = customMatricule || generateUniqueMatricule();
+          const qrCode = finalMatricule;
+
+          const resInsert = DB.run(`
+            INSERT INTO students (matricule, first_name, last_name, gender, birth_date, birth_place, phone, parent_name, parent_phone, address, level_id, qr_code, notes, active)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+          `, [
+            finalMatricule, firstName, lastName, gender,
+            birthDate, birthPlace, phone, parentName, parentPhone, address,
+            toNullableId(levelId), qrCode, notes
+          ]);
+
+          studentId = resInsert.lastInsertRowid;
+          importedCount++;
+          processed.push({ id: studentId, matricule: finalMatricule, first_name: firstName, last_name: lastName, action: 'created' });
+        }
+
+        // Automatic group enrollment if group resolved
+        if (groupId && studentId) {
+          const isEnrolled = DB.queryOne("SELECT id FROM enrollments WHERE student_id = ? AND group_id = ? AND status = 'active'", [studentId, groupId]);
+          if (!isEnrolled) {
+            DB.run(`
+              INSERT INTO enrollments (student_id, group_id, school_year, registration_date, status, discount_amount)
+              VALUES (?, ?, ?, DATE('now'), 'active', 0)
+            `, [studentId, groupId, activeYearSetting]);
+          }
+        }
+      }
+
+      DB.exec('COMMIT');
+    } catch (loopErr) {
+      DB.exec('ROLLBACK');
+      throw loopErr;
+    }
+
+    res.json({
+      success: true,
+      total: students.length,
+      imported: importedCount,
+      updated: updatedCount,
+      skipped: skippedCount,
+      errors,
+      processed
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// -------------------------------------------------------------
+// 2.5 PARENTS & FAMILIES (أولياء التلاميذ) API
+// -------------------------------------------------------------
+app.get('/api/parents', (req, res) => {
+  try {
+    const { search, active } = req.query;
+    let sql = `
+      SELECT p.*,
+             (SELECT COUNT(*) FROM students WHERE parent_id = p.id AND active = 1) as children_count
+      FROM parents p
+      WHERE 1=1
+    `;
+    const params = [];
+    if (active !== undefined && active !== 'all') {
+      sql += ' AND p.active = ?';
+      params.push(parseInt(active) || 1);
+    } else {
+      sql += ' AND p.active = 1';
+    }
+
+    if (search && search.trim()) {
+      sql += ` AND (
+        p.full_name LIKE ? OR p.phone LIKE ? OR p.phone_secondary LIKE ? OR p.address LIKE ?
+        OR EXISTS (
+          SELECT 1 FROM students s 
+          WHERE s.parent_id = p.id AND (
+            s.first_name LIKE ? OR s.last_name LIKE ? OR 
+            (s.last_name || ' ' || s.first_name) LIKE ? OR s.matricule LIKE ?
+          )
+        )
+      )`;
+      const term = `%${search.trim()}%`;
+      params.push(term, term, term, term, term, term, term, term);
+    }
+    sql += ' ORDER BY p.id DESC';
+
+    const parents = DB.queryAll(sql, params);
+
+    // Enrich each parent with children summary and total family financial stats
+    parents.forEach(p => {
+      const children = DB.queryAll(`
+        SELECT s.id, s.matricule, s.first_name, s.last_name, s.gender, s.phone, s.level_id, s.photo_url,
+               COALESCE(l.name, '-') as level_name,
+               (SELECT COUNT(*) FROM enrollments WHERE student_id = s.id AND status = 'active') as groups_count,
+               COALESCE((
+                 SELECT SUM(g.price_monthly - e.discount_amount) 
+                 FROM enrollments e 
+                 JOIN groups g ON e.group_id = g.id 
+                 WHERE e.student_id = s.id AND e.status = 'active'
+               ), 0) as total_billed,
+               COALESCE((
+                 SELECT SUM(paid_amount) 
+                 FROM payments 
+                 WHERE student_id = s.id
+               ), 0) as total_paid
+        FROM students s
+        LEFT JOIN levels l ON s.level_id = l.id
+        WHERE s.parent_id = ? AND s.active = 1
+        ORDER BY s.first_name ASC
+      `, [p.id]);
+
+      p.children = children;
+      p.children_count = children.length;
+      p.total_billed = children.reduce((sum, c) => sum + Number(c.total_billed || 0), 0);
+      p.total_paid = children.reduce((sum, c) => sum + Number(c.total_paid || 0), 0);
+      p.total_debt = Math.max(0, p.total_billed - p.total_paid);
+    });
+
+    res.json({ success: true, parents });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.get('/api/parents/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    const parent = DB.queryOne("SELECT * FROM parents WHERE id = ?", [id]);
+    if (!parent) return res.status(404).json({ success: false, error: 'Parent introuvable' });
+
+    const children = DB.queryAll(`
+      SELECT DISTINCT s.*, COALESCE(l.name, '-') as level_name
+      FROM students s
+      LEFT JOIN levels l ON s.level_id = l.id
+      WHERE (s.parent_id = ? OR (s.parent_name IS NOT NULL AND LOWER(TRIM(s.parent_name)) = LOWER(TRIM(?)))) AND s.active = 1
+      ORDER BY s.first_name ASC
+    `, [id, parent.full_name]);
+
+    // For each child, get their enrollments and payments
+    children.forEach(c => {
+      c.parent_discount_percent = parent.discount_percent || 0;
+      c.enrollments = DB.queryAll(`
+        SELECT e.*, g.name as group_name, g.price_monthly, sub.name as subject_name, sub.color as subject_color,
+               t.first_name || ' ' || t.last_name as teacher_name
+        FROM enrollments e
+        JOIN groups g ON e.group_id = g.id
+        JOIN subjects sub ON g.subject_id = sub.id
+        JOIN teachers t ON g.teacher_id = t.id
+        WHERE e.student_id = ? AND e.status = 'active'
+      `, [c.id]);
+
+      c.payments = DB.queryAll(`
+        SELECT p.*, g.name as group_name, sub.name as subject_name
+        FROM payments p
+        JOIN groups g ON p.group_id = g.id
+        JOIN subjects sub ON g.subject_id = sub.id
+        WHERE p.student_id = ?
+        ORDER BY p.payment_date DESC
+      `, [c.id]);
+
+      const billed = c.enrollments.reduce((sum, e) => sum + (Number(e.price_monthly) - Number(e.discount_amount || 0)), 0);
+      const paid = c.payments.reduce((sum, p) => sum + Number(p.paid_amount || 0), 0);
+      c.total_billed = billed;
+      c.total_paid = paid;
+      c.total_debt = Math.max(0, billed - paid);
+    });
+
+    const totalBilled = children.reduce((sum, c) => sum + c.total_billed, 0);
+    const totalPaid = children.reduce((sum, c) => sum + c.total_paid, 0);
+    const totalDebt = Math.max(0, totalBilled - totalPaid);
+
+    // Collect unpaid enrollments for all children of this parent
+    const childIds = children.map(c => c.id);
+    let unpaid = [];
+    if (childIds.length > 0) {
+      const placeholders = childIds.map(() => '?').join(',');
+      unpaid = DB.queryAll(`
+        SELECT e.student_id, (s.first_name || ' ' || s.last_name) as student_name,
+               g.name as group_name, sub.name as subject_name,
+               strftime('%Y-%m', 'now') as paid_month,
+               (g.price_monthly - e.discount_amount) as amount_due
+        FROM enrollments e
+        JOIN students s ON e.student_id = s.id
+        JOIN groups g ON e.group_id = g.id
+        JOIN subjects sub ON g.subject_id = sub.id
+        WHERE e.student_id IN (${placeholders}) AND e.status = 'active'
+          AND NOT EXISTS (
+            SELECT 1 FROM payments p 
+            WHERE p.student_id = e.student_id AND p.group_id = e.group_id 
+              AND strftime('%Y-%m', p.payment_date) = strftime('%Y-%m', 'now')
+              AND (p.remaining_amount = 0 OR p.remaining_amount IS NULL)
+          )
+      `, childIds);
+    }
+
+    res.json({
+      success: true,
+      parent: {
+        ...parent,
+        children_count: children.length,
+        total_billed: totalBilled,
+        total_paid: totalPaid,
+        total_debt: totalDebt
+      },
+      children,
+      unpaid
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/parents', (req, res) => {
+  try {
+    const { full_name, phone, phone_secondary, email, address, discount_percent, notes } = req.body;
+    if (!full_name || !full_name.trim()) {
+      return res.status(400).json({ success: false, error: 'Nom complet du parent requis' });
+    }
+    if (!phone || !phone.trim()) {
+      return res.status(400).json({ success: false, error: 'Numéro de téléphone requis' });
+    }
+
+    const disc = Math.min(100, Math.max(0, parseFloat(discount_percent) || 0));
+
+    const result = DB.run(`
+      INSERT INTO parents (full_name, phone, phone_secondary, email, address, discount_percent, notes, active)
+      VALUES (?, ?, ?, ?, ?, ?, ?, 1)
+    `, [full_name.trim(), phone.trim(), phone_secondary?.trim() || null, email?.trim() || null, address?.trim() || null, disc, notes?.trim() || null]);
+
+    const newParent = DB.queryOne("SELECT * FROM parents WHERE id = ?", [result.lastInsertRowid]);
+    res.json({ success: true, parent: newParent, message: 'Parent enregistré avec succès' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.put('/api/parents/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    const { full_name, phone, phone_secondary, email, address, discount_percent, notes } = req.body;
+    if (!full_name || !full_name.trim()) {
+      return res.status(400).json({ success: false, error: 'Nom complet du parent requis' });
+    }
+
+    const disc = Math.min(100, Math.max(0, parseFloat(discount_percent) || 0));
+
+    DB.run(`
+      UPDATE parents
+      SET full_name = ?, phone = ?, phone_secondary = ?, email = ?, address = ?, discount_percent = ?, notes = ?
+      WHERE id = ?
+    `, [full_name.trim(), phone?.trim() || '', phone_secondary?.trim() || null, email?.trim() || null, address?.trim() || null, disc, notes?.trim() || null, id]);
+
+    // Update parent_name and parent_phone on linked students
+    DB.run(`
+      UPDATE students
+      SET parent_name = ?, parent_phone = ?
+      WHERE parent_id = ?
+    `, [full_name.trim(), phone?.trim() || '', id]);
+
+    res.json({ success: true, message: 'Parent mis à jour avec succès' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.delete('/api/parents/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    DB.run("UPDATE students SET parent_id = NULL WHERE parent_id = ?", [id]);
+    DB.run("UPDATE parents SET active = 0 WHERE id = ?", [id]);
+    res.json({ success: true, message: 'Parent supprimé avec succès' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Dedicated Echéances & Unpaid debts with parent and discount details
+app.get('/api/echeances', (req, res) => {
+  try {
+    const { search, month } = req.query;
+    const now = new Date();
+    const currentMonthStr = month || `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+    let sql = `
+      SELECT s.id as student_id, s.matricule, s.first_name, s.last_name, (s.first_name || ' ' || s.last_name) as student_name, s.phone as student_phone,
+             s.photo_url, COALESCE(l.name, '-') as level_name,
+             COALESCE(pr.full_name, s.parent_name, '-') as parent_name,
+             COALESCE(pr.phone, s.parent_phone, '-') as parent_phone,
+             COALESCE(pr.discount_percent, 0) as parent_discount_percent,
+             g.id as group_id, g.name as group_name, g.price_monthly,
+             sub.name as subject_name, sub.color as subject_color,
+             t.first_name || ' ' || t.last_name as teacher_name,
+             (g.price_monthly - e.discount_amount) as amount_due,
+             e.discount_amount
+      FROM enrollments e
+      JOIN students s ON e.student_id = s.id
+      JOIN groups g ON e.group_id = g.id
+      JOIN subjects sub ON g.subject_id = sub.id
+      JOIN teachers t ON g.teacher_id = t.id
+      LEFT JOIN levels l ON s.level_id = l.id
+      LEFT JOIN parents pr ON s.parent_id = pr.id
+      WHERE e.status = 'active' AND s.active = 1
+        AND NOT EXISTS (
+          SELECT 1 FROM payments p 
+          WHERE p.student_id = e.student_id 
+            AND p.group_id = e.group_id 
+            AND (p.month_period = ? OR strftime('%Y-%m', p.payment_date) = ?)
+            AND (p.remaining_amount = 0 OR p.remaining_amount IS NULL)
+        )
+    `;
+    const params = [currentMonthStr, currentMonthStr];
+
+    if (search && search.trim()) {
+      sql += ` AND (
+        s.first_name LIKE ? OR s.last_name LIKE ? OR (s.last_name || ' ' || s.first_name) LIKE ?
+        OR s.matricule LIKE ? OR s.phone LIKE ? OR s.parent_phone LIKE ?
+        OR pr.full_name LIKE ? OR pr.phone LIKE ? OR s.parent_name LIKE ?
+        OR g.name LIKE ? OR sub.name LIKE ?
+      )`;
+      const term = `%${search.trim()}%`;
+      params.push(term, term, term, term, term, term, term, term, term, term, term);
+    }
+
+    sql += ` ORDER BY s.last_name ASC, s.first_name ASC`;
+    const unpaidList = DB.queryAll(sql, params);
+
+    res.json({ success: true, month: currentMonthStr, unpaid: unpaidList, echeances: unpaidList });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -948,6 +1563,74 @@ app.patch('/api/enrollments/:id/reactivate', (req, res) => {
   }
 });
 
+// Batch enrollment (Multi-students into Multi-groups)
+app.post('/api/enrollments/batch', (req, res) => {
+  try {
+    const { student_ids = [], group_ids = [], school_year, discount_amount = 0, registration_date } = req.body;
+    if (!Array.isArray(student_ids) || student_ids.length === 0) {
+      return res.status(400).json({ success: false, error: 'Veuillez sélectionner au moins un élève.' });
+    }
+    if (!Array.isArray(group_ids) || group_ids.length === 0) {
+      return res.status(400).json({ success: false, error: 'Veuillez sélectionner au moins un groupe.' });
+    }
+
+    const activeYearSetting = school_year || DB.queryOne("SELECT value FROM settings WHERE key = 'active_year'")?.value || '2025-2026';
+    const regDate = registration_date || new Date().toISOString().split('T')[0];
+    const discount = parseFloat(discount_amount) || 0;
+
+    let enrolledCount = 0;
+    let reactivatedCount = 0;
+    let alreadyActiveCount = 0;
+    const details = [];
+
+    DB.exec('BEGIN IMMEDIATE;');
+
+    try {
+      for (const studentId of student_ids) {
+        for (const groupId of group_ids) {
+          const existing = DB.queryOne("SELECT id, status FROM enrollments WHERE student_id = ? AND group_id = ? AND school_year = ?", [studentId, groupId, activeYearSetting]);
+
+          if (existing) {
+            if (existing.status === 'active') {
+              alreadyActiveCount++;
+              details.push({ student_id: studentId, group_id: groupId, status: 'already_active' });
+            } else {
+              DB.run("UPDATE enrollments SET status = 'active', discount_amount = ?, registration_date = ? WHERE id = ?", [discount, regDate, existing.id]);
+              reactivatedCount++;
+              details.push({ student_id: studentId, group_id: groupId, status: 'reactivated' });
+            }
+          } else {
+            DB.run(`
+              INSERT INTO enrollments (student_id, group_id, school_year, registration_date, discount_amount, status)
+              VALUES (?, ?, ?, ?, ?, 'active')
+            `, [studentId, groupId, activeYearSetting, regDate, discount]);
+            enrolledCount++;
+            details.push({ student_id: studentId, group_id: groupId, status: 'enrolled' });
+          }
+        }
+      }
+
+      DB.exec('COMMIT');
+    } catch (loopErr) {
+      DB.exec('ROLLBACK');
+      throw loopErr;
+    }
+
+    res.json({
+      success: true,
+      totalStudents: student_ids.length,
+      totalGroups: group_ids.length,
+      totalCombinations: student_ids.length * group_ids.length,
+      enrolled: enrolledCount,
+      reactivated: reactivatedCount,
+      alreadyActive: alreadyActiveCount,
+      details
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // -------------------------------------------------------------
 // 4. PAYMENTS & RECEIPTS API
 // -------------------------------------------------------------
@@ -1118,6 +1801,317 @@ app.post('/api/payments', (req, res) => {
     }
 
     res.json({ success: true, payment: newPayment, receipt_no });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 4.3 Get Student Dues and Enrollments Summary for Fast Payment
+app.get('/api/students/:id/due-summary', (req, res) => {
+  try {
+    const studentId = req.params.id;
+    const student = DB.queryOne(`
+      SELECT s.id, s.matricule, s.first_name, s.last_name, s.phone, s.parent_phone, s.photo_url,
+             l.name as level_name
+      FROM students s
+      LEFT JOIN levels l ON s.level_id = l.id
+      WHERE s.id = ?
+    `, [studentId]);
+
+    if (!student) {
+      return res.status(404).json({ success: false, error: 'Élève non trouvé' });
+    }
+
+    // Active enrollments
+    const enrollments = DB.queryAll(`
+      SELECT e.id as enrollment_id, e.group_id, e.discount_amount, e.school_year, e.registration_date,
+             g.name as group_name, g.price_monthly,
+             sub.name as subject_name, sub.color as subject_color,
+             t.first_name || ' ' || t.last_name as teacher_name
+      FROM enrollments e
+      JOIN groups g ON e.group_id = g.id
+      JOIN subjects sub ON g.subject_id = sub.id
+      JOIN teachers t ON g.teacher_id = t.id
+      WHERE e.student_id = ? AND e.status = 'active'
+    `, [studentId]);
+
+    // Recent payments for this student
+    const payments = DB.queryAll(`
+      SELECT p.id, p.receipt_no, p.group_id, p.month_period, p.base_amount, p.discount, p.paid_amount, p.remaining_amount, p.payment_date
+      FROM payments p
+      WHERE p.student_id = ?
+      ORDER BY p.id DESC
+    `, [studentId]);
+
+    res.json({
+      success: true,
+      student,
+      enrollments,
+      payments
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 4.4 Multi-Payment (Multiple courses/months for a student in one unified receipt)
+app.post('/api/payments/multi', (req, res) => {
+  try {
+    const { student_id, payment_method = 'espece', payment_date, notes = '', items = [] } = req.body;
+
+    if (!student_id) {
+      return res.status(400).json({ success: false, error: 'Identifiant élève manquant.' });
+    }
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ success: false, error: 'Aucun cours ou montant sélectionné pour le paiement.' });
+    }
+
+    const student = DB.queryOne(`
+      SELECT s.*, l.name as level_name
+      FROM students s
+      LEFT JOIN levels l ON s.level_id = l.id
+      WHERE s.id = ?
+    `, [student_id]);
+
+    if (!student) {
+      return res.status(404).json({ success: false, error: 'Élève non trouvé.' });
+    }
+
+    const payDate = payment_date || new Date().toISOString().split('T')[0];
+    const nowP = new Date();
+    const curTime = nowP.toTimeString().split(' ')[0];
+
+    // Generate unified receipt number
+    const lastPay = DB.queryOne("SELECT id FROM payments ORDER BY id DESC LIMIT 1");
+    const nextSeq = (lastPay ? Number(lastPay.id) : 0) + 1;
+    const receipt_no = `REC-${new Date().getFullYear()}-${String(nextSeq).padStart(5, '0')}`;
+
+    let totalPaid = 0;
+    const createdPayments = [];
+
+    DB.exec('BEGIN IMMEDIATE;');
+
+    try {
+      let itemIdx = 0;
+      for (const it of items) {
+        const groupId = it.group_id;
+        const monthPeriod = it.month_period || 'Septembre 2026';
+        const baseAmount = parseFloat(it.base_amount) || 0;
+        const discount = parseFloat(it.discount) || 0;
+        const paidAmount = parseFloat(it.paid_amount) || 0;
+        const remainingAmount = Math.max(0, (baseAmount - discount) - paidAmount);
+
+        if (paidAmount <= 0 && remainingAmount <= 0 && baseAmount <= 0) continue;
+        itemIdx++;
+
+        const rowReceiptNo = items.length > 1 ? `${receipt_no}-${itemIdx}` : receipt_no;
+
+        const resRun = DB.run(`
+          INSERT INTO payments (receipt_no, student_id, group_id, month_period, base_amount, discount, paid_amount, remaining_amount, payment_method, payment_date, notes)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [
+          rowReceiptNo,
+          student_id,
+          groupId,
+          monthPeriod,
+          baseAmount,
+          discount,
+          paidAmount,
+          remainingAmount,
+          payment_method,
+          payDate,
+          notes
+        ]);
+
+        totalPaid += paidAmount;
+
+        const payRecord = DB.queryOne(`
+          SELECT p.*, g.name as group_name, sub.name as subject_name, t.first_name || ' ' || t.last_name as teacher_name
+          FROM payments p
+          JOIN groups g ON p.group_id = g.id
+          JOIN subjects sub ON g.subject_id = sub.id
+          JOIN teachers t ON g.teacher_id = t.id
+          WHERE p.id = ?
+        `, [resRun.lastInsertRowid]);
+
+        createdPayments.push(payRecord);
+      }
+
+      // Consolidate caisse movement if any amount was paid
+      if (totalPaid > 0) {
+        try {
+          const courseNames = createdPayments.map(p => p.group_name).filter(Boolean).join(', ');
+          DB.run(`
+            INSERT INTO caisse (type, category, amount, title, reference, payment_method, user_name, movement_date, movement_time)
+            VALUES ('entree', 'Paiement élève', ?, ?, ?, ?, 'Secrétariat', ?, ?)
+          `, [
+            totalPaid,
+            `Paiement groupé (${createdPayments.length} cours) - ${student.first_name} ${student.last_name} (${courseNames.slice(0, 50)})`,
+            receipt_no,
+            payment_method,
+            payDate,
+            curTime
+          ]);
+        } catch (caisseErr) {
+          console.warn('Auto caisse multi-payment entry:', caisseErr.message);
+        }
+      }
+
+      DB.exec('COMMIT');
+    } catch (txErr) {
+      DB.exec('ROLLBACK');
+      throw txErr;
+    }
+
+    res.json({
+      success: true,
+      receipt_no,
+      total_paid: totalPaid,
+      student,
+      payments: createdPayments,
+      payment_date: payDate,
+      payment_method
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 4.5 Family Payment (Multiple children / courses under one parent in a single unified receipt with partial payment support)
+app.post('/api/payments/family', (req, res) => {
+  try {
+    const { parent_id, parent_name, payment_method = 'espece', payment_date, notes = '', items = [] } = req.body;
+
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ success: false, error: 'Aucun cours ou montant sélectionné pour le paiement familial.' });
+    }
+
+    const payDate = payment_date || new Date().toISOString().split('T')[0];
+    const nowP = new Date();
+    const curTime = nowP.toTimeString().split(' ')[0];
+
+    // Fetch parent if parent_id provided
+    let parent = null;
+    if (parent_id) {
+      parent = DB.queryOne("SELECT * FROM parents WHERE id = ?", [parent_id]);
+    }
+    const resolvedParentName = (parent && parent.full_name) || parent_name || 'Parent d\'élève';
+
+    // Generate unified family receipt number
+    const lastPay = DB.queryOne("SELECT id FROM payments ORDER BY id DESC LIMIT 1");
+    const nextSeq = (lastPay ? Number(lastPay.id) : 0) + 1;
+    const receipt_no = `REC-FAM-${new Date().getFullYear()}-${String(nextSeq).padStart(5, '0')}`;
+
+    let totalPaid = 0;
+    let totalBase = 0;
+    let totalDiscount = 0;
+    let totalNet = 0;
+    let totalRemaining = 0;
+    const createdPayments = [];
+    const childrenIds = new Set();
+
+    DB.exec('BEGIN IMMEDIATE;');
+
+    try {
+      let itemIdx = 0;
+      for (const it of items) {
+        const studentId = parseInt(it.student_id, 10);
+        const groupId = parseInt(it.group_id, 10);
+        const monthPeriod = it.month_period || 'Septembre 2026';
+        const baseAmount = parseFloat(it.base_amount) || 0;
+        const discount = parseFloat(it.discount) || 0;
+        const paidAmount = parseFloat(it.paid_amount) || 0;
+        const netAmount = Math.max(0, baseAmount - discount);
+        const remainingAmount = Math.max(0, netAmount - paidAmount);
+
+        if (!studentId || !groupId) continue;
+        if (paidAmount <= 0 && remainingAmount <= 0 && baseAmount <= 0) continue;
+
+        itemIdx++;
+        childrenIds.add(studentId);
+
+        const rowReceiptNo = items.length > 1 ? `${receipt_no}-${itemIdx}` : receipt_no;
+
+        const resRun = DB.run(`
+          INSERT INTO payments (receipt_no, student_id, group_id, month_period, base_amount, discount, paid_amount, remaining_amount, payment_method, payment_date, notes)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [
+          rowReceiptNo,
+          studentId,
+          groupId,
+          monthPeriod,
+          baseAmount,
+          discount,
+          paidAmount,
+          remainingAmount,
+          payment_method,
+          payDate,
+          notes ? `[Paiement Famille: ${resolvedParentName}] ${notes}` : `[Paiement Famille: ${resolvedParentName}]`
+        ]);
+
+        totalPaid += paidAmount;
+        totalBase += baseAmount;
+        totalDiscount += discount;
+        totalNet += netAmount;
+        totalRemaining += remainingAmount;
+
+        const payRecord = DB.queryOne(`
+          SELECT p.*, s.first_name, s.last_name, s.matricule, s.parent_name, s.parent_phone,
+                 l.name as level_name,
+                 g.name as group_name, sub.name as subject_name, sub.color as subject_color,
+                 t.first_name || ' ' || t.last_name as teacher_name
+          FROM payments p
+          JOIN students s ON p.student_id = s.id
+          LEFT JOIN levels l ON s.level_id = l.id
+          JOIN groups g ON p.group_id = g.id
+          JOIN subjects sub ON g.subject_id = sub.id
+          JOIN teachers t ON g.teacher_id = t.id
+          WHERE p.id = ?
+        `, [resRun.lastInsertRowid]);
+
+        createdPayments.push(payRecord);
+      }
+
+      // Consolidate caisse movement if any amount was paid
+      if (totalPaid > 0) {
+        try {
+          const childrenCount = childrenIds.size;
+          DB.run(`
+            INSERT INTO caisse (type, category, amount, title, reference, payment_method, user_name, movement_date, movement_time)
+            VALUES ('entree', 'Paiement élève', ?, ?, ?, ?, 'Secrétariat', ?, ?)
+          `, [
+            totalPaid,
+            `Paiement familial (${childrenCount} enfant(s), ${createdPayments.length} cours) - ${resolvedParentName}`,
+            receipt_no,
+            payment_method,
+            payDate,
+            curTime
+          ]);
+        } catch (caisseErr) {
+          console.warn('Auto caisse family payment entry:', caisseErr.message);
+        }
+      }
+
+      DB.exec('COMMIT');
+    } catch (txErr) {
+      DB.exec('ROLLBACK');
+      throw txErr;
+    }
+
+    res.json({
+      success: true,
+      receipt_no,
+      total_paid: totalPaid,
+      total_base: totalBase,
+      total_discount: totalDiscount,
+      total_net: totalNet,
+      total_remaining: totalRemaining,
+      parent: parent || { full_name: resolvedParentName, phone: req.body.parent_phone || '' },
+      children_count: childrenIds.size,
+      payments: createdPayments,
+      payment_date: payDate,
+      payment_method
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -1502,6 +2496,62 @@ app.delete('/api/attendance/session', (req, res) => {
   }
 });
 
+// Helper: Normalize Barcode Scanner (Douchette) Raw Input
+// Handles AZERTY number row without Shift (&é"'(-è_çà -> 1234567890), Arabic keyboard scancodes, and control characters
+function normalizeBarcodeCode(raw) {
+  if (!raw) return '';
+  let code = String(raw).trim().replace(/[\x00-\x1F\x7F]/g, '');
+
+  // 1. Arabic-Indic digits to ASCII (٠-٩ -> 0-9)
+  const arabicDigits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+  arabicDigits.forEach((d, i) => { code = code.replaceAll(d, String(i)); });
+
+  // 2. Arabic keyboard scancodes for common prefixes (ثمث -> ELE, etc.)
+  const arKeys = {
+    'ث':'E', 'م':'L', 'ف':'T', 'ع':'U', 'ن':'N', 'س':'S',
+    'ح':'P', 'د':'N', 'ق':'A', 'غ':'Y', 'ص':'W'
+  };
+  if (/[\u0600-\u06FF]/.test(code)) {
+    let conv = '';
+    for (let ch of code) conv += arKeys[ch] || ch;
+    code = conv;
+  }
+
+  // 3. French AZERTY number row without Shift:
+  // & -> 1, é -> 2, " -> 3, ' -> 4, ( -> 5, - -> 6, è -> 7, _ -> 8, ç -> 9, à -> 0
+  const azertyDigits = {
+    '&': '1', 'é': '2', 'É': '2',
+    '"': '3',
+    "'": '4',
+    '(': '5',
+    'è': '7', 'È': '7',
+    '_': '8',
+    'ç': '9', 'Ç': '9',
+    'à': '0', 'À': '0'
+  };
+
+  if (/[éèçà&"'_]/.test(code) || /[\(\)]/.test(code)) {
+    let conv = '';
+    for (let i = 0; i < code.length; i++) {
+      const ch = code[i];
+      if (azertyDigits[ch] !== undefined) {
+        conv += azertyDigits[ch];
+      } else if (ch === '-' && (i === 3 || i === 8)) {
+        // Keep hyphens in format like ELE-2026-0001
+        conv += '-';
+      } else if (ch === '-') {
+        // On AZERTY, key 6 outputs '-'
+        conv += '6';
+      } else {
+        conv += ch;
+      }
+    }
+    code = conv;
+  }
+
+  return code.trim().toUpperCase();
+}
+
 // 5.7 RAPID ATTENDANCE BY BARCODE / QR SCAN
 app.post('/api/pointage/scan', (req, res) => {
   try {
@@ -1510,18 +2560,30 @@ app.post('/api/pointage/scan', (req, res) => {
       return res.status(400).json({ success: false, error: 'Code-barres / QR manquant' });
     }
 
-    const cleanCode = String(code).trim();
+    const rawCode = String(code).trim();
+    const cleanCode = normalizeBarcodeCode(rawCode);
+    const cleanNoDash = cleanCode.replace(/[^A-Za-z0-9]/g, '');
 
-    // Find student by matricule or qr_code or id (case-insensitive)
+    // Find student by matricule, qr_code, no-dash variants, or id (case-insensitive)
     const student = DB.queryOne(`
       SELECT s.*, l.name as level_name 
       FROM students s
       LEFT JOIN levels l ON s.level_id = l.id
-      WHERE (s.matricule = ? COLLATE NOCASE OR s.qr_code = ? COLLATE NOCASE OR CAST(s.id AS TEXT) = ?) AND s.active = 1
-    `, [cleanCode, cleanCode, cleanCode]);
+      WHERE (
+        s.matricule = ? COLLATE NOCASE 
+        OR s.qr_code = ? COLLATE NOCASE 
+        OR REPLACE(s.matricule, '-', '') = ? COLLATE NOCASE
+        OR REPLACE(s.qr_code, '-', '') = ? COLLATE NOCASE
+        OR CAST(s.id AS TEXT) = ?
+        OR s.matricule = ? COLLATE NOCASE
+      ) AND s.active = 1
+    `, [cleanCode, cleanCode, cleanNoDash, cleanNoDash, cleanCode, rawCode]);
 
     if (!student) {
-      return res.status(404).json({ success: false, error: 'Élève non trouvé dans le système' });
+      return res.status(404).json({
+        success: false,
+        error: `Élève non trouvé dans le système (${cleanCode || rawCode})`
+      });
     }
 
     // Get groups student is enrolled in
@@ -1536,14 +2598,23 @@ app.post('/api/pointage/scan', (req, res) => {
 
     let targetGroupId = group_id ? parseInt(group_id, 10) : null;
     let notInSelectedGroup = false;
+    let autoAssignedGroup = null;
 
     if (targetGroupId) {
       const isEnrolled = activeGroups.some(g => g.id === targetGroupId);
       if (!isEnrolled) {
-        notInSelectedGroup = true;
+        if (activeGroups.length > 0) {
+          // Gracefully accept student in their primary active group so scan does not fail!
+          autoAssignedGroup = activeGroups[0];
+          targetGroupId = autoAssignedGroup.id;
+          notInSelectedGroup = false;
+        } else {
+          notInSelectedGroup = true;
+        }
       }
     } else if (activeGroups.length > 0) {
       targetGroupId = activeGroups[0].id;
+      autoAssignedGroup = activeGroups[0];
     }
 
     const now = new Date();
@@ -1789,11 +2860,466 @@ app.delete('/api/pointage/cancel', (req, res) => {
 });
 
 // -------------------------------------------------------------
+// 5.11 GENERAL ENTRANCE ATTENDANCE (POINTAGE D'ENTRÉE GÉNÉRALE)
+// -------------------------------------------------------------
+
+// Rapid entrance scan for all students and teachers without group selection
+app.post('/api/entrance/scan', (req, res) => {
+  try {
+    const { code, session_date, mode } = req.body;
+    if (!code) {
+      return res.status(400).json({ success: false, error: 'Code-barres / QR manquant' });
+    }
+
+    const rawCode = String(code).trim();
+    const cleanCode = normalizeBarcodeCode(rawCode);
+    const cleanNoDash = cleanCode.replace(/[^A-Za-z0-9]/g, '');
+    const scanMode = (mode || 'auto').toLowerCase(); // 'auto', 'in', 'out'
+
+    // 1. Try finding in students first (multi-format matching)
+    let person = null;
+    let personType = null;
+
+    const student = DB.queryOne(`
+      SELECT s.*, l.name as level_name
+      FROM students s
+      LEFT JOIN levels l ON s.level_id = l.id
+      WHERE (
+        s.matricule = ? COLLATE NOCASE 
+        OR s.qr_code = ? COLLATE NOCASE 
+        OR REPLACE(s.matricule, '-', '') = ? COLLATE NOCASE
+        OR REPLACE(s.qr_code, '-', '') = ? COLLATE NOCASE
+        OR CAST(s.id AS TEXT) = ?
+        OR s.matricule = ? COLLATE NOCASE
+      ) AND s.active = 1
+    `, [cleanCode, cleanCode, cleanNoDash, cleanNoDash, cleanCode, rawCode]);
+
+    if (student) {
+      personType = 'student';
+      person = student;
+    } else {
+      // 2. Try finding in teachers
+      const teacher = DB.queryOne(`
+        SELECT t.*, sub.name as subject_name
+        FROM teachers t
+        LEFT JOIN subjects sub ON t.subject_id = sub.id
+        WHERE (
+          t.matricule = ? COLLATE NOCASE 
+          OR REPLACE(t.matricule, '-', '') = ? COLLATE NOCASE 
+          OR CAST(t.id AS TEXT) = ?
+          OR t.matricule = ? COLLATE NOCASE
+        ) AND t.active = 1
+      `, [cleanCode, cleanNoDash, cleanCode, rawCode]);
+
+      if (teacher) {
+        personType = 'teacher';
+        person = teacher;
+      }
+    }
+
+    if (!person) {
+      return res.status(404).json({
+        success: false,
+        error: 'المعرف غير موجود في النظام (لا ينتمي لأي تلميذ أو أستاذ مسجل)'
+      });
+    }
+
+    const now = new Date();
+    const todayDate = session_date || now.toISOString().split('T')[0];
+    const currentTime = now.toTimeString().split(' ')[0]; // 'HH:MM:SS'
+
+    // Check existing entrance record today
+    const existing = DB.queryOne(`
+      SELECT * FROM entrance_attendance
+      WHERE person_type = ? AND person_id = ? AND session_date = ?
+    `, [personType, person.id, todayDate]);
+
+    let action = 'check_in';
+    let checkInTime = currentTime;
+    let checkOutTime = null;
+    let durationMinutes = 0;
+    let message = '';
+
+    if (!existing) {
+      // First scan today => Record Check-In
+      const insertRes = DB.run(`
+        INSERT INTO entrance_attendance (person_type, person_id, session_date, check_in_time, status)
+        VALUES (?, ?, ?, ?, 'present')
+      `, [personType, person.id, todayDate, currentTime]);
+
+      action = 'check_in';
+      checkInTime = currentTime;
+      message = personType === 'student'
+        ? `مرحباً بك يا ${person.first_name}، تم تسجيل دخولك بنجاح.`
+        : `أهلاً بك أستاذ ${person.first_name} ${person.last_name}، تم تسجيل حضورك بنجاح.`;
+    } else {
+      // Already has a record today
+      checkInTime = existing.check_in_time;
+      checkOutTime = existing.check_out_time;
+      durationMinutes = existing.duration_minutes || 0;
+
+      if (scanMode === 'in') {
+        action = 'already_in';
+        message = `تم تسجيل الدخول مسبقاً لهذا اليوم عند الساعة ${checkInTime}.`;
+      } else if (existing.check_out_time) {
+        // Both in & out were already completed
+        action = 'already_completed';
+        message = `تم تسجيل الحضور والانصراف مسبقاً لهذا اليوم (الدخول: ${checkInTime} | الخروج: ${checkOutTime}).`;
+      } else {
+        // Has check_in but no check_out yet
+        // Check time elapsed since check_in
+        const inParts = existing.check_in_time.split(':').map(Number);
+        const nowParts = currentTime.split(':').map(Number);
+        const inSeconds = (inParts[0] || 0) * 3600 + (inParts[1] || 0) * 60 + (inParts[2] || 0);
+        const nowSeconds = (nowParts[0] || 0) * 3600 + (nowParts[1] || 0) * 60 + (nowParts[2] || 0);
+        const diffSeconds = nowSeconds - inSeconds;
+
+        if (scanMode === 'auto' && diffSeconds < 120) {
+          // Accidental quick re-scan within 2 minutes
+          action = 'already_in';
+          message = `تم تسجيل الدخول للتو عند الساعة ${checkInTime}.`;
+        } else {
+          // Record Check-Out
+          durationMinutes = Math.max(1, Math.round(Math.max(0, diffSeconds) / 60));
+          checkOutTime = currentTime;
+          DB.run(`
+            UPDATE entrance_attendance
+            SET check_out_time = ?, duration_minutes = ?
+            WHERE id = ?
+          `, [checkOutTime, durationMinutes, existing.id]);
+
+          const hours = Math.floor(durationMinutes / 60);
+          const mins = durationMinutes % 60;
+          const durText = hours > 0 ? `${hours} س و ${mins} د` : `${mins} دقيقة`;
+
+          action = 'check_out';
+          message = personType === 'student'
+            ? `رافقتك السلامة يا ${person.first_name}، تم تسجيل الخروج (مدة التواجد: ${durText}).`
+            : `رافقتك السلامة أستاذ ${person.last_name}، تم تسجيل الانصراف (مدة التواجد: ${durText}).`;
+        }
+      }
+    }
+
+    // Compute live stats for today
+    const studentsPresent = DB.queryOne("SELECT COUNT(*) as count FROM entrance_attendance WHERE session_date = ? AND person_type = 'student'", [todayDate])?.count || 0;
+    const studentsTotal = DB.queryOne("SELECT COUNT(*) as count FROM students WHERE active = 1")?.count || 0;
+    const teachersPresent = DB.queryOne("SELECT COUNT(*) as count FROM entrance_attendance WHERE session_date = ? AND person_type = 'teacher'", [todayDate])?.count || 0;
+    const teachersTotal = DB.queryOne("SELECT COUNT(*) as count FROM teachers WHERE active = 1")?.count || 0;
+
+    res.json({
+      success: true,
+      action,
+      person_type: personType,
+      person: {
+        id: person.id,
+        matricule: person.matricule,
+        first_name: person.first_name,
+        last_name: person.last_name,
+        photo_url: person.photo_url || null,
+        gender: person.gender || 'M',
+        level_name: person.level_name || null,
+        subject_name: person.subject_name || null,
+        phone: person.phone || person.parent_phone || null
+      },
+      attendance: {
+        session_date: todayDate,
+        check_in_time: checkInTime,
+        check_out_time: checkOutTime,
+        duration_minutes: durationMinutes
+      },
+      stats: {
+        students_present: studentsPresent,
+        students_total: studentsTotal,
+        teachers_present: teachersPresent,
+        teachers_total: teachersTotal,
+        total_present: studentsPresent + teachersPresent
+      },
+      message,
+      timestamp: currentTime
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Live list of entrance attendances for a given date
+app.get('/api/entrance/live-list', (req, res) => {
+  try {
+    const { session_date, type, search } = req.query;
+    const targetDate = session_date || new Date().toISOString().split('T')[0];
+
+    let sql = `
+      SELECT 
+        ea.*,
+        CASE 
+          WHEN ea.person_type = 'student' THEN s.matricule
+          ELSE t.matricule
+        END as matricule,
+        CASE 
+          WHEN ea.person_type = 'student' THEN s.first_name
+          ELSE t.first_name
+        END as first_name,
+        CASE 
+          WHEN ea.person_type = 'student' THEN s.last_name
+          ELSE t.last_name
+        END as last_name,
+        CASE 
+          WHEN ea.person_type = 'student' THEN s.photo_url
+          ELSE t.photo_url
+        END as photo_url,
+        CASE 
+          WHEN ea.person_type = 'student' THEN s.gender
+          ELSE 'M'
+        END as gender,
+        CASE 
+          WHEN ea.person_type = 'student' THEN l.name
+          ELSE sub.name
+        END as extra_label,
+        CASE 
+          WHEN ea.person_type = 'student' THEN COALESCE(s.phone, s.parent_phone)
+          ELSE t.phone
+        END as phone
+      FROM entrance_attendance ea
+      LEFT JOIN students s ON ea.person_type = 'student' AND ea.person_id = s.id
+      LEFT JOIN levels l ON s.level_id = l.id
+      LEFT JOIN teachers t ON ea.person_type = 'teacher' AND ea.person_id = t.id
+      LEFT JOIN subjects sub ON t.subject_id = sub.id
+      WHERE ea.session_date = ?
+    `;
+    const params = [targetDate];
+
+    if (type === 'student' || type === 'teacher') {
+      sql += ` AND ea.person_type = ?`;
+      params.push(type);
+    }
+
+    if (search && search.trim()) {
+      const term = `%${search.trim()}%`;
+      sql += ` AND (s.first_name LIKE ? OR s.last_name LIKE ? OR s.matricule LIKE ? OR t.first_name LIKE ? OR t.last_name LIKE ? OR t.matricule LIKE ?)`;
+      params.push(term, term, term, term, term, term);
+    }
+
+    sql += ` ORDER BY ea.id DESC`;
+
+    const records = DB.queryAll(sql, params);
+
+    const studentsPresent = DB.queryOne("SELECT COUNT(*) as count FROM entrance_attendance WHERE session_date = ? AND person_type = 'student'", [targetDate])?.count || 0;
+    const studentsTotal = DB.queryOne("SELECT COUNT(*) as count FROM students WHERE active = 1")?.count || 0;
+    const teachersPresent = DB.queryOne("SELECT COUNT(*) as count FROM entrance_attendance WHERE session_date = ? AND person_type = 'teacher'", [targetDate])?.count || 0;
+    const teachersTotal = DB.queryOne("SELECT COUNT(*) as count FROM teachers WHERE active = 1")?.count || 0;
+
+    res.json({
+      success: true,
+      records,
+      stats: {
+        students_present: studentsPresent,
+        students_total: studentsTotal,
+        teachers_present: teachersPresent,
+        teachers_total: teachersTotal,
+        total_present: studentsPresent + teachersPresent
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Delete entrance attendance record
+app.delete('/api/entrance/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    DB.run('DELETE FROM entrance_attendance WHERE id = ?', [id]);
+    res.json({ success: true, message: 'Enregistrement de présence à l’entrée supprimé avec succès' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Single teacher details endpoint
+app.get('/api/teachers/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    const teacher = DB.queryOne(`
+      SELECT t.*, sub.name as subject_name
+      FROM teachers t
+      LEFT JOIN subjects sub ON t.subject_id = sub.id
+      WHERE t.id = ?
+    `, [id]);
+
+    if (!teacher) {
+      return res.status(404).json({ success: false, error: 'Enseignant non trouvé' });
+    }
+
+    const groups = DB.queryAll(`
+      SELECT g.*, sub.name as subject_name, l.name as level_name
+      FROM groups g
+      LEFT JOIN subjects sub ON g.subject_id = sub.id
+      LEFT JOIN levels l ON g.level_id = l.id
+      WHERE g.teacher_id = ? AND g.active = 1
+    `, [id]);
+
+    res.json({ success: true, teacher, groups });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// -------------------------------------------------------------
+// Helper to calculate teacher earnings and dues across 8 modes for a month with deduction of payments already made
+function calculateTeacherMonthlyFinancials(teacher, currentMonth) {
+  const groupsData = DB.queryAll(`
+    SELECT g.id as group_id, g.name as group_name, g.day_of_week, g.start_time, g.end_time, g.price_monthly,
+           (SELECT COUNT(*) FROM enrollments WHERE group_id = g.id AND status = 'active') as students_count,
+           COALESCE(SUM(p.paid_amount), 0) as total_collected,
+           COUNT(DISTINCT p.student_id) as students_paid_count
+    FROM groups g
+    LEFT JOIN payments p ON p.group_id = g.id AND strftime('%Y-%m', p.payment_date) = ?
+    WHERE g.teacher_id = ? AND g.active = 1
+    GROUP BY g.id
+  `, [currentMonth, teacher.id]);
+
+  const totalCollected = groupsData.reduce((sum, g) => sum + g.total_collected, 0);
+  const totalStudents = groupsData.reduce((sum, g) => sum + g.students_count, 0);
+
+  // Estimate weekly hours from schedules
+  let weeklyHours = 0;
+  groupsData.forEach(g => {
+    if (g.start_time && g.end_time) {
+      const [sh, sm] = g.start_time.split(':').map(Number);
+      const [eh, em] = g.end_time.split(':').map(Number);
+      const diffHours = (eh + em / 60) - (sh + sm / 60);
+      if (diffHours > 0) weeklyHours += diffHours;
+    } else {
+      weeklyHours += 2; // default 2 hours per session
+    }
+  });
+
+  const sessionsPerMonth = groupsData.length * 4;
+  const hoursPerMonth = Math.round(weeklyHours * 4 * 10) / 10;
+
+  // 8 Remuneration Modes calculations
+  const ratePercent = parseFloat(teacher.remuneration_rate) || 50;
+  const tarifHeure = parseFloat(teacher.tarif_heure) || 1200;
+  const tarifSeance = parseFloat(teacher.tarif_seance) || 2000;
+  const salaireFixe = parseFloat(teacher.salaire_fixe) || 40000;
+  const tarifParEleve = parseFloat(teacher.tarif_par_eleve) || 1000;
+
+  // Existing payouts for this teacher in this specific period
+  const periodPayouts = DB.queryAll(`
+    SELECT tp.*, c.payment_method, c.reference as caisse_reference
+    FROM teacher_payouts tp
+    LEFT JOIN caisse c ON tp.caisse_id = c.id
+    WHERE tp.teacher_id = ? AND tp.period = ?
+    ORDER BY tp.id DESC
+  `, [teacher.id, currentMonth]);
+
+  const alreadyPaid = periodPayouts.reduce((sum, p) => sum + (parseFloat(p.paid_amount) || 0), 0);
+
+  const rawModes = {
+    percent: {
+      label: 'Pourcentage sur encaissement (%)',
+      rate: ratePercent,
+      unit: '%',
+      base: totalCollected,
+      gross_amount: Math.round((totalCollected * ratePercent) / 100)
+    },
+    hourly: {
+      label: 'Tarif horaire (par heure)',
+      rate: tarifHeure,
+      unit: 'DA/h',
+      base: hoursPerMonth,
+      gross_amount: Math.round(tarifHeure * hoursPerMonth)
+    },
+    per_session: {
+      label: 'Tarif par séance',
+      rate: tarifSeance,
+      unit: 'DA/séance',
+      base: sessionsPerMonth,
+      gross_amount: Math.round(tarifSeance * sessionsPerMonth)
+    },
+    fixed_salary: {
+      label: 'Salaire mensuel fixe',
+      rate: salaireFixe,
+      unit: 'DA',
+      base: 1,
+      gross_amount: Math.round(salaireFixe)
+    },
+    hourly_per_student: {
+      label: 'Horaire × Nombre d’élèves',
+      rate: tarifHeure,
+      unit: 'DA/h/élève',
+      base: hoursPerMonth * totalStudents,
+      gross_amount: Math.round(tarifHeure * hoursPerMonth * totalStudents)
+    },
+    session_per_student: {
+      label: 'Par séance × Nombre d’élèves',
+      rate: tarifSeance,
+      unit: 'DA/séance/élève',
+      base: sessionsPerMonth * totalStudents,
+      gross_amount: Math.round(tarifSeance * sessionsPerMonth * totalStudents)
+    },
+    percent_per_student: {
+      label: 'Pourcentage par élève',
+      rate: ratePercent,
+      unit: '%/élève',
+      base: totalCollected,
+      gross_amount: Math.round((totalCollected * ratePercent) / 100)
+    },
+    fixed_per_student: {
+      label: 'Forfait fixe par élève inscrit',
+      rate: tarifParEleve,
+      unit: 'DA/élève',
+      base: totalStudents,
+      gross_amount: Math.round(tarifParEleve * totalStudents)
+    }
+  };
+
+  const modes = {};
+  for (const [k, v] of Object.entries(rawModes)) {
+    const gross = v.gross_amount;
+    const remaining = Math.max(0, gross - alreadyPaid);
+    let status = 'none';
+    if (gross > 0 && alreadyPaid >= gross) status = 'paid';
+    else if (gross > 0 && alreadyPaid > 0 && alreadyPaid < gross) status = 'partial';
+    else if (gross > 0 && alreadyPaid === 0) status = 'unpaid';
+    else if (gross === 0 && alreadyPaid > 0) status = 'paid';
+
+    modes[k] = {
+      ...v,
+      already_paid: alreadyPaid,
+      remaining,
+      amount: remaining, // Amount to pay defaults to remaining balance!
+      status
+    };
+  }
+
+  const activeModeKey = teacher.remuneration_type || 'percent';
+  const activeMode = modes[activeModeKey] || modes.percent;
+
+  return {
+    groupsData,
+    totalCollected,
+    totalStudents,
+    sessionsPerMonth,
+    hoursPerMonth,
+    periodPayouts,
+    alreadyPaid,
+    activeModeKey,
+    activeGross: activeMode.gross_amount,
+    activeRemaining: activeMode.remaining,
+    activeStatus: activeMode.status,
+    modes
+  };
+}
+
+// -------------------------------------------------------------
 // 6. TEACHERS & PAYOUT CALCULATIONS
 // -------------------------------------------------------------
 app.get('/api/teachers', (req, res) => {
   try {
-    const { search } = req.query;
+    const { search, month } = req.query;
+    const currentMonth = month || new Date().toISOString().slice(0, 7);
+
     let sql = `
       SELECT t.*, sub.name as subject_name,
              (SELECT COUNT(*) FROM groups WHERE teacher_id = t.id AND active = 1) as groups_count
@@ -1809,7 +3335,18 @@ app.get('/api/teachers', (req, res) => {
     }
     sql += ` ORDER BY t.id DESC`;
     const teachers = DB.queryAll(sql, params);
-    res.json({ success: true, teachers });
+
+    // Enrich each teacher with current month financial stats & payout status
+    teachers.forEach(t => {
+      const fin = calculateTeacherMonthlyFinancials(t, currentMonth);
+      t.month = currentMonth;
+      t.estimated_gross = fin.activeGross;
+      t.already_paid = fin.alreadyPaid;
+      t.remaining_due = fin.activeRemaining;
+      t.payout_status = fin.activeStatus; // 'paid', 'partial', 'unpaid', 'none'
+    });
+
+    res.json({ success: true, teachers, month: currentMonth });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -1822,34 +3359,45 @@ app.post('/api/teachers', (req, res) => {
       return res.status(400).json({ success: false, error: 'Nom et Prénom de l’enseignant sont requis' });
     }
 
-    let matricule = (customMatricule || '').trim();
-    if (matricule) {
-      const existing = DB.queryOne("SELECT id FROM teachers WHERE matricule = ? COLLATE NOCASE", [matricule]);
-      if (existing) {
-        return res.status(400).json({ success: false, error: `Le matricule enseignant "${matricule}" est déjà utilisé.` });
-      }
-    } else {
-      let candidateNum = (DB.queryOne("SELECT MAX(id) as max_id FROM teachers")?.max_id || 0) + 1;
-      matricule = `ENS-${String(candidateNum).padStart(3, '0')}`;
-      while (DB.queryOne("SELECT id FROM teachers WHERE matricule = ? COLLATE NOCASE", [matricule])) {
-        candidateNum++;
+    const newTeacher = DB.transaction(() => {
+      let matricule = (customMatricule || '').trim();
+      if (matricule) {
+        const existing = DB.queryOne("SELECT id FROM teachers WHERE matricule = ? COLLATE NOCASE", [matricule]);
+        if (existing) {
+          throw new Error(`Le matricule enseignant "${matricule}" est déjà utilisé.`);
+        }
+      } else {
+        let candidateNum = (DB.queryOne("SELECT MAX(id) as max_id FROM teachers")?.max_id || 0) + 1;
         matricule = `ENS-${String(candidateNum).padStart(3, '0')}`;
+        while (DB.queryOne("SELECT id FROM teachers WHERE matricule = ? COLLATE NOCASE", [matricule])) {
+          candidateNum++;
+          matricule = `ENS-${String(candidateNum).padStart(3, '0')}`;
+        }
       }
-    }
 
-    const result = DB.run(`
-      INSERT INTO teachers (matricule, first_name, last_name, phone, email, subject_id, remuneration_type, remuneration_rate, tarif_heure, tarif_seance, salaire_fixe, tarif_par_eleve)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, [
-      matricule, first_name.trim(), last_name.trim(), phone || null, email || null, toNullableId(subject_id),
-      remuneration_type || 'percent', parseFloat(remuneration_rate) || 50.0,
-      parseFloat(tarif_heure) || 0, parseFloat(tarif_seance) || 0,
-      parseFloat(salaire_fixe) || 0, parseFloat(tarif_par_eleve) || 0
-    ]);
+      // Validate subject_id exists to prevent foreign key errors
+      let validSubId = toNullableId(subject_id);
+      if (validSubId) {
+        const sCheck = DB.queryOne("SELECT id FROM subjects WHERE id = ?", [validSubId]);
+        if (!sCheck) validSubId = null;
+      }
 
-    res.json({ success: true, teacherId: result.lastInsertRowid, matricule });
+      const result = DB.run(`
+        INSERT INTO teachers (matricule, first_name, last_name, phone, email, subject_id, remuneration_type, remuneration_rate, tarif_heure, tarif_seance, salaire_fixe, tarif_par_eleve)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [
+        matricule, first_name.trim(), last_name.trim(), phone || null, email || null, validSubId,
+        remuneration_type || 'percent', parseFloat(remuneration_rate) || 50.0,
+        parseFloat(tarif_heure) || 0, parseFloat(tarif_seance) || 0,
+        parseFloat(salaire_fixe) || 0, parseFloat(tarif_par_eleve) || 0
+      ]);
+
+      return { teacherId: result.lastInsertRowid, matricule };
+    });
+
+    res.json({ success: true, teacherId: newTeacher.teacherId, matricule: newTeacher.matricule });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    res.status(400).json({ success: false, error: err.message });
   }
 });
 
@@ -1892,8 +3440,7 @@ app.put('/api/teachers/:id', (req, res) => {
   }
 });
 
-
-// Calculate teacher earnings across 8 modes for a month
+// Calculate teacher earnings across 8 modes for a month with already-paid deduction
 app.get('/api/teachers/:id/earnings', (req, res) => {
   try {
     const { id } = req.params;
@@ -1903,121 +3450,34 @@ app.get('/api/teachers/:id/earnings', (req, res) => {
     const teacher = DB.queryOne("SELECT * FROM teachers WHERE id = ?", [id]);
     if (!teacher) return res.status(404).json({ success: false, error: 'Enseignant non trouvé' });
 
-    // Groups taught by this teacher with student counts and payments
-    const groupsData = DB.queryAll(`
-      SELECT g.id as group_id, g.name as group_name, g.day_of_week, g.start_time, g.end_time, g.price_monthly,
-             (SELECT COUNT(*) FROM enrollments WHERE group_id = g.id AND status = 'active') as students_count,
-             COALESCE(SUM(p.paid_amount), 0) as total_collected,
-             COUNT(DISTINCT p.student_id) as students_paid_count
-      FROM groups g
-      LEFT JOIN payments p ON p.group_id = g.id AND strftime('%Y-%m', p.payment_date) = ?
-      WHERE g.teacher_id = ? AND g.active = 1
-      GROUP BY g.id
-    `, [currentMonth, id]);
+    const fin = calculateTeacherMonthlyFinancials(teacher, currentMonth);
 
-    const totalCollected = groupsData.reduce((sum, g) => sum + g.total_collected, 0);
-    const totalStudents = groupsData.reduce((sum, g) => sum + g.students_count, 0);
-
-    // Estimate weekly hours from schedules
-    let weeklyHours = 0;
-    groupsData.forEach(g => {
-      if (g.start_time && g.end_time) {
-        const [sh, sm] = g.start_time.split(':').map(Number);
-        const [eh, em] = g.end_time.split(':').map(Number);
-        const diffHours = (eh + em / 60) - (sh + sm / 60);
-        if (diffHours > 0) weeklyHours += diffHours;
-      } else {
-        weeklyHours += 2; // default 2 hours per session
-      }
-    });
-
-    const sessionsPerMonth = groupsData.length * 4;
-    const hoursPerMonth = Math.round(weeklyHours * 4 * 10) / 10;
-
-    // 8 Remuneration Modes calculations
-    const ratePercent = parseFloat(teacher.remuneration_rate) || 50;
-    const tarifHeure = parseFloat(teacher.tarif_heure) || 1200;
-    const tarifSeance = parseFloat(teacher.tarif_seance) || 2000;
-    const salaireFixe = parseFloat(teacher.salaire_fixe) || 40000;
-    const tarifParEleve = parseFloat(teacher.tarif_par_eleve) || 1000;
-
-    const modes = {
-      percent: {
-        label: 'Pourcentage sur encaissement (%)',
-        rate: ratePercent,
-        unit: '%',
-        base: totalCollected,
-        amount: Math.round((totalCollected * ratePercent) / 100)
-      },
-      hourly: {
-        label: 'Tarif horaire (par heure)',
-        rate: tarifHeure,
-        unit: 'DA/h',
-        base: hoursPerMonth,
-        amount: Math.round(tarifHeure * hoursPerMonth)
-      },
-      per_session: {
-        label: 'Tarif par séance',
-        rate: tarifSeance,
-        unit: 'DA/séance',
-        base: sessionsPerMonth,
-        amount: Math.round(tarifSeance * sessionsPerMonth)
-      },
-      fixed_salary: {
-        label: 'Salaire mensuel fixe',
-        rate: salaireFixe,
-        unit: 'DA',
-        base: 1,
-        amount: Math.round(salaireFixe)
-      },
-      hourly_per_student: {
-        label: 'Horaire × Nombre d’élèves',
-        rate: tarifHeure,
-        unit: 'DA/h/élève',
-        base: hoursPerMonth * totalStudents,
-        amount: Math.round(tarifHeure * hoursPerMonth * totalStudents)
-      },
-      session_per_student: {
-        label: 'Par séance × Nombre d’élèves',
-        rate: tarifSeance,
-        unit: 'DA/séance/élève',
-        base: sessionsPerMonth * totalStudents,
-        amount: Math.round(tarifSeance * sessionsPerMonth * totalStudents)
-      },
-      percent_per_student: {
-        label: 'Pourcentage par élève',
-        rate: ratePercent,
-        unit: '%/élève',
-        base: totalCollected,
-        amount: Math.round((totalCollected * ratePercent) / 100)
-      },
-      fixed_per_student: {
-        label: 'Forfait fixe par élève inscrit',
-        rate: tarifParEleve,
-        unit: 'DA/élève',
-        base: totalStudents,
-        amount: Math.round(tarifParEleve * totalStudents)
-      }
-    };
-
-    // Past payouts for this teacher
+    // Past payouts history across all periods for this teacher
     const payoutsHistory = DB.queryAll(`
-      SELECT * FROM teacher_payouts
-      WHERE teacher_id = ?
-      ORDER BY id DESC
-      LIMIT 15
+      SELECT tp.*, c.payment_method, c.reference as caisse_reference
+      FROM teacher_payouts tp
+      LEFT JOIN caisse c ON tp.caisse_id = c.id
+      WHERE tp.teacher_id = ?
+      ORDER BY tp.id DESC
+      LIMIT 20
     `, [id]);
 
     res.json({
       success: true,
       teacher,
       month: currentMonth,
-      groupsData,
-      totalCollected,
-      totalStudents,
-      sessionsPerMonth,
-      hoursPerMonth,
-      modes,
+      groupsData: fin.groupsData,
+      totalCollected: fin.totalCollected,
+      totalStudents: fin.totalStudents,
+      sessionsPerMonth: fin.sessionsPerMonth,
+      hoursPerMonth: fin.hoursPerMonth,
+      modes: fin.modes,
+      alreadyPaid: fin.alreadyPaid,
+      periodPayouts: fin.periodPayouts,
+      activeModeKey: fin.activeModeKey,
+      activeGross: fin.activeGross,
+      activeRemaining: fin.activeRemaining,
+      activeStatus: fin.activeStatus,
       payoutsHistory
     });
   } catch (err) {
@@ -2039,6 +3499,7 @@ app.post('/api/teachers/payout', (req, res) => {
       hours_count,
       total_collected,
       teacher_share_percent,
+      gross_amount,
       paid_amount,
       payment_method,
       notes
@@ -2056,6 +3517,8 @@ app.post('/api/teachers/payout', (req, res) => {
     const curDate = nowP.toISOString().split('T')[0];
     const curTime = nowP.toTimeString().split(' ')[0];
 
+    const shareAmount = parseFloat(gross_amount) > 0 ? parseFloat(gross_amount) : amount;
+
     // 1. Insert into teacher_payouts
     const payoutResult = DB.run(`
       INSERT INTO teacher_payouts
@@ -2072,7 +3535,7 @@ app.post('/api/teachers/payout', (req, res) => {
       parseFloat(hours_count) || 0,
       parseFloat(total_collected) || 0,
       parseFloat(teacher_share_percent) || 0,
-      amount,
+      shareAmount,
       amount,
       notes || null
     ]);
@@ -2115,11 +3578,38 @@ app.post('/api/teachers/payout', (req, res) => {
   }
 });
 
+// Cancel / Delete a teacher payout and rollback associated caisse transaction
+app.delete('/api/teachers/payouts/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    const payout = DB.queryOne("SELECT * FROM teacher_payouts WHERE id = ?", [id]);
+    if (!payout) {
+      return res.status(404).json({ success: false, error: 'Règlement introuvable' });
+    }
+
+    // Delete associated caisse transaction to keep Treasury completely accurate
+    if (payout.caisse_id) {
+      DB.run("DELETE FROM caisse WHERE id = ?", [payout.caisse_id]);
+    }
+    DB.run("DELETE FROM caisse WHERE teacher_payout_id = ?", [id]);
+
+    // Delete payout record
+    DB.run("DELETE FROM teacher_payouts WHERE id = ?", [id]);
+
+    res.json({
+      success: true,
+      message: `Règlement de ${Number(payout.paid_amount).toLocaleString('fr-DZ')} DA annulé et solde de caisse rétabli.`
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // Past payouts list for a teacher
 app.get('/api/teachers/:id/payouts', (req, res) => {
   try {
     const payouts = DB.queryAll(`
-      SELECT tp.*, c.payment_method
+      SELECT tp.*, c.payment_method, c.reference as caisse_reference
       FROM teacher_payouts tp
       LEFT JOIN caisse c ON tp.caisse_id = c.id
       WHERE tp.teacher_id = ?
@@ -2622,13 +4112,17 @@ app.post('/api/settings/change-password', (req, res) => {
 // Database Backup Endpoints
 app.get('/api/backup/download', (req, res) => {
   const dateStr = new Date().toISOString().split('T')[0];
-  const tempBackup = path.join(__dirname, `temp_backup_${Date.now()}.sqlite`);
+  const tempBackup = path.join(os.tmpdir(), `temp_backup_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.sqlite`);
   try {
     if (typeof DB.createInstantBackup === 'function') {
       DB.createInstantBackup(tempBackup);
-      res.download(tempBackup, `EDUMIND_Backup_${dateStr}.sqlite`, () => {
+      res.download(tempBackup, `EDUMIND_Backup_${dateStr}.sqlite`, (err) => {
         if (fs.existsSync(tempBackup)) {
           try { fs.unlinkSync(tempBackup); } catch (e) {}
+        }
+        if (err && !res.headersSent) {
+          console.error('Erreur streaming backup:', err);
+          res.status(500).send('Erreur: ' + err.message);
         }
       });
     } else {
@@ -2637,6 +4131,9 @@ app.get('/api/backup/download', (req, res) => {
     }
   } catch (err) {
     console.error('Erreur téléchargement backup:', err);
+    if (fs.existsSync(tempBackup)) {
+      try { fs.unlinkSync(tempBackup); } catch (e) {}
+    }
     const dbFile = DB.getDatabasePath();
     if (fs.existsSync(dbFile)) {
       res.download(dbFile, `EDUMIND_Backup_${dateStr}.sqlite`);
@@ -2700,6 +4197,7 @@ app.post('/api/backup/now', (req, res) => {
 
 // Restore SQLite Database from uploaded file
 app.post('/api/backup/restore', express.raw({ type: ['application/octet-stream', 'application/x-sqlite3', 'application/vnd.sqlite3', '*/*'], limit: '250mb' }), (req, res) => {
+  let tempPath = null;
   try {
     const buffer = req.body;
     if (!buffer || !Buffer.isBuffer(buffer) || buffer.length < 100) {
@@ -2711,7 +4209,7 @@ app.post('/api/backup/restore', express.raw({ type: ['application/octet-stream',
       return res.status(400).json({ success: false, error: 'Le fichier fourni n\'est pas une base de données SQLite valide.' });
     }
 
-    const tempPath = path.join(os.tmpdir(), `temp_restore_${Date.now()}.sqlite`);
+    tempPath = path.join(os.tmpdir(), `temp_restore_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.sqlite`);
     fs.writeFileSync(tempPath, buffer);
 
     if (typeof DB.restoreDatabase === 'function') {
@@ -2726,12 +4224,16 @@ app.post('/api/backup/restore', express.raw({ type: ['application/octet-stream',
     }
   } catch (err) {
     console.error('Erreur restauration SQLite:', err);
+    if (tempPath && fs.existsSync(tempPath)) {
+      try { fs.unlinkSync(tempPath); } catch (e) {}
+    }
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
 // Restore SQLite Database from an existing archive file in backups/
 app.post('/api/backup/restore-archive/:filename', (req, res) => {
+  let tempCopy = null;
   try {
     const fileName = path.basename(req.params.filename);
     const filePath = path.join(DB.getBackupDirectory(), fileName);
@@ -2739,7 +4241,7 @@ app.post('/api/backup/restore-archive/:filename', (req, res) => {
       return res.status(404).json({ success: false, error: 'Fichier d\'archive non trouvé' });
     }
 
-    const tempCopy = path.join(os.tmpdir(), `temp_restore_arch_${Date.now()}.sqlite`);
+    tempCopy = path.join(os.tmpdir(), `temp_restore_arch_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.sqlite`);
     fs.copyFileSync(filePath, tempCopy);
 
     const result = DB.restoreDatabase(tempCopy);
@@ -2749,6 +4251,9 @@ app.post('/api/backup/restore-archive/:filename', (req, res) => {
       res.status(500).json({ success: false, error: result.error });
     }
   } catch (err) {
+    if (tempCopy && fs.existsSync(tempCopy)) {
+      try { fs.unlinkSync(tempCopy); } catch (e) {}
+    }
     res.status(500).json({ success: false, error: err.message });
   }
 });

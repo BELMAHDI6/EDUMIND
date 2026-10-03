@@ -180,13 +180,19 @@ class Updater {
       fs.mkdirSync(tempDir, { recursive: true });
 
       // 1. Automatic pre-update safety backup of SQLite database
-      let dbPath = path.join(this.projectDir, 'edumind.sqlite');
-      let backupsDir = path.join(this.projectDir, 'backups');
+      let dbPath = null;
+      let backupsDir = null;
       try {
         const DB = require('./database.js');
         if (typeof DB.getDatabasePath === 'function') dbPath = DB.getDatabasePath();
         if (typeof DB.getBackupDirectory === 'function') backupsDir = DB.getBackupDirectory();
+        // Clear statement cache to avoid stale references after update
+        if (typeof DB.clearCache === 'function') DB.clearCache();
       } catch (e) {}
+
+      // Fallback paths (legacy / dev mode)
+      if (!dbPath) dbPath = path.join(this.projectDir, 'edumind.sqlite');
+      if (!backupsDir) backupsDir = path.join(this.projectDir, 'backups');
 
       if (fs.existsSync(dbPath)) {
         if (!fs.existsSync(backupsDir)) fs.mkdirSync(backupsDir, { recursive: true });
@@ -194,6 +200,7 @@ class Updater {
         fs.copyFileSync(dbPath, backupTarget);
         console.log(`[Auto-Updater] Sauvegarde de sécurité créée : ${backupTarget}`);
       }
+
 
       // 2. Download the patch
       console.log(`[Auto-Updater] Téléchargement du patch depuis : ${zipUrl}`);

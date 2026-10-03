@@ -66,10 +66,11 @@ try {
   // High performance PRAGMAs for concurrency and speed
   db.exec('PRAGMA journal_mode = WAL;');
   db.exec('PRAGMA synchronous = NORMAL;');
-  db.exec('PRAGMA busy_timeout = 5000;');
-  db.exec('PRAGMA cache_size = -32000;'); // 32MB in-memory cache
+  db.exec('PRAGMA busy_timeout = 15000;');
+  db.exec('PRAGMA cache_size = -64000;'); // 64MB in-memory cache
   db.exec('PRAGMA temp_store = MEMORY;');
   db.exec('PRAGMA mmap_size = 268435456;'); // 256MB memory mapped I/O
+  db.exec('PRAGMA wal_autocheckpoint = 1000;');
   db.exec('PRAGMA foreign_keys = ON;');
   console.log('✅ SQLite Database connected via node:sqlite at:', dbPath);
 } catch (err) {
@@ -191,26 +192,53 @@ function restoreDatabase(incomingFilePath) {
     // 4. Safely close active database connection
     const currentDbPath = getDatabasePath();
     try {
+      db.exec('PRAGMA wal_checkpoint(TRUNCATE);');
+    } catch (wErr) {}
+    try {
       db.close();
     } catch (cErr) {
       console.warn('Fermeture connexion db précédente :', cErr.message);
     }
 
-    // 5. Replace edumind.sqlite with the restored file
-    fs.copyFileSync(incomingFilePath, currentDbPath);
-    try { fs.unlinkSync(incomingFilePath); } catch (e) {}
-
-    // Clean up wal / shm files from previous db instance
+    // Clean up wal / shm files before copying new database
     const walPath = currentDbPath + '-wal';
     const shmPath = currentDbPath + '-shm';
+    if (fs.existsSync(walPath)) try { fs.unlinkSync(walPath); } catch (e) {}
+    if (fs.existsSync(shmPath)) try { fs.unlinkSync(shmPath); } catch (e) {}
+
+    // 5. Replace edumind.sqlite with the restored file (with retries for OS handle release)
+    let copied = false;
+    let lastErr = null;
+    for (let attempt = 0; attempt < 5; attempt++) {
+      try {
+        fs.copyFileSync(incomingFilePath, currentDbPath);
+        copied = true;
+        break;
+      } catch (copyErr) {
+        lastErr = copyErr;
+        const start = Date.now();
+        while (Date.now() - start < 150) {}
+      }
+    }
+    if (!copied) {
+      throw lastErr || new Error('Impossible d\'écraser la base de données actuelle.');
+    }
+    try { fs.unlinkSync(incomingFilePath); } catch (e) {}
+
+    // Clean up any remaining wal / shm files to ensure clean state
     if (fs.existsSync(walPath)) try { fs.unlinkSync(walPath); } catch (e) {}
     if (fs.existsSync(shmPath)) try { fs.unlinkSync(shmPath); } catch (e) {}
 
     // 6. Re-open connection to restored database
     db = new DatabaseSync(currentDbPath);
     db.exec('PRAGMA journal_mode = WAL;');
+    db.exec('PRAGMA synchronous = NORMAL;');
+    db.exec('PRAGMA busy_timeout = 5000;');
     db.exec('PRAGMA foreign_keys = ON;');
     DB.raw = db;
+    // Clear statement cache — old prepared statements are invalid after restore
+    if (typeof DB.clearCache === 'function') DB.clearCache();
+    else _stmtCache.clear();
 
     console.log('✅ [Restore] Base de données SQLite restaurée avec succès depuis :', incomingFilePath);
     return { success: true };
@@ -228,21 +256,77 @@ function restoreDatabase(incomingFilePath) {
   }
 }
 
-// Wrapper to provide clean helper methods: queryAll, queryOne, run
+// =====================================================================
+// Prepared Statement Cache — avoids recompiling SQL on every call
+// This is the key performance optimization for repeated operations.
+// =====================================================================
+const _stmtCache = new Map();
+const STMT_CACHE_MAX = 150;
+
+function getPrepared(sql) {
+  if (_stmtCache.has(sql)) {
+    return _stmtCache.get(sql);
+  }
+  const stmt = db.prepare(sql);
+  if (_stmtCache.size >= STMT_CACHE_MAX) {
+    // Evict the oldest entry (FIFO)
+    _stmtCache.delete(_stmtCache.keys().next().value);
+  }
+  _stmtCache.set(sql, stmt);
+  return stmt;
+}
+
+// Wrapper to provide clean helper methods: queryAll, queryOne, run, transaction
 const DB = {
   exec: (sql) => db.exec(sql),
   queryAll: (sql, params = []) => {
-    const stmt = db.prepare(sql);
-    return stmt.all(...sanitizeParams(params));
+    return getPrepared(sql).all(...sanitizeParams(params));
   },
   queryOne: (sql, params = []) => {
-    const stmt = db.prepare(sql);
-    return stmt.get(...sanitizeParams(params));
+    return getPrepared(sql).get(...sanitizeParams(params));
   },
   run: (sql, params = []) => {
-    const stmt = db.prepare(sql);
-    return stmt.run(...sanitizeParams(params));
+    // Write operations with automatic busy retry (up to 5 attempts) to prevent lock freezes
+    let retries = 5;
+    while (retries > 0) {
+      try {
+        return db.prepare(sql).run(...sanitizeParams(params));
+      } catch (err) {
+        if (err.message && (err.message.includes('busy') || err.message.includes('locked')) && retries > 1) {
+          retries--;
+          const waitMs = 20 + Math.floor(Math.random() * 30);
+          const start = Date.now();
+          while (Date.now() - start < waitMs) {}
+          continue;
+        }
+        throw err;
+      }
+    }
   },
+  // Atomic transaction using BEGIN IMMEDIATE to prevent deadlocks between concurrent writers
+  transaction: (callback) => {
+    let retries = 5;
+    while (retries > 0) {
+      try {
+        db.exec('BEGIN IMMEDIATE;');
+        const result = callback(db);
+        db.exec('COMMIT;');
+        return result;
+      } catch (err) {
+        try { db.exec('ROLLBACK;'); } catch (rbErr) {}
+        if (err.message && (err.message.includes('busy') || err.message.includes('locked')) && retries > 1) {
+          retries--;
+          const waitMs = 25 + Math.floor(Math.random() * 35);
+          const start = Date.now();
+          while (Date.now() - start < waitMs) {}
+          continue;
+        }
+        throw err;
+      }
+    }
+  },
+  // Clears the cache — call this after restoreDatabase
+  clearCache: () => _stmtCache.clear(),
   raw: db,
   createInstantBackup,
   cleanupOldBackups,
@@ -325,6 +409,29 @@ function initDatabase() {
       FOREIGN KEY (room_id) REFERENCES rooms(id)
     );
 
+    -- Families (العائلات) - required for legacy foreign key constraints
+    CREATE TABLE IF NOT EXISTS families (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT,
+      phone TEXT,
+      notes TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    -- Parents / Tuteurs (أولياء التلاميذ)
+    CREATE TABLE IF NOT EXISTS parents (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      full_name TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      phone_secondary TEXT,
+      email TEXT,
+      address TEXT,
+      discount_percent REAL DEFAULT 0,        -- نسبة التخفيض اليدوية من المدير (%)
+      notes TEXT,
+      active INTEGER DEFAULT 1,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
     -- Students (Élèves)
     CREATE TABLE IF NOT EXISTS students (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -334,6 +441,7 @@ function initDatabase() {
       gender TEXT DEFAULT 'M',                -- 'M' ou 'F'
       birth_date TEXT,
       phone TEXT,
+      parent_id INTEGER,                      -- Liaison avec le parent
       parent_name TEXT,
       parent_phone TEXT,
       address TEXT,
@@ -343,6 +451,7 @@ function initDatabase() {
       notes TEXT,
       active INTEGER DEFAULT 1,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (parent_id) REFERENCES parents(id),
       FOREIGN KEY (level_id) REFERENCES levels(id)
     );
 
@@ -591,10 +700,88 @@ function initDatabase() {
   addColumnIfNotExists('teacher_payouts', 'caisse_id', 'INTEGER');
 
   // Ensure attendance columns & group_sessions table
+  addColumnIfNotExists('students', 'birth_place', 'TEXT');
+  addColumnIfNotExists('students', 'parent_id', 'INTEGER');
   addColumnIfNotExists('attendance', 'notes', 'TEXT');
   addColumnIfNotExists('attendance', 'session_id', 'INTEGER');
+  addColumnIfNotExists('teachers', 'photo_url', 'TEXT');
+
+  // Parents Table Migration & Initial Sync from existing students
   try {
     db.exec(`
+      CREATE TABLE IF NOT EXISTS parents (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        full_name TEXT NOT NULL,
+        phone TEXT NOT NULL,
+        phone_secondary TEXT,
+        email TEXT,
+        address TEXT,
+        discount_percent REAL DEFAULT 0,
+        notes TEXT,
+        active INTEGER DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_parents_phone ON parents(phone);
+      CREATE INDEX IF NOT EXISTS idx_parents_name ON parents(full_name);
+      CREATE INDEX IF NOT EXISTS idx_students_parent_id ON students(parent_id);
+    `);
+
+    // Auto-seed parents from existing students if parents table is empty
+    const pCountRow = DB.queryOne("SELECT COUNT(*) as count FROM parents");
+    if (!pCountRow || pCountRow.count === 0) {
+      const existingStudents = DB.queryAll(`
+        SELECT id, parent_name, parent_phone, address, phone
+        FROM students
+        WHERE parent_name IS NOT NULL AND TRIM(parent_name) != ''
+      `);
+
+      const parentMap = new Map();
+      for (const s of existingStudents) {
+        const rawName = (s.parent_name || '').trim();
+        if (!rawName) continue;
+        const rawPhone = (s.parent_phone || s.phone || '').trim();
+        const key = `${rawName.toLowerCase()}_${rawPhone}`;
+
+        let parentId;
+        if (parentMap.has(key)) {
+          parentId = parentMap.get(key);
+        } else {
+          const insertRes = DB.run(
+            `INSERT INTO parents (full_name, phone, address, discount_percent) VALUES (?, ?, ?, 0)`,
+            [rawName, rawPhone, s.address || null]
+          );
+          parentId = insertRes.lastInsertRowid;
+          parentMap.set(key, parentId);
+        }
+        DB.run(`UPDATE students SET parent_id = ? WHERE id = ?`, [parentId, s.id]);
+      }
+      if (parentMap.size > 0) {
+        console.log(`✅ [Migration] ${parentMap.size} parent(s) automatiquement initialisés depuis les élèves existants.`);
+      }
+    }
+  } catch (err) {
+    console.warn('Migration parents table error:', err.message);
+  }
+
+  // Entrance / Gate General Attendance table and sync
+  try {
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS entrance_attendance (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        person_type TEXT NOT NULL CHECK(person_type IN ('student', 'teacher')),
+        person_id INTEGER NOT NULL,
+        session_date DATE NOT NULL,
+        check_in_time TIME NOT NULL,
+        check_out_time TIME,
+        duration_minutes INTEGER DEFAULT 0,
+        status TEXT DEFAULT 'present',
+        notes TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(person_type, person_id, session_date)
+      );
+      CREATE INDEX IF NOT EXISTS idx_entrance_att_date ON entrance_attendance(session_date);
+      CREATE INDEX IF NOT EXISTS idx_entrance_att_person ON entrance_attendance(person_type, person_id, session_date);
+
       CREATE TABLE IF NOT EXISTS group_sessions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         group_id INTEGER NOT NULL,
@@ -629,8 +816,11 @@ function initDatabase() {
       CREATE INDEX IF NOT EXISTS idx_groups_subject_id ON groups(subject_id);
       CREATE INDEX IF NOT EXISTS idx_groups_active ON groups(active);
     `);
+
+    // Ensure all teachers have a matricule
+    db.exec(`UPDATE teachers SET matricule = 'ENS-' || substr('000' || id, -3, 3) WHERE matricule IS NULL OR matricule = '';`);
   } catch (e) {
-    console.warn('Attendance index/table migration:', e.message);
+    console.warn('Attendance / entrance table migration:', e.message);
   }
 
   // Backfill caisse from existing payments and expenses if caisse has no records

@@ -79,14 +79,56 @@ const i18n = {
     th_prenom: 'PRÉNOM',
     pointage_title: 'Pointage & Présence Rapide',
     pointage_subtitle: "Scannez le badge/QR de l'élève ou saisissez son matricule pour enregistrer sa présence et vérifier son état de paiement.",
+    tip_douchette_ready: 'Lecteur de code-barres (Douchette USB) actif & prêt à scanner',
+    tip_douchette_ready_entrance: 'Douchette USB prête pour le pointage rapide',
     btn_scan: 'Pointer',
     title_eleves: 'Élèves',
     btn_add_student: 'Nouvel élève',
+    nav_parents: "Parents d'élèves",
+    title_parents: "Parents d'élèves",
+    subtitle_parents: "Gestion des parents, suivi de la fratrie et remises familiales",
+    btn_add_parent: 'Nouveau parent',
+    kpi_parents_total: 'TOTAL PARENTS',
+    kpi_parents_discount: 'REMISE FAMILIALE',
+    kpi_parents_children: 'ENFANTS SCOLARISÉS',
+    kpi_parents_debts: 'DETTES FAMILIALES',
+    planning_kpi_groups: 'SÉANCES / GROUPES',
+    planning_kpi_hours: 'VOLUME HEBDOMADAIRE',
+    planning_kpi_teachers: 'ENSEIGNANTS PROGRAMMÉS',
+    planning_kpi_rooms: 'SALLES UTILISÉES',
+    th_parent_nom: 'PARENT / RESPONSABLE',
+    th_enfants_count: 'ENFANTS INSCRITS',
+    th_reduction_pct: 'RÉDUCTION (%)',
+    th_parent_solde: 'DETTES FAMILIALES',
+    lbl_parent: "Parent d'élève",
+    lbl_parent_fullname: "Nom complet du parent (Nom et Prénom) *",
+    lbl_parent_phone: "Téléphone principal *",
+    lbl_parent_phone_sec: "Téléphone secondaire / WhatsApp",
+    lbl_parent_email: "Adresse email",
+    lbl_parent_address: "Adresse de résidence",
+    lbl_parent_discount_title: "Taux de remise accordé à la famille (%)",
+    lbl_parent_discount_hint: "Appliqué automatiquement aux inscriptions des enfants",
+    lbl_parent_notes: "Notes & observations sur la famille",
+    btn_save_parent: "Enregistrer le parent",
+    btn_edit_parent: "Modifier le parent",
+    dossier_stat_children: "Enfants scolarisés",
+    dossier_stat_discount: "Taux de remise",
+    dossier_stat_debts: "Reste dû familial",
+    dossier_title_children: "Liste des enfants scolarisés dans l'établissement",
+    dossier_title_unpaid: "Impayés et cotisations en attente de la famille",
+    dossier_th_student: "Élève",
+    dossier_th_group: "Groupe / Matière",
+    dossier_th_month: "Mois",
+    dossier_th_amount: "Montant dû",
     th_nom_prenom: 'NOM & PRÉNOM',
     th_niveau: 'NIVEAU',
     th_phone: 'TÉLÉPHONE',
     th_parent: 'PARENT & CONTACT',
     lbl_eleve: 'Élève',
+    profile_kpi_billed: 'Total facturé',
+    profile_kpi_paid: 'Total payé',
+    profile_kpi_remaining: 'Reste dû',
+    profile_kpi_payments: 'Paiements',
     title_paiements: 'Paiements & Reçus Scolarité',
     btn_new_payment: 'Encaisser un Paiement',
     th_groupe: 'GROUPE / MATIÈRE',
@@ -101,6 +143,29 @@ const i18n = {
     subtitle_attendance: "Vérification manuelle des présences par groupe, suivi des dates et nombre de séances.",
     tab_manual_attendance: "Feuille d'Appel par Groupe",
     tab_rapid_scan: "Scanner Code-barres / QR",
+    tab_entrance_pointage: "Borne d'Entrée (Présence Générale)",
+    entrance_title: "Borne d'Entrée & Pointage Rapide (Élèves & Enseignants)",
+    entrance_subtitle: "Scannez le badge de l'élève ou de l'enseignant pour enregistrer sa présence instantanément sans sélection de groupe.",
+    entrance_scan_mode: "Mode de Pointage",
+    entrance_mode_auto: "Détection Auto (Entrée / Sortie)",
+    entrance_mode_in: "Entrée seulement",
+    entrance_mode_out: "Sortie seulement",
+    entrance_kiosk_btn: "Plein Écran (Kiosk)",
+    stat_students_today: "Élèves Présents Aujourd'hui",
+    stat_teachers_today: "Enseignants Présents",
+    stat_total_in_school: "Total Présents à l'Établissement",
+    stat_last_scan: "Dernier Pointage Validé",
+    title_entrance_live_log: "Journal des Présences d'Entrée",
+    btn_print_entrance_journal: "Imprimer le Journal",
+    th_type: "TYPE",
+    th_classe_matiere: "CLASSE / MATIÈRE",
+    th_heure_entree: "HEURE ENTRÉE",
+    th_heure_sortie: "HEURE SORTIE",
+    th_duree: "DURÉE",
+    entrance_empty_state: "Scannez le badge d'un élève ou d'un enseignant pour afficher le journal du jour.",
+    opt_all_roles: "Tous (Élèves & Enseignants)",
+    opt_students_only: "Élèves seulement",
+    opt_teachers_only: "Enseignants seulement",
     lbl_select_group: "Sélectionner le Groupe",
     lbl_session_date: "Date de la Séance",
     lbl_session_num: "N° Séance",
@@ -229,6 +294,34 @@ const i18n = {
     lbl_caisse_movements_count: "opérations affichées",
     btn_quick_excel: "Excel Rapide",
     modal_card_title: "Carte Scolaire de l'Élève",
+    card_school_sub: "ÉTABLISSEMENT D'ENSEIGNEMENT",
+    card_tag_student: "ÉLÈVE • OFFICIEL",
+    card_verified: "OFFICIEL",
+    lbl_card_level: "Niveau :",
+    lbl_card_phone: "Tél :",
+    card_barcode_sublabel: "Pointage Automatique & Présence",
+    btn_copy_code: "Copier le code",
+    btn_print_card: "Imprimer (CR-80)",
+    theme_emerald: "Vert Émeraude",
+    theme_purple: "Pourpre Royal",
+    theme_gold: "Noir & Or",
+    theme_white: "Blanc Économique",
+    modal_teacher_card_title: "Badge Professionnel Enseignant",
+    card_teacher_school_sub: "CORPS ENSEIGNANT",
+    card_tag_teacher: "ENSEIGNANT",
+    lbl_teacher_subject: "Matière :",
+    card_teacher_barcode_sublabel: "Pointage d'Entrée & Contrôle d'Accès",
+    modal_batch_badges_title: "Impression Groupée des Badges",
+    modal_batch_badges_desc: "Génération et impression de cartes scolaires professionnelles au format A4 (8 cartes par page)",
+    lbl_filter_level: "Filtrer par niveau scolaire",
+    opt_all_levels: "-- Tous les niveaux --",
+    opt_all_groups: "-- Tous les groupes --",
+    lbl_available_students: "Élèves disponibles",
+    lbl_selected_students: "Sélectionnés",
+    lbl_badges_theme: "Thème et style des cartes :",
+    lbl_a4_format: "Format standard A4",
+    lbl_cards_per_page: "8 cartes par page",
+    btn_print_badges: "Imprimer les badges",
     btn_new_enrollment: "Inscrire un élève",
     title_inscriptions: "Inscriptions aux Groupes",
     th_matricule: "MATRICULE",
@@ -267,7 +360,102 @@ const i18n = {
     update_current_ver: 'Version actuelle',
     update_new_ver: 'Nouvelle version',
     update_notes_title: 'Nouveautés & Corrections :',
-    update_safety_note: 'Vos données (élèves, paiements, caisse) et votre licence sont 100% conservées.'
+    update_safety_note: 'Vos données (élèves, paiements, caisse) et votre licence sont 100% conservées.',
+    btn_import_students: "Importer (Excel / الرقمنة)",
+    import_modal_title: "Importer la liste des élèves (Excel / Plate-forme)",
+    import_modal_subtitle: "Importation et mise à jour automatique depuis Excel, la plate-forme de numérisation ou fichiers Eleve",
+    import_tab_excel: "Modèle Excel (Nouveau)",
+    import_tab_eleve: "Fichier Eleve (Ministère)",
+    import_tab_rakmana: "Fichier HTML (Plate-forme)",
+    import_info_text: "Reconnaissance automatique des colonnes : Matricule, Groupe, Statut, Genre, Niveau scolaire, Nom, Prénom, Date et Lieu de naissance, Nom du père/tuteur, Adresse, Téléphone.",
+    import_btn_download_template: "Télécharger le modèle Excel (Vierge)",
+    import_drop_prompt: "Glissez-déposez le fichier Excel ou Plate-forme ici",
+    import_drop_browse: "ou cliquez pour choisir depuis votre ordinateur (.xlsx, .xls, .csv, .html)",
+    import_lbl_default_level: "Niveau scolaire par défaut",
+    import_opt_level_auto: "-- Optionnel (ou auto-détecté du fichier) --",
+    import_lbl_default_group: "Groupe / Classe d'affectation",
+    import_opt_group_none: "-- Aucun groupe pour le moment --",
+    import_lbl_duplicate_strategy: "Gestion des doublons (élèves existants)",
+    import_opt_duplicate_skip: "Ignorer les doublons (Recommandé)",
+    import_opt_duplicate_update: "Mettre à jour les données existantes",
+    import_lbl_matricule_strategy: "Matricule / Identifiant élève",
+    import_opt_mat_keep: "Conserver le matricule du fichier (génération auto si vide)",
+    import_opt_mat_gen: "Générer de nouveaux matricules (EDU-2026-XXXX)",
+    import_preview_heading: "Aperçu direct avant enregistrement",
+    th_num_col: "#",
+    th_matricule_col: "MATRICULE / ID",
+    th_nom_col: "NOM",
+    th_prenom_col: "PRÉNOM",
+    th_genre_col: "GENRE",
+    th_niveau_col: "NIVEAU SCOLAIRE",
+    th_naissance_col: "DATE NAISSANCE",
+    th_lieu_col: "LIEU NAISSANCE",
+    th_parent_col: "PÈRE / TUTEUR",
+    th_adresse_col: "ADRESSE",
+    th_groupe_col: "GROUPE / CLASSE",
+    th_statut_col: "STATUT",
+    import_btn_confirm: "Confirmer et enregistrer l'importation",
+    import_btn_executing: "Importation en cours...",
+    btn_bulk_enrollment: "Inscription groupée (Multi-élèves & Groupes)",
+    bulk_enroll_title: "Inscription groupée (Multi-élèves & Groupes)",
+    bulk_enroll_subtitle: "Sélectionnez les élèves et les groupes cibles pour les inscrire en un seul clic",
+    bulk_panel_students: "1. Sélection des élèves",
+    bulk_select_all_students: "Tout sélectionner",
+    bulk_panel_groups: "2. Sélection des groupes",
+    bulk_select_all_groups: "Tous les groupes",
+    bulk_lbl_sel_students: "Élèves sélectionnés",
+    bulk_lbl_sel_groups: "Groupes sélectionnés",
+    bulk_lbl_total_enrollments: "Total des inscriptions générées",
+    bulk_btn_confirm: "Confirmer les inscriptions groupées",
+    bulk_btn_executing: "Inscriptions en cours...",
+    th_annee_scolaire: "Année scolaire :",
+    fast_pay_title: "Caisse Rapide & Multi-Paiement (Multi-cours & Mois)",
+    fast_pay_subtitle: "Recherchez un élève ou un parent pour encaisser plusieurs cours et générer un reçu unifié",
+    fast_pay_search_placeholder: "Rechercher un élève par nom, prénom ou matricule...",
+    fast_pay_mode_student: "دفع لتلميذ",
+    fast_pay_mode_parent: "دفع عائلي (بالولي)",
+    fast_pay_no_student_hint: "Tapez le nom ou matricule de l'élève pour ouvrir ses cours et cotisations",
+    fast_pay_no_parent_hint: "ابحث باسم الولي لعرض جميع أبنائه وأفواجهم وتسديد المستحقات دفعة واحدة أو دفع جزء من المبلغ",
+    fast_pay_no_parent_sub: "يمكنك إدخال أي مبلغ جزئي وتوزيعه تلقائياً على الأبناء، مع حفظ أي متبقي كدين وإصدار وصل دفع عائلي موحد.",
+    fast_pay_selected_courses: "Cours et groupes inscrits",
+    fast_pay_lbl_selected_groups: "Groupes sélectionnés",
+    fast_pay_lbl_total_due: "Total dû",
+    fast_pay_lbl_total_paid: "Total à encaisser",
+    fast_pay_btn_submit: "Encaisser & Imprimer le Reçu Unifié",
+    fast_pay_btn_change_student: "Changer d'élève",
+    fast_pay_status_paid: "Réglé",
+    fast_pay_status_unpaid: "Non réglé",
+    fast_pay_status_partial: "Partiel",
+    tab_etablissement: "Établissement",
+    tab_securite: "Sécurité & Accès",
+    tab_facturation: "Facturation & Échéances",
+    tab_caisse: "Catégories de Caisse",
+    tab_donnees: "Sauvegardes & Restauration",
+    tab_administration: "Administration & Année",
+    th_enseignant: "ENSEIGNANT",
+    lbl_filter_category: "Catégorie :",
+    batch_selected_text: "élève(s) sélectionné(s)",
+    modal_payroll_slip_title: "Bulletin de Paie / Fiche d'Honoraires",
+    fast_pay_no_student_sub: "Les résultats et groupes s'afficheront instantanément avec la possibilité d'imprimer un reçu unifié.",
+    opt_all_months: "Tous les mois",
+    opt_all_flux: "Tous les flux (Entrées & Dépenses)",
+    opt_entrees_only: "Entrées uniquement (+)",
+    opt_sorties_only: "Dépenses uniquement (-)",
+    opt_all_categories: "Toutes les catégories",
+    opt_all_methods: "Tous les modes",
+    opt_method_cash: "Espèces",
+    opt_method_baridimob: "BaridiMob / CCP",
+    opt_method_cheque: "Chèque",
+    lbl_count_caisse_ops: "Nombre d'opérations",
+    lbl_caisse_movements_count: "mouvements affichés",
+    lbl_total_entrees: "Total Entrées",
+    lbl_total_sorties: "Total Dépenses",
+    lbl_solde_net: "Solde Net",
+    btn_print_report: "Imprimer Rapport PDF",
+    btn_download_excel: "Exporter Excel (CSV)",
+    btn_export_caisse: "Exporter la Caisse",
+    btn_export_payments: "Exporter les Paiements",
+    btn_quick_excel: "Excel Rapide"
   },
   ar: {
     tagline: 'إدارة المدارس الذكية',
@@ -345,14 +533,56 @@ const i18n = {
     th_prenom: 'الاسم',
     pointage_title: 'تسجيل الحضور السريع بالباركود',
     pointage_subtitle: 'مرر بطاقة التلميذ عبر القارئ أو أدخل رقم قيده لتسجيل حضوره والتأكد من دفع اشتراكه فوراً.',
+    tip_douchette_ready: 'قارئ الباركود (Douchette USB) متصل وجاهز للمسح المباشر',
+    tip_douchette_ready_entrance: 'قارئ الباركود (Douchette) جاهز للمسح السريع والتلقائي',
     btn_scan: 'تسجيل الحضور',
     title_eleves: 'التلاميذ',
     btn_add_student: 'تلميذ جديد',
+    nav_parents: 'أولياء التلاميذ',
+    title_parents: 'أولياء التلاميذ',
+    subtitle_parents: 'إدارة الأولياء، متابعة الأبناء المتمدرسين والتحكم بنسب التخفيض الممنوحة ومستحقات العائلات',
+    btn_add_parent: 'إضافة ولي جديد',
+    kpi_parents_total: 'إجمالي الأولياء المسجلين',
+    kpi_parents_discount: 'أولياء بتخفيض عائلي',
+    kpi_parents_children: 'إجمالي الأبناء المتمدرسين',
+    kpi_parents_debts: 'مستحقات ديون العائلات',
+    planning_kpi_groups: 'الحصص / الأفواج',
+    planning_kpi_hours: 'الحجم الساعي الأسبوعي',
+    planning_kpi_teachers: 'الأساتذة المبرمجون',
+    planning_kpi_rooms: 'القاعات المستعملة',
+    th_parent_nom: 'الولي / المسؤول',
+    th_enfants_count: 'الأبناء المتمدرسين عندنا',
+    th_reduction_pct: 'نسبة التخفيض (%)',
+    th_parent_solde: 'مستحقات العائلة',
+    lbl_parent: 'ولي التلميذ',
+    lbl_parent_fullname: "اسم الولي الكامل (اللقب والاسم) *",
+    lbl_parent_phone: "رقم الهاتف الأساسي *",
+    lbl_parent_phone_sec: "هاتف ثانوي / واتساب",
+    lbl_parent_email: "البريد الإلكتروني",
+    lbl_parent_address: "عنوان السكن",
+    lbl_parent_discount_title: "نسبة التخفيض الممنوحة للعائلة (%)",
+    lbl_parent_discount_hint: "يطبق تلقائياً على اشتراكات أبنائه",
+    lbl_parent_notes: "ملاحظات خاصة بالعائلة",
+    btn_save_parent: "حفظ بيانات الولي",
+    btn_edit_parent: "تعديل بيانات الولي",
+    dossier_stat_children: "الأبناء المتمدرسين",
+    dossier_stat_discount: "نسبة التخفيض",
+    dossier_stat_debts: "مستحقات العائلة المتبقية",
+    dossier_title_children: "قائمة الأبناء المتمدرسين بالمؤسسة",
+    dossier_title_unpaid: "المستحقات والديون غير المسددة للعائلة",
+    dossier_th_student: "الابن / التلميذ",
+    dossier_th_group: "الفوج / المادة",
+    dossier_th_month: "الشهر",
+    dossier_th_amount: "المبلغ المستحق",
     th_nom_prenom: 'الاسم واللقب',
     th_niveau: 'المستوى',
     th_phone: 'الهاتف',
     th_parent: 'ولي الأمر والتواصل',
     lbl_eleve: 'التلميذ',
+    profile_kpi_billed: 'إجمالي المفوتر (Facturé)',
+    profile_kpi_paid: 'إجمالي المدفوع (Payé)',
+    profile_kpi_remaining: 'المبلغ المتبقي (Reste)',
+    profile_kpi_payments: 'عدد الدفعات',
     title_paiements: 'المدفوعات ووصولات التسديد',
     btn_new_payment: 'تسجيل دفعة جديدة',
     th_groupe: 'الفوج / المادة',
@@ -367,6 +597,29 @@ const i18n = {
     subtitle_attendance: "تأكيد ومتابعة الحضور والغياب حسب الأفواج، مع استعراض عدد وتواريخ الحصص الشهرية.",
     tab_manual_attendance: "ورقة التحضير اليدوي بالفوج",
     tab_rapid_scan: "المسح السريع بالباركود",
+    tab_entrance_pointage: "بوابة المدخل (حضور عام)",
+    entrance_title: "بوابة المدخل لتسجيل الحضور السريع (تلاميذ وأساتذة)",
+    entrance_subtitle: "مرر بطاقة التلميذ أو الأستاذ عبر الماسح لتسجيل حضوره أو انصرافه فوراً ودون الحاجة لتحديد الفوج.",
+    entrance_scan_mode: "نمط تسجيل الحضور",
+    entrance_mode_auto: "كشف تلقائي ذكي (دخول / خروج)",
+    entrance_mode_in: "تسجيل دخول فقط",
+    entrance_mode_out: "تسجيل خروج فقط",
+    entrance_kiosk_btn: "وضع ملء الشاشة (Kiosk)",
+    stat_students_today: "تلاميذ حاضرون اليوم",
+    stat_teachers_today: "أساتذة حاضرون اليوم",
+    stat_total_in_school: "إجمالي المتواجدين بالمؤسسة",
+    stat_last_scan: "آخر تسجيل حضور",
+    title_entrance_live_log: "سجل الحضور اليومي للمدخل",
+    btn_print_entrance_journal: "طباعة سجل الحضور",
+    th_type: "الصفة",
+    th_classe_matiere: "القسم / المادة",
+    th_heure_entree: "وقت الدخول",
+    th_heure_sortie: "وقت الخروج",
+    th_duree: "المدة",
+    entrance_empty_state: "مرر بطاقة تلميذ أو أستاذ لعرض سجل الحضور اليومي للمدخل.",
+    opt_all_roles: "الكل (تلاميذ وأساتذة)",
+    opt_students_only: "التلاميذ فقط",
+    opt_teachers_only: "الأساتذة فقط",
     lbl_select_group: "اختيار الفوج الدراسي",
     lbl_session_date: "تاريخ الحصة",
     lbl_session_num: "رقم الحصة",
@@ -495,6 +748,34 @@ const i18n = {
     lbl_caisse_movements_count: "حركات معروضة",
     btn_quick_excel: "Excel السريع",
     modal_card_title: "بطاقة التلميذ المدرسية",
+    card_school_sub: "مؤسسة تعليمية وتدريبية",
+    card_tag_student: "بطاقة مدرسية • رسمي",
+    card_verified: "رسمي",
+    lbl_card_level: "المستوى :",
+    lbl_card_phone: "الهاتف :",
+    card_barcode_sublabel: "بطاقة الدخول وتسجيل الحضور الذكي",
+    btn_copy_code: "نسخ الكود",
+    btn_print_card: "طباعة البطاقة (CR-80)",
+    theme_emerald: "أخضر زمردي",
+    theme_purple: "بنفسجي ملكي",
+    theme_gold: "أسود وذهبي",
+    theme_white: "أبيض اقتصادي",
+    modal_teacher_card_title: "بطاقة الأستاذ المهنية",
+    card_teacher_school_sub: "هيئة التدريس والتعليم المتميز",
+    card_tag_teacher: "أستاذ",
+    lbl_teacher_subject: "المادة :",
+    card_teacher_barcode_sublabel: "بطاقة الدخول وتسجيل الحضور والتحضير",
+    modal_batch_badges_title: "طباعة بطاقات متعددة",
+    modal_batch_badges_desc: "توليد وطباعة بطاقات مدرسية احترافية مع الباركود بتنسيق A4 (8 بطاقات لكل ورقة)",
+    lbl_filter_level: "تصفية حسب المستوى الدراسي",
+    opt_all_levels: "-- كل المستويات --",
+    opt_all_groups: "-- كل الأفواج --",
+    lbl_available_students: "قائمة التلاميذ المتاحين",
+    lbl_selected_students: "تم تحديد",
+    lbl_badges_theme: "تصميم ولون البطاقات :",
+    lbl_a4_format: "ورق A4 قياسي",
+    lbl_cards_per_page: "8 بطاقات لكل ورقة",
+    btn_print_badges: "طباعة البطاقات المحددة",
     btn_new_enrollment: "تسجيل تلميذ في فوج",
     title_inscriptions: "تسجيلات التلاميذ في الأفواج",
     th_matricule: "رقم القيد",
@@ -533,7 +814,102 @@ const i18n = {
     update_current_ver: 'الإصدار الحالي',
     update_new_ver: 'الإصدار الجديد',
     update_notes_title: 'الجديد في هذا التحديث :',
-    update_safety_note: 'بيانات المدرسة (الطلاب، المدفوعات، الصندوق) والترخيص محفوظة ومحمية 100%.'
+    update_safety_note: 'بيانات المدرسة (الطلاب، المدفوعات، الصندوق) والترخيص محفوظة ومحمية 100%.',
+    btn_import_students: "استيراد (Excel / الرقمنة)",
+    import_modal_title: "استيراد قائمة التلاميذ (Excel / الرقمنة)",
+    import_modal_subtitle: "استيراد وتحديث بيانات التلاميذ تلقائياً من ملفات Excel، الرقمنة، أو ملفات Eleve",
+    import_tab_excel: "استيراد عبر نموذج Excel (جديد)",
+    import_tab_eleve: "الاستيراد من ملف Eleve",
+    import_tab_rakmana: "استيراد HTML (منصة الرقمنة)",
+    import_info_text: "يتعرف البرنامج تلقائياً على الأعمدة: رقم التعريف المدرسي، رقم الفوج، الصفة، الجنس، المستوى الدراسي، اللقب، الاسم، تاريخ الميلاد، مكان الميلاد، إسم الأب، العنوان، ورقم الهاتف.",
+    import_btn_download_template: "تحميل نموذج Excel فارغ (Modèle)",
+    import_drop_prompt: "اسحب وأفلت ملف Excel أو الرقمنة هنا",
+    import_drop_browse: "أو اضغط لاختيار الملف من جهازك (.xlsx, .xls, .csv, .html)",
+    import_lbl_default_level: "المستوى الدراسي الافتراضي",
+    import_opt_level_auto: "-- اختياري (أو التعرف من الملف) --",
+    import_lbl_default_group: "الفوج / القسم الدراسي",
+    import_opt_group_none: "-- بدون تسجيل في فوج حالياً --",
+    import_lbl_duplicate_strategy: "معالجة التلاميذ المكررين",
+    import_opt_duplicate_skip: "تخطي الموجودين مسبقاً (تجنب التكرار)",
+    import_opt_duplicate_update: "تحديث وتصحيح بيانات الموجودين",
+    import_lbl_matricule_strategy: "رقم التعريف المدرسي (Matricule)",
+    import_opt_mat_keep: "الاعتماد على رقم التعريف من الملف (مع توليد تلقائي لمن ليس لديه)",
+    import_opt_mat_gen: "توليد أرقام تسجيل جديدة للجميع (EDU-2026-XXXX)",
+    import_preview_heading: "معاينة البيانات قبل الحفظ",
+    th_num_col: "#",
+    th_matricule_col: "رقم التعريف",
+    th_nom_col: "اللقب",
+    th_prenom_col: "الاسم",
+    th_genre_col: "الجنس",
+    th_niveau_col: "المستوى الدراسي",
+    th_naissance_col: "تاريخ الميلاد",
+    th_lieu_col: "مكان الميلاد",
+    th_parent_col: "إسم الأب",
+    th_adresse_col: "العنوان",
+    th_groupe_col: "رقم الفوج",
+    th_statut_col: "الحالة",
+    import_btn_confirm: "تأكيد وحفظ الاستيراد",
+    import_btn_executing: "جاري الاستيراد والحفظ...",
+    btn_bulk_enrollment: "تسجيل جماعي (عدة تلاميذ / أفواج)",
+    bulk_enroll_title: "تسجيل جماعي (عدة تلاميذ في عدة أفواج)",
+    bulk_enroll_subtitle: "اختر قائمة التلاميذ والأفواج المطلوبة بضغطة زر لإتمام التسجيل دفعة واحدة",
+    bulk_panel_students: "1. اختيار التلاميذ",
+    bulk_select_all_students: "تحديد كل الظاهرين",
+    bulk_panel_groups: "2. اختيار الأفواج المستهدفة",
+    bulk_select_all_groups: "تحديد كل الأفواج",
+    bulk_lbl_sel_students: "التلاميذ المختارون",
+    bulk_lbl_sel_groups: "الأفواج المختارة",
+    bulk_lbl_total_enrollments: "إجمالي عمليات التسجيل",
+    bulk_btn_confirm: "تأكيد التسجيل الجماعي",
+    bulk_btn_executing: "جاري التسجيل الجماعي...",
+    th_annee_scolaire: "السنة الدراسية :",
+    fast_pay_title: "الصندوق السريع والدفع المتعدد (متعدد الأفواج والأشهر)",
+    fast_pay_subtitle: "ابحث عن تلميذ أو ولي لاستخلاص عدة اشتراكات وإصدار وصل دفع موحد",
+    fast_pay_search_placeholder: "ابحث عن تلميذ بالاسم، اللقب أو رقم القيد...",
+    fast_pay_mode_student: "دفع لتلميذ",
+    fast_pay_mode_parent: "دفع عائلي (بالولي)",
+    fast_pay_no_student_hint: "اكتب اسم التلميذ أو رقم قيده في الحقل أعلاه لعرض جميع أفواجه ومستحقاته وسدادها دفعة واحدة",
+    fast_pay_no_parent_hint: "ابحث باسم الولي لعرض جميع أبنائه وأفواجهم وتسديد المستحقات دفعة واحدة أو دفع جزء من المبلغ",
+    fast_pay_no_parent_sub: "يمكنك إدخال أي مبلغ جزئي وتوزيعه تلقائياً على الأبناء، مع حفظ أي متبقي كدين وإصدار وصل دفع عائلي موحد.",
+    fast_pay_selected_courses: "الأفواج والاشتراكات المسجل بها",
+    fast_pay_lbl_selected_groups: "الأفواج المحددة",
+    fast_pay_lbl_total_due: "إجمالي المستحق",
+    fast_pay_lbl_total_paid: "المبلغ المقبوض",
+    fast_pay_btn_submit: "تأكيد الدفع وطباعة الوصل الموحد",
+    fast_pay_btn_change_student: "تغيير التلميذ",
+    fast_pay_status_paid: "خالص",
+    fast_pay_status_unpaid: "غير مسدد",
+    fast_pay_status_partial: "مسدد جزئياً",
+    tab_etablissement: "المؤسسة",
+    tab_securite: "الأمان وكلمة المرور",
+    tab_facturation: "الفوترة ومواعيد الاستحقاق",
+    tab_caisse: "تصنيفات الصندوق",
+    tab_donnees: "النسخ الاحتياطي والاسترجاع",
+    tab_administration: "الإدارة والسنة الدراسية",
+    th_enseignant: "الأستاذ",
+    lbl_filter_category: "التصنيف :",
+    batch_selected_text: "تلميذ محدد",
+    modal_payroll_slip_title: "كشف أتعاب الأستاذ",
+    fast_pay_no_student_sub: "ستظهر نتائج البحث والأفواج فورياً مع إمكانية تحديد عدة أشهر أو أفواج وإصدار وصل موحد",
+    opt_all_months: "جميع الأشهر",
+    opt_all_flux: "كل الحركات (المداخيل والمصاريف)",
+    opt_entrees_only: "مداخيل فقط (+)",
+    opt_sorties_only: "مصاريف فقط (-)",
+    opt_all_categories: "كل التصنيفات",
+    opt_all_methods: "كل الوسائل",
+    opt_method_cash: "نقداً / Espèces",
+    opt_method_baridimob: "بريدي موب / BaridiMob / CCP",
+    opt_method_cheque: "شيك / Chèque",
+    lbl_count_caisse_ops: "عدد الحركات",
+    lbl_caisse_movements_count: "حركات معروضة",
+    lbl_total_entrees: "إجمالي المداخيل",
+    lbl_total_sorties: "إجمالي المصاريف",
+    lbl_solde_net: "الرصيد الصافي",
+    btn_print_report: "طباعة تقرير PDF",
+    btn_download_excel: "تحميل ملف Excel (CSV)",
+    btn_export_caisse: "تحميل سجل الخزينة",
+    btn_export_payments: "تحميل المدفوعات",
+    btn_quick_excel: "Excel السريع"
   }
 };
 
@@ -556,7 +932,8 @@ class EdumindApp {
 
     // Batch Badges Selection State
     this.selectedStudentIds = new Set();
-    this.batchCardTheme = 'blue';
+    this.batchCardTheme = 'emerald';
+    this.currentCardTheme = 'emerald';
     this.batchModalSelectedIds = new Set();
     this.batchModalAllStudents = [];
 
@@ -566,6 +943,13 @@ class EdumindApp {
     this.attendanceSheetData = null;
     this.attendanceRecords = {};
     this.attendanceMode = 'sheet';
+
+    // Entrance Gate Pointage state (Students & Teachers)
+    this.entranceMode = 'auto'; // 'auto', 'in', 'out'
+    this.entranceDate = new Date().toISOString().split('T')[0];
+    this.entranceRecords = [];
+    this.entranceClockTimer = null;
+    this.isEntranceFullscreen = false;
 
     // Authentication State
     this.isAuthenticated = sessionStorage.getItem('edumind_auth') === 'true' || localStorage.getItem('edumind_auth') === 'true';
@@ -1426,6 +1810,22 @@ class EdumindApp {
         this.filterTeachers(teacherSearchInput.value);
       }, 250);
     }
+
+    // Hardware Barcode Scanner (Douchette USB) Global Wedge Listener
+    this.setupBarcodeScannerListener();
+
+    // Auto-focus scanner input in Pointage view when clicking outside controls
+    document.getElementById('view-pointage')?.addEventListener('click', (e) => {
+      const tag = e.target.tagName.toLowerCase();
+      if (['input', 'select', 'textarea', 'button', 'a'].includes(tag) || e.target.closest('button, a, select')) {
+        return;
+      }
+      if (this.attendanceMode === 'entrance') {
+        document.getElementById('entranceScanInput')?.focus();
+      } else {
+        document.getElementById('pointageInput')?.focus();
+      }
+    });
   }
 
   applyTheme() {
@@ -1504,6 +1904,16 @@ class EdumindApp {
     if (searchAtt) {
       searchAtt.placeholder = isAr ? 'بحث عن تلميذ بالفوج...' : 'Filtrer un élève...';
     }
+
+    const bulkStudentSearch = document.getElementById('bulkStudentSearchInput');
+    if (bulkStudentSearch) {
+      bulkStudentSearch.placeholder = isAr ? 'بحث عن تلميذ...' : 'Rechercher un élève...';
+    }
+
+    const bulkGroupSearch = document.getElementById('bulkGroupSearchInput');
+    if (bulkGroupSearch) {
+      bulkGroupSearch.placeholder = isAr ? 'بحث عن فوج أو مادة...' : 'Rechercher un groupe ou matière...';
+    }
     const topicAtt = document.getElementById('attSessionTopic');
     if (topicAtt) {
       topicAtt.placeholder = isAr ? 'مثال: الفصل الثاني / حل تمارين' : 'Ex: Chapitre 2 / Exercices';
@@ -1519,6 +1929,82 @@ class EdumindApp {
     const searchTeachers = document.getElementById('searchTeacherInput');
     if (searchTeachers) {
       searchTeachers.placeholder = isAr ? 'بحث باسم الأستاذ، المادة، الهاتف...' : "Rechercher par nom d'enseignant, matière...";
+    }
+
+    const entranceScanInput = document.getElementById('entranceScanInput');
+    if (entranceScanInput) {
+      entranceScanInput.placeholder = isAr
+        ? 'مرر الباركود أو اكتب رقم القيد (مثال: ETU-001 أو ENS-001)...'
+        : 'Scannez le code-barres ou tapez le matricule (Ex: ETU-001 / ENS-001)...';
+    }
+
+    const entranceSearchInput = document.getElementById('entranceSearchInput');
+    if (entranceSearchInput) {
+      entranceSearchInput.placeholder = isAr ? 'بحث بالاسم، اللقب أو رقم القيد...' : 'Rechercher nom ou matricule...';
+    }
+
+    const entranceFilterType = document.getElementById('entranceFilterType');
+    if (entranceFilterType && entranceFilterType.options && entranceFilterType.options.length >= 3) {
+      entranceFilterType.options[0].text = isAr ? 'الكل (تلاميذ وأساتذة)' : 'Tous (Élèves & Enseignants)';
+      entranceFilterType.options[1].text = isAr ? 'التلاميذ فقط' : 'Élèves seulement';
+      entranceFilterType.options[2].text = isAr ? 'الأساتذة فقط' : 'Enseignants seulement';
+    }
+
+    const batchSearchInput = document.getElementById('batchBadgesSearchInput');
+    if (batchSearchInput) {
+      batchSearchInput.placeholder = isAr ? 'بحث بالاسم أو اللقب أو رقم القيد...' : 'Rechercher par nom, matricule ou téléphone...';
+    }
+
+    const batchLevelSelect = document.getElementById('batchBadgesFilterLevel');
+    if (batchLevelSelect && batchLevelSelect.options && batchLevelSelect.options.length > 0) {
+      batchLevelSelect.options[0].text = isAr ? '-- كل المستويات --' : '-- Tous les niveaux --';
+    }
+
+    const batchGroupSelect = document.getElementById('batchBadgesFilterGroup');
+    if (batchGroupSelect && batchGroupSelect.options && batchGroupSelect.options.length > 0) {
+      batchGroupSelect.options[0].text = isAr ? '-- كل الأفواج --' : '-- Tous les groupes --';
+    }
+
+    const fastPaySearch = document.getElementById('fastPayStudentSearch');
+    if (fastPaySearch) {
+      fastPaySearch.placeholder = isAr ? 'ابحث عن تلميذ بالاسم، اللقب أو رقم القيد...' : 'Rechercher par nom, prénom ou matricule...';
+    }
+
+    const wizardSearch = document.getElementById('wizardStudentSearchInput');
+    if (wizardSearch) {
+      wizardSearch.placeholder = isAr ? 'ابحث باسم التلميذ أو لقبه أو رقمه...' : 'Rechercher par nom, prénom ou matricule...';
+    }
+
+    const matrixSearch = document.getElementById('matrixSearchStudent');
+    if (matrixSearch) {
+      matrixSearch.placeholder = isAr ? 'بحث عن تلميذ...' : 'Rechercher un élève...';
+    }
+
+    const payMonthFilter = document.getElementById('paymentMonthFilter');
+    if (payMonthFilter && payMonthFilter.options && payMonthFilter.options.length > 0) {
+      payMonthFilter.options[0].text = isAr ? 'جميع الأشهر' : 'Tous les mois';
+    }
+
+    const enrollMonthFilter = document.getElementById('filterEnrollmentMonth');
+    if (enrollMonthFilter && enrollMonthFilter.options && enrollMonthFilter.options.length > 0) {
+      enrollMonthFilter.options[0].text = isAr ? 'جميع الأشهر' : 'Tous les mois';
+    }
+
+    const searchParents = document.getElementById('searchParentInput');
+    if (searchParents) {
+      searchParents.placeholder = isAr ? 'ابحث بالاسم، اللقب، الهاتف، أو اسم الابن...' : "Rechercher par nom, prénom, tél ou enfant...";
+    }
+    const filterParentDisc = document.getElementById('filterParentDiscount');
+    if (filterParentDisc && filterParentDisc.options && filterParentDisc.options.length >= 3) {
+      filterParentDisc.options[0].text = isAr ? 'كل التخفيضات' : 'Toutes les remises';
+      filterParentDisc.options[1].text = isAr ? 'مع تخفيض عائلي (> 0%)' : 'Avec remise (> 0%)';
+      filterParentDisc.options[2].text = isAr ? 'بدون تخفيض (0%)' : 'Sans remise (0%)';
+    }
+    const filterParentDebt = document.getElementById('filterParentDebts');
+    if (filterParentDebt && filterParentDebt.options && filterParentDebt.options.length >= 3) {
+      filterParentDebt.options[0].text = isAr ? 'جميع الحالات المالية' : 'Tous statuts financiers';
+      filterParentDebt.options[1].text = isAr ? 'عليهم مستحقات / ديون' : 'Avec impayés / dettes';
+      filterParentDebt.options[2].text = isAr ? 'خالصين تماماً' : 'À jour (aucun impayé)';
     }
 
     if (this.currentView === 'groupes') {
@@ -1538,6 +2024,8 @@ class EdumindApp {
       } else {
         this.loadStudents();
       }
+    } else if (this.currentView === 'parents') {
+      this.loadParents();
     } else if (this.currentView === 'salles') {
       this.loadRooms();
     }
@@ -1683,6 +2171,7 @@ class EdumindApp {
       if (listView) listView.classList.remove('hidden');
       this.loadStudents();
     }
+    else if (viewName === 'parents') this.loadParents();
     else if (viewName === 'inscriptions') this.loadInscriptionsView();
     else if (viewName === 'paiements') this.loadPayments();
     else if (viewName === 'echeances') this.loadEcheances();
@@ -1925,7 +2414,7 @@ class EdumindApp {
       if (this.students.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="12" style="text-align: center; color: var(--text-muted); padding: 40px;">
+            <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 40px;">
               <i class="fa-solid fa-user-slash" style="font-size: 32px; margin-bottom: 10px; opacity: 0.5; display: block;"></i>
               ${this.lang === 'ar' ? 'لم يتم العثور على أي تلميذ مطابق' : 'Aucun élève trouvé'}
             </td>
@@ -1937,9 +2426,6 @@ class EdumindApp {
 
       tbody.innerHTML = this.students.map(s => {
         const avatarSvg = this.getStudentAvatarSvg(s.gender);
-        const billed = Number(s.total_billed || 0);
-        const paid = Number(s.total_paid || 0);
-        const remaining = Number(s.remaining_due || 0);
         const isActive = s.active === 1;
         const isChecked = this.selectedStudentIds && this.selectedStudentIds.has(s.id);
 
@@ -1965,18 +2451,16 @@ class EdumindApp {
             </td>
             <td>
               <span style="font-size: 13px;">${this.escapeHtml(s.phone || '—')}</span>
+              ${s.parent_name ? `
+                <div style="font-size: 11px; color: #a78bfa; margin-top: 2px; display: flex; align-items: center; gap: 4px;">
+                  <i class="fa-solid fa-people-roof" style="font-size: 10px;"></i>
+                  <span>${this.escapeHtml(s.parent_name)}</span>
+                  ${s.parent_discount_percent > 0 ? `<span class="badge" style="background: rgba(16,185,129,0.15); color:#10b981; font-size:10px; padding:1px 4px; border-radius:3px;">-${s.parent_discount_percent}%</span>` : ''}
+                </div>
+              ` : ''}
             </td>
             <td style="text-align: center;">
               <span class="badge-pill" style="background: rgba(59, 130, 246, 0.12); color: #60a5fa; font-weight: 700;">${s.active_groups_count || 0}</span>
-            </td>
-            <td>
-              <span style="font-weight: 600;">${billed.toLocaleString()} DA</span>
-            </td>
-            <td>
-              <span style="font-weight: 700; color: #10b981;">${paid.toLocaleString()} DA</span>
-            </td>
-            <td>
-              <span style="font-weight: 700; color: ${remaining > 0 ? '#ef4444' : 'var(--text-heading)'};">${remaining.toLocaleString()} DA</span>
             </td>
             <td>
               <span class="badge-status-pill ${isActive ? 'active' : 'inactive'}" 
@@ -2591,16 +3075,12 @@ class EdumindApp {
     this.filterBatchBadgesList();
   }
 
-  setBatchTheme(theme) {
+  setBatchTheme(theme = 'emerald') {
     this.batchCardTheme = theme;
-    ['Blue', 'Emerald', 'Gold', 'White'].forEach(t => {
+    ['Emerald', 'Purple', 'Gold', 'White'].forEach(t => {
       const btn = document.getElementById(`btnBatchTheme${t}`);
       if (btn) {
-        if (t.toLowerCase() === theme.toLowerCase()) {
-          btn.classList.add('active');
-        } else {
-          btn.classList.remove('active');
-        }
+        btn.classList.toggle('active', t.toLowerCase() === theme.toLowerCase());
       }
     });
   }
@@ -2629,7 +3109,7 @@ class EdumindApp {
       const allChecked = currentList.length > 0 && currentList.every(s => this.batchModalSelectedIds.has(s.id));
       toggleTextEl.textContent = allChecked 
         ? (isAr ? 'إلغاء تحديد الكل' : 'Désélectionner tout') 
-        : (isAr ? 'تحديد الكل' : 'Sélectionner tout');
+        : (isAr ? 'تحديد الكل' : 'Tout sélectionner');
     }
 
     const printBtnText = document.getElementById('btnExecuteBatchPrintText');
@@ -2655,10 +3135,10 @@ class EdumindApp {
       return;
     }
 
-    this.executeBatchBadgePrint(studentsToPrint, this.batchCardTheme || 'blue');
+    this.executeBatchBadgePrint(studentsToPrint, this.batchCardTheme || 'emerald');
   }
 
-  executeBatchBadgePrint(students, theme = 'blue') {
+  executeBatchBadgePrint(students, theme = 'emerald') {
     const isAr = this.lang === 'ar';
     const schoolName = this.settings?.school_name || 'EDUMIND ACADEMY';
     const schoolYear = this.settings?.school_year || '2025/2026';
@@ -2719,11 +3199,11 @@ class EdumindApp {
                 <div class="logo">🎓</div>
                 <div>
                   <div class="school-name">${this.escapeHtml(schoolName)}</div>
-                  <div class="school-tag">COURS DE SOUTIEN & FORMATION</div>
+                  <div class="school-tag">${isAr ? 'مؤسسة تعليمية وتدريبية' : "ÉTABLISSEMENT D'ENSEIGNEMENT"}</div>
                 </div>
               </div>
               <div class="badge-col">
-                <span class="badge-tag">OFFICIEL • نظامي</span>
+                <span class="badge-tag">${isAr ? 'بطاقة مدرسية • رسمي' : 'CARTE ÉLÈVE • OFFICIEL'}</span>
                 <span class="year-tag">${this.escapeHtml(schoolYear)}</span>
               </div>
             </div>
@@ -2737,8 +3217,8 @@ class EdumindApp {
               <div class="details-box">
                 <div class="student-name">${this.escapeHtml(fullName)}</div>
                 <div class="matricule-pill">N° ${this.escapeHtml(matricule)}</div>
-                <div class="info-line"><strong>Niveau:</strong> ${this.escapeHtml(levelName)}</div>
-                <div class="info-line"><strong>Tél:</strong> ${this.escapeHtml(phone)}</div>
+                <div class="info-line"><strong>${isAr ? 'المستوى :' : 'Niveau :'}</strong> ${this.escapeHtml(levelName)}</div>
+                <div class="info-line"><strong>${isAr ? 'الهاتف :' : 'Tél :'}</strong> ${this.escapeHtml(phone)}</div>
               </div>
             </div>
 
@@ -2872,10 +3352,10 @@ class EdumindApp {
             print-color-adjust: exact;
           }
 
-          .print-cr80-card.blue {
-            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #172554 100%);
+          .print-cr80-card.purple {
+            background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 60%, #2e1065 100%);
             color: #ffffff;
-            border-color: #3b82f6;
+            border-color: #8b5cf6;
           }
           .print-cr80-card.emerald {
             background: linear-gradient(135deg, #064e3b 0%, #065f46 60%, #022c22 100%);
@@ -3070,6 +3550,497 @@ class EdumindApp {
     this.playChime('success');
   }
 
+  // ==========================================================================
+  // STUDENT EXCEL / RAKMANA IMPORT SYSTEM
+  // ==========================================================================
+  async openImportStudentsModal() {
+    if (!this.levels || this.levels.length === 0) {
+      await this.loadLevels();
+    }
+    if (!this.groups || this.groups.length === 0) {
+      await this.loadGroups();
+    }
+
+    // Populate Level dropdown
+    const lvlSelect = document.getElementById('importDefaultLevel');
+    if (lvlSelect) {
+      lvlSelect.innerHTML = `<option value="">${this.lang === 'ar' ? '-- اختياري (أو التعرف من الملف) --' : '-- Optionnel (ou auto-détecté) --'}</option>` +
+        (this.levels || []).map(l => `<option value="${l.id}">${this.escapeHtml(l.name)}</option>`).join('');
+    }
+
+    // Populate Group dropdown
+    const grpSelect = document.getElementById('importDefaultGroup');
+    if (grpSelect) {
+      grpSelect.innerHTML = `<option value="">${this.lang === 'ar' ? '-- بدون تسجيل في فوج حالياً --' : '-- Aucun groupe pour le moment --'}</option>` +
+        (this.groups || []).map(g => `<option value="${g.id}">${this.escapeHtml(g.name)} (${this.escapeHtml(g.level_name || '')})</option>`).join('');
+    }
+
+    this.resetImportFile();
+    document.getElementById('modalImportStudents').classList.add('active');
+  }
+
+  switchImportTab(tabKey) {
+    document.querySelectorAll('.import-tab-btn').forEach(btn => {
+      btn.classList.remove('active');
+      btn.style.background = 'transparent';
+      btn.style.color = 'var(--text-muted)';
+      btn.style.fontWeight = '600';
+    });
+
+    const activeBtn = document.getElementById(tabKey === 'excel' ? 'tabImportExcel' : tabKey === 'eleve' ? 'tabImportEleve' : 'tabImportRakmana');
+    if (activeBtn) {
+      activeBtn.classList.add('active');
+      activeBtn.style.background = 'rgba(16, 185, 129, 0.15)';
+      activeBtn.style.color = '#10b981';
+      activeBtn.style.fontWeight = '700';
+    }
+
+    const promptTitle = document.querySelector('#dropZonePrompt h4');
+    if (promptTitle) {
+      if (tabKey === 'excel') {
+        promptTitle.textContent = this.lang === 'ar' ? 'اسحب وأفلت نموذج Excel المعبأ هنا' : 'Glissez-déposez le modèle Excel ici';
+      } else if (tabKey === 'eleve') {
+        promptTitle.textContent = this.lang === 'ar' ? 'اسحب وأفلت ملف Eleve الوزاري هنا' : 'Glissez-déposez le fichier Eleve ici';
+      } else {
+        promptTitle.textContent = this.lang === 'ar' ? 'اسحب وأفلت ملف HTML المستخرج من منصة الرقمنة هنا' : 'Glissez-déposez le fichier HTML de la plate-forme ici';
+      }
+    }
+  }
+
+  resetImportFile() {
+    this._importedStudentsData = [];
+    const fileInput = document.getElementById('importStudentFileInput');
+    if (fileInput) fileInput.value = '';
+
+    const prompt = document.getElementById('dropZonePrompt');
+    if (prompt) prompt.style.display = 'block';
+
+    const info = document.getElementById('dropZoneFileInfo');
+    if (info) info.style.display = 'none';
+
+    const preview = document.getElementById('importPreviewSection');
+    if (preview) preview.style.display = 'none';
+
+    const tableBody = document.getElementById('importPreviewTableBody');
+    if (tableBody) tableBody.innerHTML = '';
+
+    const btnExec = document.getElementById('btnExecuteImport');
+    if (btnExec) {
+      btnExec.disabled = true;
+      btnExec.style.opacity = '0.5';
+      btnExec.style.cursor = 'not-allowed';
+      const textSpan = document.getElementById('btnExecuteImportText');
+      if (textSpan) textSpan.textContent = this.lang === 'ar' ? 'تأكيد وحفظ الاستيراد' : 'Confirmer l\'importation';
+    }
+  }
+
+  handleStudentFileDrop(event) {
+    event.preventDefault();
+    const zone = document.getElementById('studentDropZone');
+    if (zone) {
+      zone.style.borderColor = 'rgba(16, 185, 129, 0.45)';
+      zone.style.background = 'rgba(16, 185, 129, 0.03)';
+    }
+    if (event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files.length > 0) {
+      this.parseStudentImportFile(event.dataTransfer.files[0]);
+    }
+  }
+
+  handleStudentFileSelected(event) {
+    if (event.target && event.target.files && event.target.files.length > 0) {
+      this.parseStudentImportFile(event.target.files[0]);
+    }
+  }
+
+  async parseStudentImportFile(file) {
+    if (!file) return;
+    if (typeof XLSX === 'undefined') {
+      this.showToast(this.lang === 'ar' ? 'خطأ: تعذر تحميل مكتبة قراءة ملفات الإكسل (XLSX)' : 'Erreur: Bibliothèque XLSX introuvable', 'error');
+      return;
+    }
+
+    const prompt = document.getElementById('dropZonePrompt');
+    if (prompt) prompt.style.display = 'none';
+    const info = document.getElementById('dropZoneFileInfo');
+    if (info) info.style.display = 'flex';
+    const fName = document.getElementById('importFileName');
+    if (fName) fName.textContent = file.name;
+    const fSize = document.getElementById('importFileSize');
+    if (fSize) fSize.textContent = `${(file.size / 1024).toFixed(1)} KB`;
+
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const workbook = XLSX.read(arrayBuffer, { type: 'array', cellDates: true });
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+
+      const rawRows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+      if (!rawRows || rawRows.length === 0) {
+        this.showToast(this.lang === 'ar' ? 'الملف فارغ أو لا يحتوي على بيانات' : 'Le fichier est vide', 'warning');
+        this.resetImportFile();
+        return;
+      }
+
+      // Detect header row index
+      let headerRowIndex = -1;
+      let headerCols = [];
+
+      for (let r = 0; r < Math.min(rawRows.length, 10); r++) {
+        const row = rawRows[r].map(c => String(c || '').trim());
+        const rowStr = row.join(' ');
+        if ((rowStr.includes('اللقب') || rowStr.toLowerCase().includes('nom')) &&
+            (rowStr.includes('الاسم') || rowStr.toLowerCase().includes('prenom') || rowStr.toLowerCase().includes('prénom'))) {
+          headerRowIndex = r;
+          headerCols = row;
+          break;
+        }
+      }
+
+      if (headerRowIndex === -1) {
+        headerRowIndex = 0;
+        headerCols = rawRows[0].map(c => String(c || '').trim());
+      }
+
+      const colMap = {
+        matricule: -1,
+        group: -1,
+        statut: -1,
+        gender: -1,
+        lastName: -1,
+        firstName: -1,
+        birthDate: -1,
+        birthPlace: -1,
+        parentName: -1,
+        address: -1,
+        phone: -1,
+        level: -1
+      };
+
+      headerCols.forEach((col, idx) => {
+        const c = col.trim().toLowerCase();
+        if (colMap.matricule === -1 && (c.includes('تعريف') || c.includes('معرف') || c.includes('تسجيل') || c.includes('matricule') || c.includes('identifiant') || c === 'id' || c === 'n°' || c === 'no' || c === 'رقم')) {
+          if (!c.includes('فوج') && !c.includes('قسم') && !c.includes('groupe')) {
+            colMap.matricule = idx;
+          }
+        }
+        if (colMap.group === -1 && (c.includes('فوج') || c.includes('قسم') || c.includes('groupe') || c.includes('classe'))) {
+          colMap.group = idx;
+        }
+        if (colMap.statut === -1 && (c.includes('صفة') || c.includes('صفة') || c.includes('وضعية') || c.includes('statut') || c.includes('qualité'))) {
+          colMap.statut = idx;
+        }
+        if (colMap.gender === -1 && (c.includes('جنس') || c.includes('sexe') || c.includes('genre'))) {
+          colMap.gender = idx;
+        }
+        if (colMap.lastName === -1 && (c.includes('لقب') || c.includes('nom') || c.includes('nom de famille')) && !c.includes('أب') && !c.includes('pere') && !c.includes('père')) {
+          colMap.lastName = idx;
+        }
+        if (colMap.firstName === -1 && (c.includes('اسم') || c.includes('إسم') || c.includes('prenom') || c.includes('prénom')) && !c.includes('أب') && !c.includes('pere') && !c.includes('père') && !c.includes('لقب')) {
+          colMap.firstName = idx;
+        }
+        if (colMap.birthDate === -1 && (c.includes('ميلاد') || c.includes('naissance')) && !c.includes('مكان') && !c.includes('lieu')) {
+          colMap.birthDate = idx;
+        }
+        if (colMap.birthPlace === -1 && (c.includes('مكان الميلاد') || c.includes('مكان') || c.includes('lieu'))) {
+          colMap.birthPlace = idx;
+        }
+        if (colMap.parentName === -1 && (c.includes('أب') || c.includes('اب') || c.includes('ولي') || c.includes('père') || c.includes('pere') || c.includes('tuteur') || c.includes('parent'))) {
+          colMap.parentName = idx;
+        }
+        if (colMap.address === -1 && (c.includes('عنوان') || c.includes('إقامة') || c.includes('اقامة') || c.includes('adresse') || c.includes('domicile'))) {
+          colMap.address = idx;
+        }
+        if (colMap.phone === -1 && (c.includes('هاتف') || c.includes('téléphone') || c.includes('telephone') || c.includes('tel') || c.includes('mobile'))) {
+          colMap.phone = idx;
+        }
+        if (colMap.level === -1 && (c.includes('مستوى') || c.includes('niveau') || c.includes('سنة') || c.includes('année'))) {
+          colMap.level = idx;
+        }
+      });
+
+      const parsedStudents = [];
+      for (let r = headerRowIndex + 1; r < rawRows.length; r++) {
+        const row = rawRows[r];
+        if (!row || row.length === 0) continue;
+
+        let firstName = colMap.firstName !== -1 ? String(row[colMap.firstName] || '').trim() : '';
+        let lastName = colMap.lastName !== -1 ? String(row[colMap.lastName] || '').trim() : '';
+        let matricule = colMap.matricule !== -1 ? String(row[colMap.matricule] || '').trim() : '';
+        let gender = colMap.gender !== -1 ? String(row[colMap.gender] || '').trim() : 'ذكر';
+        let rawDate = colMap.birthDate !== -1 ? row[colMap.birthDate] : '';
+        let birthPlace = colMap.birthPlace !== -1 ? String(row[colMap.birthPlace] || '').trim() : '';
+        let parentName = colMap.parentName !== -1 ? String(row[colMap.parentName] || '').trim() : '';
+        let address = colMap.address !== -1 ? String(row[colMap.address] || '').trim() : '';
+        let phone = colMap.phone !== -1 ? String(row[colMap.phone] || '').trim() : '';
+        let groupName = colMap.group !== -1 ? String(row[colMap.group] || '').trim() : '';
+        let statut = colMap.statut !== -1 ? String(row[colMap.statut] || '').trim() : '';
+        let levelName = colMap.level !== -1 ? String(row[colMap.level] || '').trim() : '';
+
+        if (!lastName && firstName.includes(' ')) {
+          const parts = firstName.split(' ');
+          lastName = parts[0];
+          firstName = parts.slice(1).join(' ');
+        }
+
+        let birthDate = '';
+        if (rawDate instanceof Date) {
+          const y = rawDate.getFullYear();
+          const m = String(rawDate.getMonth() + 1).padStart(2, '0');
+          const d = String(rawDate.getDate()).padStart(2, '0');
+          birthDate = `${y}-${m}-${d}`;
+        } else if (rawDate) {
+          birthDate = String(rawDate).trim();
+          if (birthDate.includes('/')) {
+            const dp = birthDate.split('/');
+            if (dp.length === 3 && dp[2].length === 4) {
+              birthDate = `${dp[2]}-${dp[1].padStart(2, '0')}-${dp[0].padStart(2, '0')}`;
+            }
+          }
+        }
+
+        if (!firstName && !lastName && !matricule) continue;
+
+        parsedStudents.push({
+          matricule: matricule || null,
+          first_name: firstName,
+          last_name: lastName,
+          gender: gender,
+          birth_date: birthDate || null,
+          birth_place: birthPlace || null,
+          parent_name: parentName || null,
+          parent_phone: phone || null,
+          phone: phone || null,
+          address: address || null,
+          raw_group: groupName || null,
+          group_name: groupName || null,
+          statut: statut || null,
+          level_name: levelName || null,
+          isValid: Boolean(firstName && lastName)
+        });
+      }
+
+      if (parsedStudents.length === 0) {
+        this.showToast(this.lang === 'ar' ? 'لم يتم العثور على أسطر صالحة للتلاميذ' : 'Aucun élève trouvé', 'warning');
+        this.resetImportFile();
+        return;
+      }
+
+      this._importedStudentsData = parsedStudents;
+      this.renderImportPreview(parsedStudents);
+      this.showToast(this.lang === 'ar' ? `تمت قراءة ${parsedStudents.length} تلميذ بنجاح!` : `${parsedStudents.length} élèves détectés avec succès !`, 'success');
+
+    } catch (err) {
+      console.error('Import parse error:', err);
+      this.showToast(this.lang === 'ar' ? 'تعذر قراءة محتوى الملف: ' + err.message : 'Erreur de lecture du fichier: ' + err.message, 'error');
+      this.resetImportFile();
+    }
+  }
+
+  renderImportPreview(students) {
+    const previewSection = document.getElementById('importPreviewSection');
+    const tableBody = document.getElementById('importPreviewTableBody');
+    const badgeTotal = document.getElementById('importBadgeTotal');
+    const badgeReady = document.getElementById('importBadgeReady');
+    const badgeWarn = document.getElementById('importBadgeWarn');
+    const btnExec = document.getElementById('btnExecuteImport');
+
+    if (!previewSection || !tableBody) return;
+
+    previewSection.style.display = 'block';
+
+    const validCount = students.filter(s => s.isValid).length;
+    const isAr = this.lang === 'ar';
+    if (badgeTotal) badgeTotal.textContent = isAr ? `الإجمالي: ${students.length}` : `Total : ${students.length}`;
+    if (badgeReady) badgeReady.textContent = isAr ? `جاهز للاستيراد: ${validCount}` : `Prêts : ${validCount}`;
+    if (badgeWarn) {
+      if (warnCount > 0) {
+        badgeWarn.style.display = 'inline-block';
+        badgeWarn.textContent = isAr ? `${warnCount} أسماء غير مكتملة` : `${warnCount} noms incomplets`;
+      } else {
+        badgeWarn.style.display = 'none';
+      }
+    }
+
+    tableBody.innerHTML = students.slice(0, 100).map((s, idx) => {
+      const isM = String(s.gender).includes('ذكر') || String(s.gender).toUpperCase() === 'M' || String(s.gender).toLowerCase().includes('gar');
+      const genderBadge = isM
+        ? `<span style="color: #38bdf8; font-weight: 700;">${isAr ? 'ذكر' : 'M'}</span>`
+        : `<span style="color: #ec4899; font-weight: 700;">${isAr ? 'أنثى' : 'F'}</span>`;
+      
+      const statusBadge = s.isValid
+        ? `<span style="background: rgba(16, 185, 129, 0.15); color: #10b981; padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: 11px;">${isAr ? 'جاهز' : 'Prêt'}</span>`
+        : `<span style="background: rgba(239, 68, 68, 0.15); color: #ef4444; padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: 11px;">${isAr ? 'اسم ناقص' : 'Incomplet'}</span>`;
+
+      const levelBadgeText = s.level_name || (isAr ? 'تلقائي / محدد أعلاه' : 'Auto / Défini');
+      const autoMatriculeText = isAr ? 'تلقائي' : 'Auto';
+
+      return `
+        <tr style="${!s.isValid ? 'background: rgba(239, 68, 68, 0.05);' : ''}">
+          <td style="text-align: center; color: var(--text-muted); font-weight: 700;">${idx + 1}</td>
+          <td style="font-family: monospace; font-weight: 700; color: #38bdf8;">${this.escapeHtml(s.matricule || autoMatriculeText)}</td>
+          <td style="font-weight: 700; color: var(--text-heading);">${this.escapeHtml(s.last_name || '-')}</td>
+          <td style="font-weight: 700; color: var(--text-heading);">${this.escapeHtml(s.first_name || '-')}</td>
+          <td>${genderBadge}</td>
+          <td><span style="background: rgba(56, 189, 248, 0.1); color: #38bdf8; font-weight: 600; padding: 2px 7px; border-radius: 4px; font-size: 11px;">${this.escapeHtml(levelBadgeText)}</span></td>
+          <td>${this.escapeHtml(s.birth_date || '-')}</td>
+          <td>${this.escapeHtml(s.birth_place || '-')}</td>
+          <td>${this.escapeHtml(s.parent_name || '-')}</td>
+          <td style="max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${this.escapeHtml(s.address || '-')}</td>
+          <td><span style="background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;">${this.escapeHtml(s.raw_group || s.statut || '-')}</span></td>
+          <td style="text-align: center;">${statusBadge}</td>
+        </tr>
+      `;
+    }).join('');
+
+    if (students.length > 100) {
+      tableBody.innerHTML += `
+        <tr>
+          <td colspan="12" style="text-align: center; color: var(--text-muted); padding: 10px; font-style: italic;">
+            ${isAr ? `... وعرض باقي التلاميذ (${students.length - 100} تلميذ إضافي سيتم استيرادهم بالكامل) ...` : `... et affichage des ${students.length - 100} autres élèves importés au total ...`}
+          </td>
+        </tr>
+      `;
+    }
+
+    if (btnExec) {
+      if (validCount > 0) {
+        btnExec.disabled = false;
+        btnExec.style.opacity = '1';
+        btnExec.style.cursor = 'pointer';
+        const textSpan = document.getElementById('btnExecuteImportText');
+        if (textSpan) textSpan.textContent = isAr ? `تأكيد واستيراد (${validCount} تلميذ)` : `Confirmer et importer (${validCount} élèves)`;
+      } else {
+        btnExec.disabled = true;
+        btnExec.style.opacity = '0.5';
+        btnExec.style.cursor = 'not-allowed';
+      }
+    }
+  }
+
+  downloadStudentExcelTemplate() {
+    if (typeof XLSX === 'undefined') {
+      this.showToast(this.lang === 'ar' ? 'تعذر تحميل مكتبة XLSX' : 'XLSX introuvable', 'error');
+      return;
+    }
+
+    const headers = [
+      'رقم التعريف المدرسي',
+      'رقم الفوج',
+      'الصفة',
+      'الجنس',
+      'المستوى الدراسي',
+      'اللقب',
+      'الاسم',
+      'تاريخ الميلاد',
+      'مكان الميلاد',
+      'إسم الأب',
+      'العنوان',
+      'رقم هاتف الولي'
+    ];
+
+    const sampleRows = [
+      headers,
+      ['10458921', '1', 'متمدرس', 'ذكر', '4AM', 'بن علي', 'محمد', '2012-05-14', 'الجزائر العاصمة', 'أحمد', 'حي النصر عمارة 4', '0550123456'],
+      ['10458922', '1', 'متمدرس', 'أنثى', '4AM', 'بوزيد', 'مريم', '2013-11-20', 'البليدة', 'عبد الرحمن', 'شارع فلسطين رقم 12', '0661987654'],
+      ['10458923', '2', 'نصف داخلي', 'ذكر', '1AS', 'منصوري', 'يوسف', '2011-09-08', 'بومرداس', 'إبراهيم', 'وسط المدينة', '0770334455']
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(sampleRows);
+    ws['!cols'] = [
+      { wch: 22 },
+      { wch: 12 },
+      { wch: 14 },
+      { wch: 10 },
+      { wch: 18 }, // المستوى الدراسي
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 16 },
+      { wch: 18 },
+      { wch: 18 },
+      { wch: 25 },
+      { wch: 16 }
+    ];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Eleves');
+
+    XLSX.writeFile(wb, 'modele_import_eleves_edumind.xlsx');
+    this.showToast(this.lang === 'ar' ? 'تم تحميل نموذج Excel الجاهز بنجاح!' : 'Modèle Excel téléchargé avec succès !', 'success');
+  }
+
+  async executeStudentImport() {
+    if (!this._importedStudentsData || this._importedStudentsData.length === 0) {
+      this.showToast(this.lang === 'ar' ? 'يرجى اختيار ملف أولاً' : 'Veuillez sélectionner un fichier', 'warning');
+      return;
+    }
+
+    const validStudents = this._importedStudentsData.filter(s => s.isValid);
+    if (validStudents.length === 0) {
+      this.showToast(this.lang === 'ar' ? 'لا يوجد تلاميذ مؤهلون للاستيراد' : 'Aucun élève valide', 'warning');
+      return;
+    }
+
+    const defaultLevelId = document.getElementById('importDefaultLevel')?.value || null;
+    const defaultGroupId = document.getElementById('importDefaultGroup')?.value || null;
+    const duplicateAction = document.getElementById('importOptDuplicate')?.value || 'skip';
+    const matriculeMode = document.getElementById('importOptMatricule')?.value || 'keep';
+
+    const payloadStudents = validStudents.map(s => ({
+      ...s,
+      matricule: matriculeMode === 'generate' ? null : s.matricule
+    }));
+
+    const btnExec = document.getElementById('btnExecuteImport');
+    const textSpan = document.getElementById('btnExecuteImportText');
+    const originalText = textSpan ? textSpan.textContent : 'تأكيد وحفظ الاستيراد';
+
+    try {
+      if (btnExec) {
+        btnExec.disabled = true;
+        btnExec.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>${this.lang === 'ar' ? 'جاري الاستيراد والحفظ...' : 'Importation en cours...'}</span>`;
+      }
+
+      const response = await fetch('/api/students/import-batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          students: payloadStudents,
+          duplicateAction,
+          defaultLevelId,
+          defaultGroupId
+        })
+      });
+
+      const result = await response.json();
+      if (!result.success) {
+        throw new Error(result.error || 'Erreur lors de l’importation');
+      }
+
+      const msg = this.lang === 'ar'
+        ? `✅ اكتمل الاستيراد: تم تسجيل ${result.imported} تلميذ جديد، تحديث ${result.updated}، وتخطي ${result.skipped}.`
+        : `✅ Importation réussie : ${result.imported} ajoutés, ${result.updated} mis à jour, ${result.skipped} ignorés.`;
+
+      this.showToast(msg, 'success');
+      this.playChime('success');
+      this.closeModals();
+      this.resetImportFile();
+
+      await this.loadStudents();
+      if (typeof this.loadDashboardStats === 'function') {
+        this.loadDashboardStats();
+      }
+
+    } catch (err) {
+      console.error('Execute import error:', err);
+      this.showToast(this.lang === 'ar' ? 'فشل الاستيراد: ' + err.message : 'Échec de l’importation: ' + err.message, 'error');
+    } finally {
+      if (btnExec) {
+        btnExec.disabled = false;
+        btnExec.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> <span id="btnExecuteImportText">${originalText}</span>`;
+      }
+    }
+  }
+
   async openModalStudent() {
     // 1. Ensure levels are loaded and dropdown populated
     if (!this.levels || this.levels.length === 0) {
@@ -3103,6 +4074,9 @@ class EdumindApp {
       submitBtn.disabled = false;
       submitBtn.innerHTML = this.lang === 'ar' ? 'حفظ بيانات التلميذ' : "Enregistrer l'Élève";
     }
+
+    await this.fetchParentsList();
+    this.populateStudentParentSelect();
 
     document.getElementById('modalStudent').classList.add('active');
   }
@@ -3146,6 +4120,9 @@ class EdumindApp {
       submitBtn.innerHTML = this.lang === 'ar' ? 'حفظ التعديلات' : "Mettre à jour l'Élève";
     }
 
+    await this.fetchParentsList();
+    this.populateStudentParentSelect(s.parent_id);
+
     document.getElementById('modalStudent').classList.add('active');
   }
 
@@ -3172,6 +4149,7 @@ class EdumindApp {
       gender: document.getElementById('studentGender')?.value || 'M',
       level_id: document.getElementById('studentLevel')?.value || '',
       phone: document.getElementById('studentPhone')?.value?.trim() || '',
+      parent_id: document.getElementById('studentParentId')?.value || null,
       parent_name: document.getElementById('studentParentName')?.value?.trim() || '',
       parent_phone: document.getElementById('studentParentPhone')?.value?.trim() || '',
       address: document.getElementById('studentAddress')?.value?.trim() || ''
@@ -3186,12 +4164,17 @@ class EdumindApp {
       submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${isAr ? 'جاري الحفظ...' : 'Enregistrement...'}`;
     }
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
+
     try {
       const res = await fetch(url, {
         method: method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
 
       const data = await res.json();
       if (data.success) {
@@ -3209,8 +4192,13 @@ class EdumindApp {
         this.showToast(data.error || (isAr ? 'حدث خطأ أثناء الحفظ' : 'Erreur lors de l’enregistrement'), 'error');
       }
     } catch (e) {
+      clearTimeout(timeoutId);
       console.error(e);
-      this.showToast(isAr ? 'خطأ في الاتصال بالخادم' : 'Erreur réseau ou serveur', 'error');
+      if (e.name === 'AbortError') {
+        this.showToast(isAr ? 'انتهت مهلة الاتصال بالخادم، يرجى إعادة المحاولة' : 'Délai d’attente dépassé, veuillez réessayer', 'warning');
+      } else {
+        this.showToast(isAr ? 'خطأ في الاتصال بالخادم' : 'Erreur réseau ou serveur', 'error');
+      }
     } finally {
       this._savingStudent = false;
       if (submitBtn) {
@@ -3220,9 +4208,567 @@ class EdumindApp {
     }
   }
 
-  setStudentCardTheme(theme = 'blue') {
+  // -------------------------------------------------------------
+  // STUDENT MODAL PARENT HELPERS
+  // -------------------------------------------------------------
+  onStudentParentSelectChange() {
+    const parentId = document.getElementById('studentParentId')?.value;
+    const badgeBox = document.getElementById('parentDiscountPreviewBox');
+    const badgeVal = document.getElementById('parentDiscountBadgeVal');
+    const nameInput = document.getElementById('studentParentName');
+    const phoneInput = document.getElementById('studentParentPhone');
+
+    if (!parentId) {
+      if (badgeBox) badgeBox.style.display = 'none';
+      return;
+    }
+
+    const p = (this.parents || []).find(item => String(item.id) === String(parentId));
+    if (p) {
+      if (nameInput) nameInput.value = p.full_name || '';
+      if (phoneInput && p.phone) phoneInput.value = p.phone;
+      if (badgeBox && badgeVal) {
+        badgeVal.textContent = p.discount_percent || 0;
+        badgeBox.style.display = 'block';
+      }
+    }
+  }
+
+  async fetchParentsList() {
+    try {
+      if (this.parents && this.parents.length > 0) return this.parents;
+      const res = await fetch('/api/parents');
+      const data = await res.json();
+      if (data.success) {
+        this.parents = data.parents || [];
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    return this.parents || [];
+  }
+
+  populateStudentParentSelect(selectedParentId = null) {
+    const select = document.getElementById('studentParentId');
+    if (!select) return;
+
+    const isAr = this.lang === 'ar';
+    const list = this.parents || [];
+    let html = `<option value="">${isAr ? '-- اختار ولي مسجل مسبقاً (أو أدخل بياناته أدناه) --' : '-- Choisir un parent existant (ou saisir ci-dessous) --'}</option>`;
+
+    list.forEach(p => {
+      const discText = p.discount_percent > 0 ? ` (${p.discount_percent}%)` : '';
+      const phoneText = p.phone ? ` - ${p.phone}` : '';
+      const isSel = selectedParentId && String(p.id) === String(selectedParentId);
+      html += `<option value="${p.id}" ${isSel ? 'selected' : ''}>${this.escapeHtml(p.full_name)}${phoneText}${discText}</option>`;
+    });
+
+    select.innerHTML = html;
+
+    const badgeBox = document.getElementById('parentDiscountPreviewBox');
+    const badgeVal = document.getElementById('parentDiscountBadgeVal');
+    if (selectedParentId) {
+      const p = list.find(item => String(item.id) === String(selectedParentId));
+      if (p && badgeBox && badgeVal) {
+        badgeVal.textContent = p.discount_percent || 0;
+        badgeBox.style.display = 'block';
+      }
+    } else if (badgeBox) {
+      badgeBox.style.display = 'none';
+    }
+  }
+
+  // ==========================================================================
+  // PARENTS D'ÉLÈVES & FAMILLES MANAGEMENT MODULE
+  // ==========================================================================
+  async loadParents() {
+    try {
+      const res = await fetch('/api/parents');
+      const data = await res.json();
+      if (!data.success) return;
+
+      this.parents = data.parents || [];
+
+      // Update KPI Cards
+      const totalParents = this.parents.length;
+      const discountParents = this.parents.filter(p => (Number(p.discount_percent) || 0) > 0).length;
+      const enrolledChildren = this.parents.reduce((sum, p) => sum + (Number(p.children_count) || 0), 0);
+      const totalFamilyDebts = this.parents.reduce((sum, p) => sum + (Number(p.total_debt) || 0), 0);
+
+      const kpiTotal = document.getElementById('kpiTotalParents');
+      if (kpiTotal) kpiTotal.textContent = totalParents;
+
+      const kpiDiscount = document.getElementById('kpiDiscountParents');
+      if (kpiDiscount) kpiDiscount.textContent = discountParents;
+
+      const kpiChildren = document.getElementById('kpiEnrolledChildren');
+      if (kpiChildren) kpiChildren.textContent = enrolledChildren;
+
+      const kpiDebts = document.getElementById('kpiTotalFamilyDebts');
+      if (kpiDebts) kpiDebts.textContent = `${totalFamilyDebts.toLocaleString()} DA`;
+
+      const searchInput = document.getElementById('searchParentInput');
+      if (searchInput && searchInput.value.trim()) {
+        this.filterParents(searchInput.value);
+      } else {
+        this.renderParentsTable(this.parents);
+      }
+    } catch (err) {
+      console.error('Erreur loadParents:', err);
+    }
+  }
+
+  filterParents(query = '') {
+    const list = this.parents || [];
+    const term = (query || '').trim().toLowerCase();
+    const discountFilter = document.getElementById('filterParentDiscount')?.value || 'all';
+    const debtsFilter = document.getElementById('filterParentDebts')?.value || 'all';
+
+    const norm = (str) => (str || '').toLowerCase()
+      .replace(/[أإآ]/g, 'ا')
+      .replace(/ة/g, 'ه')
+      .replace(/ى/g, 'ي')
+      .trim();
+
+    const normTerm = norm(term);
+
+    const filtered = list.filter(p => {
+      // 1. Text Search
+      if (normTerm) {
+        const pName = norm(p.full_name);
+        const pPhone = (p.phone || '').toLowerCase();
+        const pSec = (p.phone_secondary || '').toLowerCase();
+        const pAddr = norm(p.address);
+        const childrenMatch = (p.children || []).some(c => {
+          const cName = norm(c.name);
+          const cMat = (c.matricule || '').toLowerCase();
+          return cName.includes(normTerm) || cMat.includes(normTerm);
+        });
+
+        const matchesText = pName.includes(normTerm) ||
+                            pPhone.includes(normTerm) ||
+                            pSec.includes(normTerm) ||
+                            pAddr.includes(normTerm) ||
+                            childrenMatch;
+
+        if (!matchesText) return false;
+      }
+
+      // 2. Discount Filter
+      const discount = Number(p.discount_percent) || 0;
+      if (discountFilter === 'with_discount' && discount <= 0) return false;
+      if (discountFilter === 'no_discount' && discount > 0) return false;
+
+      // 3. Debts Filter
+      const debt = Number(p.total_debt) || 0;
+      if (debtsFilter === 'has_debt' && debt <= 0) return false;
+      if (debtsFilter === 'up_to_date' && debt > 0) return false;
+
+      return true;
+    });
+
+    this.renderParentsTable(filtered);
+  }
+
+  renderParentsTable(list) {
+    const tbody = document.getElementById('parentsTableBody');
+    if (!tbody) return;
+
+    const isAr = this.lang === 'ar';
+    if (!list || list.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">
+            <i class="fa-solid fa-users-slash" style="font-size: 32px; display: block; margin-bottom: 10px; opacity: 0.5;"></i>
+            ${isAr ? 'لم يتم العثور على أي ولي يطابق معايير البحث' : 'Aucun parent correspondant trouvé'}
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = list.map(p => {
+      const discount = Number(p.discount_percent) || 0;
+      const debt = Number(p.total_debt) || 0;
+      const initials = (p.full_name || 'P').trim().split(/\s+/).slice(0, 2).map(n => n[0]).join('').toUpperCase() || 'P';
+
+      const cleanPhone = (p.phone || '').replace(/[^0-9]/g, '');
+      const waNumber = cleanPhone.startsWith('0') ? '213' + cleanPhone.slice(1) : cleanPhone;
+
+      // Badges of children
+      let childrenHtml = '';
+      if (p.children && p.children.length > 0) {
+        childrenHtml = `
+          <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
+            <span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: 700;">
+              ${p.children.length} ${isAr ? (p.children.length === 1 ? 'ابن' : 'أبناء') : (p.children.length === 1 ? 'enfant' : 'enfants')}
+            </span>
+            ${p.children.map(c => `
+              <span class="badge-pill" style="background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); color: var(--text-heading); font-size: 12px; cursor: pointer;"
+                    onclick="app.openStudentProfile(${c.id})" title="${isAr ? 'عرض ملف التلميذ' : 'Voir la fiche'}">
+                <i class="fa-solid fa-user-graduate" style="color: #60a5fa; margin-right: 4px; margin-left: 4px; font-size: 10px;"></i>
+                ${this.escapeHtml(c.name)}
+              </span>
+            `).join('')}
+          </div>
+        `;
+      } else {
+        childrenHtml = `<span style="color: var(--text-muted); font-size: 12px;">0 ${isAr ? 'أبناء مسجلين' : 'enfants'}</span>`;
+      }
+
+      // Discount Badge
+      const discountBadge = discount > 0
+        ? `<span class="badge" style="background: rgba(16, 185, 129, 0.18); color: #10b981; font-weight: 800; font-size: 13px; padding: 5px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">
+             <i class="fa-solid fa-percent" style="font-size: 11px;"></i> ${discount}%
+           </span>`
+        : `<span style="color: var(--text-muted); font-size: 12px; font-weight: 600;">0%</span>`;
+
+      // Debt Badge
+      const debtBadge = debt > 0
+        ? `<strong style="color: #ef4444; font-size: 13.5px; font-family: monospace;">${debt.toLocaleString()} DA</strong>`
+        : `<span class="badge" style="background: rgba(16, 185, 129, 0.12); color: #10b981; font-weight: 700; padding: 4px 8px; border-radius: 6px; font-size: 12px;">
+             <i class="fa-solid fa-check"></i> ${isAr ? 'خالص' : 'À jour'}
+           </span>`;
+
+      return `
+        <tr>
+          <td>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #7c3aed, #a78bfa); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0;">
+                ${initials}
+              </div>
+              <div>
+                <strong style="color: var(--text-heading); font-size: 13.5px; cursor: pointer;" onclick="app.openParentDossier(${p.id})" title="${isAr ? 'عرض ملف العائلة' : 'Voir le dossier'}">
+                  ${this.escapeHtml(p.full_name)}
+                </strong>
+                ${p.address ? `<div style="font-size: 11px; color: var(--text-muted); margin-top: 1px;"><i class="fa-solid fa-location-dot" style="font-size: 10px;"></i> ${this.escapeHtml(p.address)}</div>` : ''}
+              </div>
+            </div>
+          </td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <a href="tel:${p.phone}" style="color: var(--text-main); font-size: 13px; font-family: monospace; font-weight: 600; text-decoration: none;" title="Appeler">
+                ${this.escapeHtml(p.phone || '—')}
+              </a>
+              ${waNumber ? `
+                <a href="https://wa.me/${waNumber}" target="_blank" rel="noopener" class="btn-icon" style="color: #25d366; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center;" title="WhatsApp">
+                  <i class="fa-brands fa-whatsapp"></i>
+                </a>
+              ` : ''}
+            </div>
+            ${p.phone_secondary ? `<div style="font-size: 11px; color: var(--text-muted); font-family: monospace;">${this.escapeHtml(p.phone_secondary)}</div>` : ''}
+          </td>
+          <td>${childrenHtml}</td>
+          <td style="text-align: center;">${discountBadge}</td>
+          <td style="text-align: right;">${debtBadge}</td>
+          <td style="text-align: center;">
+            <div style="display: inline-flex; gap: 6px; align-items: center;">
+              <button class="btn-action-badge" title="${isAr ? 'ملف العائلة والأبناء' : 'Dossier familial'}" onclick="app.openParentDossier(${p.id})"
+                style="color: #8b5cf6; background: rgba(139, 92, 246, 0.12);">
+                <i class="fa-solid fa-folder-open"></i>
+              </button>
+              <button class="btn-action-edit" title="${isAr ? 'تعديل بيانات الولي' : 'Modifier'}" onclick="app.openModalParent(${p.id})">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+              <button class="btn-action-delete" title="${isAr ? 'حذف' : 'Supprimer'}" onclick="app.deleteParent(${p.id})"
+                style="color: #ef4444; background: rgba(239, 68, 68, 0.1);">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  async openModalParent(parentId = null) {
+    const isAr = this.lang === 'ar';
+    const form = document.getElementById('parentForm');
+    if (form) form.reset();
+
+    const titleEl = document.getElementById('modalParentTitle');
+    const idInput = document.getElementById('parentId');
+    const discountInput = document.getElementById('parentDiscountPercent');
+
+    if (!parentId) {
+      if (titleEl) titleEl.textContent = isAr ? 'إضافة ولي أمر جديد' : "Nouveau Parent d'élève";
+      if (idInput) idInput.value = '';
+      if (discountInput) discountInput.value = '0';
+      document.getElementById('modalParent').classList.add('active');
+      return;
+    }
+
+    if (titleEl) titleEl.textContent = isAr ? 'تعديل بيانات الولي' : "Modifier le Parent";
+    if (idInput) idInput.value = parentId;
+
+    try {
+      const res = await fetch(`/api/parents/${parentId}`);
+      const data = await res.json();
+      if (!data.success || !data.parent) {
+        this.showToast(isAr ? 'تعذر جلب بيانات الولي' : 'Impossible de charger le parent', 'error');
+        return;
+      }
+
+      const p = data.parent;
+      document.getElementById('parentFullName').value = p.full_name || '';
+      document.getElementById('parentPhone').value = p.phone || '';
+      document.getElementById('parentPhoneSecondary').value = p.phone_secondary || '';
+      document.getElementById('parentEmail').value = p.email || '';
+      document.getElementById('parentAddress').value = p.address || '';
+      document.getElementById('parentDiscountPercent').value = p.discount_percent || 0;
+      document.getElementById('parentNotes').value = p.notes || '';
+
+      document.getElementById('modalParent').classList.add('active');
+    } catch (err) {
+      console.error(err);
+      this.showToast(isAr ? 'خطأ في الاتصال' : 'Erreur de connexion', 'error');
+    }
+  }
+
+  async saveParent() {
+    const isAr = this.lang === 'ar';
+    const id = document.getElementById('parentId')?.value || '';
+    const fullName = document.getElementById('parentFullName')?.value?.trim();
+    const phone = document.getElementById('parentPhone')?.value?.trim();
+
+    if (!fullName || !phone) {
+      this.showToast(isAr ? 'يرجى إدخال اسم الولي ورقم هاتفه' : 'Veuillez renseigner le nom et le téléphone', 'warning');
+      return;
+    }
+
+    const payload = {
+      full_name: fullName,
+      phone: phone,
+      phone_secondary: document.getElementById('parentPhoneSecondary')?.value?.trim() || '',
+      email: document.getElementById('parentEmail')?.value?.trim() || '',
+      address: document.getElementById('parentAddress')?.value?.trim() || '',
+      discount_percent: Math.min(100, Math.max(0, parseFloat(document.getElementById('parentDiscountPercent')?.value) || 0)),
+      notes: document.getElementById('parentNotes')?.value?.trim() || ''
+    };
+
+    const url = id ? `/api/parents/${id}` : '/api/parents';
+    const method = id ? 'PUT' : 'POST';
+
+    try {
+      const res = await fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        this.closeModals();
+        this.showToast(isAr ? 'تم حفظ بيانات الولي بنجاح!' : 'Parent enregistré avec succès !', 'success');
+        this.playChime('success');
+        await this.loadParents();
+        // Refresh parents in memory for student dropdown
+        this.parents = null;
+        await this.fetchParentsList();
+      } else {
+        this.showToast(data.error || (isAr ? 'حدث خطأ أثناء الحفظ' : 'Erreur lors de l’enregistrement'), 'error');
+      }
+    } catch (err) {
+      console.error(err);
+      this.showToast(isAr ? 'خطأ في الخادم' : 'Erreur serveur', 'error');
+    }
+  }
+
+  async deleteParent(parentId) {
+    const isAr = this.lang === 'ar';
+    const confirmMsg = isAr
+      ? 'هل أنت متأكد من حذف هذا الولي؟ (لن يتم حذف التلاميذ ولكن سيتم فك ارتباطهم)'
+      : 'Confirmer la suppression de ce parent ? (Les élèves ne seront pas supprimés)';
+
+    if (!confirm(confirmMsg)) return;
+
+    try {
+      const res = await fetch(`/api/parents/${parentId}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        this.showToast(isAr ? 'تم حذف الولي بنجاح' : 'Parent supprimé avec succès', 'success');
+        this.playChime('success');
+        await this.loadParents();
+        this.parents = null;
+        await this.fetchParentsList();
+      } else {
+        this.showToast(data.error || (isAr ? 'تعذر حذف الولي' : 'Impossible de supprimer'), 'error');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async openParentDossier(parentId) {
+    const isAr = this.lang === 'ar';
+    try {
+      const res = await fetch(`/api/parents/${parentId}`);
+      const data = await res.json();
+      if (!data.success || !data.parent) {
+        this.showToast(isAr ? 'تعذر جلب ملف العائلة' : 'Impossible de charger le dossier', 'error');
+        return;
+      }
+
+      const p = data.parent;
+      const children = data.children || [];
+      const unpaid = data.unpaid || [];
+
+      document.getElementById('dossierParentName').textContent = p.full_name || (isAr ? 'ملف العائلة' : 'Dossier familial');
+      document.getElementById('dossierParentPhone').innerHTML = `<i class="fa-solid fa-phone"></i> ${this.escapeHtml(p.phone || '—')}`;
+      document.getElementById('dossierParentDiscount').innerHTML = `<i class="fa-solid fa-percent"></i> ${isAr ? 'تخفيض عائلي:' : 'Remise:'} <b>${p.discount_percent || 0}%</b>`;
+
+      const addrEl = document.getElementById('dossierParentAddress');
+      if (addrEl) {
+        if (p.address) {
+          addrEl.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${this.escapeHtml(p.address)}`;
+          addrEl.style.display = 'inline';
+        } else {
+          addrEl.style.display = 'none';
+        }
+      }
+
+      document.getElementById('dossierChildrenCount').textContent = children.length;
+      document.getElementById('dossierDiscountVal').textContent = `${p.discount_percent || 0}%`;
+      document.getElementById('dossierTotalDebt').textContent = `${(p.total_debt || 0).toLocaleString()} DA`;
+
+      // 1. Render Children Cards
+      const childrenContainer = document.getElementById('dossierChildrenContainer');
+      if (children.length === 0) {
+        childrenContainer.innerHTML = `
+          <div style="padding: 16px; text-align: center; color: var(--text-muted); background: var(--bg-card); border: 1px dashed var(--border-color); border-radius: 8px;">
+            ${isAr ? 'لا يوجد أي تلميذ مرتبط بهذا الولي حالياً.' : 'Aucun élève associé à ce parent pour le moment.'}
+          </div>
+        `;
+      } else {
+        childrenContainer.innerHTML = children.map(c => {
+          const avatarSvg = this.getStudentAvatarSvg(c.gender);
+          const groupsList = (c.groups || []).map(g => `
+            <span class="badge-pill" style="background: rgba(59, 130, 246, 0.12); color: #60a5fa; font-size: 11px;">
+              ${this.escapeHtml(g.name)} (${this.escapeHtml(g.subject_name || '')})
+            </span>
+          `).join('');
+
+          return `
+            <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                ${avatarSvg}
+                <div>
+                  <div style="font-weight: 700; color: var(--text-heading); font-size: 14px;">
+                    ${this.escapeHtml(c.first_name)} ${this.escapeHtml(c.last_name)}
+                  </div>
+                  <div style="font-size: 11.5px; color: var(--text-muted); display: flex; align-items: center; gap: 8px; margin-top: 2px;">
+                    <code style="color: #60a5fa;">${this.escapeHtml(c.matricule || '')}</code>
+                    <span>&bull;</span>
+                    <span>${this.escapeHtml(c.level_name || '—')}</span>
+                  </div>
+                  <div style="margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px;">
+                    ${groupsList || `<span style="font-size: 11px; color: var(--text-muted);">${isAr ? 'غير مسجل في أي فوج' : 'Non inscrit'}</span>`}
+                  </div>
+                </div>
+              </div>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <button class="btn-secondary" style="font-size: 12px; padding: 6px 12px;" onclick="app.closeModals(); app.openStudentProfile(${c.id});">
+                  <i class="fa-solid fa-address-card"></i> ${isAr ? 'الملف' : 'Fiche'}
+                </button>
+                <button class="btn-primary" style="font-size: 12px; padding: 6px 12px; background: linear-gradient(135deg, #10b981, #059669);"
+                  onclick="app.closeModals(); app.selectFastPayStudent(${c.id}); app.switchView('paiements');">
+                  <i class="fa-solid fa-cash-register"></i> ${isAr ? 'تسديد' : 'Payer'}
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // 2. Render Unpaid Debts Breakdown Table
+      const unpaidBody = document.getElementById('dossierUnpaidTableBody');
+      if (unpaid.length === 0) {
+        unpaidBody.innerHTML = `
+          <tr>
+            <td colspan="5" style="text-align: center; color: #10b981; padding: 20px; font-weight: 600;">
+              <i class="fa-solid fa-circle-check" style="font-size: 18px; margin-bottom: 4px; display: block;"></i>
+              ${isAr ? 'ممتاز! لا توجد أي مستحقات أو ديون على هذه العائلة.' : 'Excellente situation ! Aucun impayé pour cette famille.'}
+            </td>
+          </tr>
+        `;
+      } else {
+        unpaidBody.innerHTML = unpaid.map(u => `
+          <tr>
+            <td><strong>${this.escapeHtml(u.student_name)}</strong></td>
+            <td>
+              <div>${this.escapeHtml(u.group_name)}</div>
+              <div style="font-size: 11px; color: var(--text-muted);">${this.escapeHtml(u.subject_name || '')}</div>
+            </td>
+            <td><code style="color: #60a5fa;">${this.escapeHtml(u.paid_month || 'Mois en cours')}</code></td>
+            <td style="text-align: right;"><strong style="color: #ef4444; font-size: 13.5px;">${Number(u.amount_due).toLocaleString()} DA</strong></td>
+            <td style="text-align: center;">
+              <button class="btn-primary" style="font-size: 11px; padding: 4px 10px; background: #10b981;"
+                onclick="app.closeModals(); app.selectFastPayStudent(${u.student_id}); app.switchView('paiements');">
+                ${isAr ? 'تسديد الآن' : 'Régulariser'}
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      const editBtn = document.getElementById('btnDossierEditParent');
+      if (editBtn) {
+        editBtn.onclick = () => {
+          this.closeModals();
+          this.openModalParent(p.id);
+        };
+      }
+
+      document.getElementById('modalParentDossier').classList.add('active');
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  exportParentsToExcel() {
+    if (!this.parents || this.parents.length === 0) {
+      alert(this.lang === 'ar' ? 'لا توجد بيانات أولياء للتصدير' : 'Aucune donnée de parents à exporter');
+      return;
+    }
+
+    const isAr = this.lang === 'ar';
+    const headers = isAr ? [
+      'اسم الولي الكامل', 'رقم الهاتف', 'هاتف ثانوي', 'البريد الإلكتروني', 'العنوان', 'نسبة التخفيض (%)', 'عدد الأبناء', 'أسماء الأبناء', 'إجمالي الديون (دج)', 'ملاحظات'
+    ] : [
+      'Nom complet', 'Téléphone', 'Tél secondaire', 'Email', 'Adresse', 'Réduction (%)', 'Nb Enfants', 'Noms Enfants', 'Total Dettes (DA)', 'Notes'
+    ];
+
+    const rows = this.parents.map(p => {
+      const childrenNames = (p.children || []).map(c => c.name).join(', ');
+      return [
+        `"${(p.full_name || '').replace(/"/g, '""')}"`,
+        `"${p.phone || ''}"`,
+        `"${p.phone_secondary || ''}"`,
+        `"${p.email || ''}"`,
+        `"${(p.address || '').replace(/"/g, '""')}"`,
+        p.discount_percent || 0,
+        p.children_count || 0,
+        `"${childrenNames.replace(/"/g, '""')}"`,
+        p.total_debt || 0,
+        `"${(p.notes || '').replace(/"/g, '""')}"`
+      ];
+    });
+
+    const csvContent = '\uFEFF' + [headers.join(';'), ...rows.map(r => r.join(';'))].join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `parents_edumind_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    this.playChime('success');
+  }
+
+  setStudentCardTheme(theme = 'emerald') {
     this.currentCardTheme = theme;
-    ['Blue', 'Emerald', 'Gold', 'White'].forEach(t => {
+    ['Emerald', 'Purple', 'Gold', 'White'].forEach(t => {
       const btn = document.getElementById(`btnTheme${t}`);
       if (btn) btn.classList.toggle('active', t.toLowerCase() === theme.toLowerCase());
     });
@@ -3323,7 +4869,7 @@ class EdumindApp {
       console.warn('JsBarcode error:', e);
     }
 
-    this.setStudentCardTheme(this.currentCardTheme || 'blue');
+    this.setStudentCardTheme(this.currentCardTheme || 'emerald');
     document.getElementById('modalStudentCard').classList.add('active');
   }
 
@@ -3333,7 +4879,7 @@ class EdumindApp {
 
     const schoolName = this.settings?.school_name || 'EDUMIND ACADEMY';
     const schoolYear = this.settings?.school_year || '2025/2026';
-    const theme = this.currentCardTheme || 'blue';
+    const theme = this.currentCardTheme || 'emerald';
     const matricule = s.matricule || `ETU-${String(s.id).padStart(4, '0')}`;
     const fullName = `${s.first_name || ''} ${s.last_name || ''}`.trim();
     const levelName = s.level_name || 'Niveau non défini';
@@ -3356,13 +4902,13 @@ class EdumindApp {
           <div class="brand">
             <div class="logo">🎓</div>
             <div>
-              <div class="school-name">${schoolName}</div>
-              <div class="school-tag">COURS DE SOUTIEN & FORMATION</div>
+              <div class="school-name">${this.escapeHtml(schoolName)}</div>
+              <div class="school-tag">${isAr ? 'مؤسسة تعليمية وتدريبية' : "ÉTABLISSEMENT D'ENSEIGNEMENT"}</div>
             </div>
           </div>
           <div class="badge-col">
-            <span class="badge-tag">OFFICIEL • نظامي</span>
-            <span class="year-tag">${schoolYear}</span>
+            <span class="badge-tag">${isAr ? 'بطاقة مدرسية • رسمي' : 'CARTE ÉLÈVE • OFFICIEL'}</span>
+            <span class="year-tag">${this.escapeHtml(schoolYear)}</span>
           </div>
         </div>
 
@@ -3371,10 +4917,10 @@ class EdumindApp {
             ${s.photo_url ? `<img src="${s.photo_url}" alt="Photo">` : `<div style="font-size: 38px; text-align: center; line-height: 80px;">${(s.gender || '').toUpperCase() === 'F' ? '👧' : '👦'}</div>`}
           </div>
           <div class="details-box">
-            <div class="student-name">${fullName}</div>
-            <div class="matricule-pill">N° ${matricule}</div>
-            <div class="info-line"><strong>Niveau:</strong> ${levelName}</div>
-            <div class="info-line"><strong>Tél:</strong> ${phone}</div>
+            <div class="student-name">${this.escapeHtml(fullName)}</div>
+            <div class="matricule-pill">N° ${this.escapeHtml(matricule)}</div>
+            <div class="info-line"><strong>${isAr ? 'المستوى :' : 'Niveau :'}</strong> ${this.escapeHtml(levelName)}</div>
+            <div class="info-line"><strong>${isAr ? 'الهاتف :' : 'Tél :'}</strong> ${this.escapeHtml(phone)}</div>
           </div>
         </div>
 
@@ -3392,7 +4938,7 @@ class EdumindApp {
         <div class="crop-mark bottom-right"></div>
         ${cardHtml}
       </div>
-      <div class="print-hint-sub">Traits de coupe pour découpe aux ciseaux • Format Standard CR-80 (85.6mm × 54mm)</div>
+      <div class="print-hint-sub">${isAr ? 'علامات قص للتقطيع بالمقص • الحجم القياسي CR-80 (85.6 مم × 54 مم)' : 'Traits de coupe pour découpe aux ciseaux • Format Standard CR-80 (85.6mm × 54mm)'}</div>
     `;
 
     const html = `
@@ -3400,7 +4946,7 @@ class EdumindApp {
       <html lang="${this.lang}" dir="ltr">
       <head>
         <meta charset="UTF-8">
-        <title>Carte Scolaire — ${fullName}</title>
+        <title>Carte Scolaire — ${this.escapeHtml(fullName)}</title>
         <style>
           @page {
             size: A4 portrait;
@@ -3460,17 +5006,17 @@ class EdumindApp {
             flex-direction: column;
             justify-content: space-between;
             overflow: hidden;
-            border: 1.5px solid #2563eb;
+            border: 1.5px solid #10b981;
             background: #ffffff;
             color: #0f172a;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
           }
-          .print-cr80-card.blue {
-            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #172554 100%);
+          .print-cr80-card.purple {
+            background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 60%, #2e1065 100%);
             color: #ffffff;
-            border-color: #3b82f6;
+            border-color: #8b5cf6;
           }
           .print-cr80-card.emerald {
             background: linear-gradient(135deg, #064e3b 0%, #065f46 60%, #022c22 100%);
@@ -3570,7 +5116,7 @@ class EdumindApp {
 
     const schoolName = this.settings?.school_name || 'EDUMIND ACADEMY';
     const schoolYear = this.settings?.school_year || '2025/2026';
-    const theme = this.currentCardTheme || 'blue';
+    const theme = this.currentCardTheme || 'emerald';
     const matricule = s.matricule || `ETU-${String(s.id).padStart(4, '0')}`;
     const fullName = `${s.first_name || ''} ${s.last_name || ''}`.trim() || 'Eleve';
     const levelName = s.level_name || 'Niveau non défini';
@@ -3620,17 +5166,17 @@ class EdumindApp {
             justify-content: space-between;
             overflow: hidden;
             box-sizing: border-box;
-            border: 1.5px solid #2563eb;
+            border: 1.5px solid #10b981;
             background: #ffffff;
             color: #0f172a;
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
           }
-          .pdf-cr80-card.blue {
-            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #172554 100%);
+          .pdf-cr80-card.purple {
+            background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 60%, #2e1065 100%);
             color: #ffffff;
-            border-color: #3b82f6;
+            border-color: #8b5cf6;
           }
           .pdf-cr80-card.emerald {
             background: linear-gradient(135deg, #064e3b 0%, #065f46 60%, #022c22 100%);
@@ -3708,13 +5254,13 @@ class EdumindApp {
             <div class="brand">
               <div class="logo">🎓</div>
               <div>
-                <div class="school-name">${schoolName}</div>
-                <div class="school-tag">COURS DE SOUTIEN & FORMATION</div>
+                <div class="school-name">${this.escapeHtml(schoolName)}</div>
+                <div class="school-tag">${this.lang === 'ar' ? 'مؤسسة تعليمية وتدريبية' : "ÉTABLISSEMENT D'ENSEIGNEMENT"}</div>
               </div>
             </div>
             <div class="badge-col">
-              <span class="badge-tag">OFFICIEL • نظامي</span>
-              <span class="year-tag">${schoolYear}</span>
+              <span class="badge-tag">${this.lang === 'ar' ? 'بطاقة مدرسية • رسمي' : 'CARTE ÉLÈVE • OFFICIEL'}</span>
+              <span class="year-tag">${this.escapeHtml(schoolYear)}</span>
             </div>
           </div>
 
@@ -3723,10 +5269,10 @@ class EdumindApp {
               ${s.photo_url ? `<img src="${s.photo_url}" alt="Photo">` : `<div style="font-size: 32px; text-align: center; line-height: 19mm;">${(s.gender || '').toUpperCase() === 'F' ? '👧' : '👦'}</div>`}
             </div>
             <div class="details-box">
-              <div class="student-name">${fullName}</div>
-              <div class="matricule-pill">N° ${matricule}</div>
-              <div class="info-line"><strong>Niveau:</strong> ${levelName}</div>
-              <div class="info-line"><strong>Tél:</strong> ${phone}</div>
+              <div class="student-name">${this.escapeHtml(fullName)}</div>
+              <div class="matricule-pill">N° ${this.escapeHtml(matricule)}</div>
+              <div class="info-line"><strong>${this.lang === 'ar' ? 'المستوى :' : 'Niveau :'}</strong> ${this.escapeHtml(levelName)}</div>
+              <div class="info-line"><strong>${this.lang === 'ar' ? 'الهاتف :' : 'Tél :'}</strong> ${this.escapeHtml(phone)}</div>
             </div>
           </div>
 
@@ -3816,21 +5362,24 @@ class EdumindApp {
     this.attendanceMode = mode;
     const btnSheet = document.getElementById('tabBtnSheet');
     const btnScan = document.getElementById('tabBtnScan');
+    const btnEntrance = document.getElementById('tabBtnEntrance');
     const viewSheet = document.getElementById('attendanceSheetView');
     const viewScan = document.getElementById('attendanceScanView');
+    const viewEntrance = document.getElementById('attendanceEntranceView');
+
+    [btnSheet, btnScan, btnEntrance].forEach(b => b?.classList.remove('active'));
+    if (viewSheet) viewSheet.style.display = 'none';
+    if (viewScan) viewScan.style.display = 'none';
+    if (viewEntrance) viewEntrance.style.display = 'none';
 
     if (mode === 'sheet') {
       btnSheet?.classList.add('active');
-      btnScan?.classList.remove('active');
       if (viewSheet) viewSheet.style.display = 'block';
-      if (viewScan) viewScan.style.display = 'none';
       if (this.currentAttendanceGroup) {
         await this.fetchAttendanceSheet(this.currentAttendanceGroup, this.currentAttendanceDate);
       }
-    } else {
+    } else if (mode === 'scan') {
       btnScan?.classList.add('active');
-      btnSheet?.classList.remove('active');
-      if (viewSheet) viewSheet.style.display = 'none';
       if (viewScan) viewScan.style.display = 'block';
 
       const scanSelect = document.getElementById('scanSelectGroup');
@@ -3839,17 +5388,30 @@ class EdumindApp {
       }
       await this.loadScanLiveList();
       setTimeout(() => document.getElementById('pointageInput')?.focus(), 80);
+    } else if (mode === 'entrance') {
+      btnEntrance?.classList.add('active');
+      if (viewEntrance) viewEntrance.style.display = 'block';
+      await this.loadEntranceView();
     }
   }
 
   async loadAttendanceView() {
     const dateInput = document.getElementById('attSessionDate');
     const scanDateInput = document.getElementById('scanSessionDate');
+    const entranceDateInput = document.getElementById('entranceSessionDate');
     if (dateInput && !dateInput.value) {
       dateInput.value = this.currentAttendanceDate;
     }
     if (scanDateInput && !scanDateInput.value) {
       scanDateInput.value = this.currentAttendanceDate;
+    }
+    if (entranceDateInput && !entranceDateInput.value) {
+      entranceDateInput.value = this.entranceDate || this.currentAttendanceDate;
+    }
+
+    if (this.attendanceMode === 'entrance') {
+      await this.loadEntranceView();
+      return;
     }
 
     try {
@@ -4582,16 +6144,180 @@ class EdumindApp {
     setTimeout(() => { printDiv.style.display = 'none'; }, 1000);
   }
 
-  // -------------------------------------------------------------
-  // RAPID POINTAGE SCANNER (ATTENDANCE & CHIME)
-  // -------------------------------------------------------------
+  // ===========================================================================
+  // BARCODE SCANNER (DOUCHETTE USB) HARDWARE WEDGE & NORMALIZER
+  // ===========================================================================
+  normalizeBarcodeCode(raw) {
+    if (!raw) return '';
+    let code = String(raw).trim().replace(/[\x00-\x1F\x7F]/g, '');
+
+    // 1. Arabic-Indic digits to ASCII (٠-٩ -> 0-9)
+    const arabicDigits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+    arabicDigits.forEach((d, i) => { code = code.replaceAll(d, String(i)); });
+
+    // 2. Arabic keyboard scancodes for common prefixes (ثمث -> ELE, etc.)
+    const arKeys = {
+      'ث':'E', 'م':'L', 'ف':'T', 'ع':'U', 'ن':'N', 'س':'S',
+      'ح':'P', 'د':'N', 'ق':'A', 'غ':'Y', 'ص':'W'
+    };
+    if (/[\u0600-\u06FF]/.test(code)) {
+      let conv = '';
+      for (let ch of code) conv += arKeys[ch] || ch;
+      code = conv;
+    }
+
+    // 3. French AZERTY number row without Shift:
+    // & -> 1, é -> 2, " -> 3, ' -> 4, ( -> 5, - -> 6, è -> 7, _ -> 8, ç -> 9, à -> 0
+    const azertyDigits = {
+      '&': '1', 'é': '2', 'É': '2',
+      '"': '3',
+      "'": '4',
+      '(': '5',
+      'è': '7', 'È': '7',
+      '_': '8',
+      'ç': '9', 'Ç': '9',
+      'à': '0', 'À': '0'
+    };
+
+    if (/[éèçà&"'_]/.test(code) || /[\(\)]/.test(code)) {
+      let conv = '';
+      for (let i = 0; i < code.length; i++) {
+        const ch = code[i];
+        if (azertyDigits[ch] !== undefined) {
+          conv += azertyDigits[ch];
+        } else if (ch === '-' && (i === 3 || i === 8)) {
+          // Keep hyphens in format like ELE-2026-0001
+          conv += '-';
+        } else if (ch === '-') {
+          // On AZERTY, key 6 outputs '-'
+          conv += '6';
+        } else {
+          conv += ch;
+        }
+      }
+      code = conv;
+    }
+
+    return code.trim().toUpperCase();
+  }
+
+  setupBarcodeScannerListener() {
+    let barcodeBuffer = '';
+    let lastKeyTime = 0;
+    let scanTimeout = null;
+
+    window.addEventListener('keydown', (e) => {
+      // Ignore key shortcuts like Ctrl+B, Alt, Escape, etc.
+      if (e.ctrlKey || e.altKey || e.metaKey || e.key === 'Escape' || e.key === 'F5' || e.key === 'Tab') {
+        return;
+      }
+
+      const now = Date.now();
+      const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+      const activeId = document.activeElement ? document.activeElement.id : '';
+
+      const isScannerInput = activeId === 'pointageInput' || activeId === 'entranceScanInput';
+      const isRegularInput = (activeTag === 'input' && !isScannerInput) || activeTag === 'textarea';
+
+      // Barcode scanners send an Enter key when finished scanning
+      if (e.key === 'Enter') {
+        if (barcodeBuffer.length >= 3) {
+          const scannedCode = barcodeBuffer.trim();
+          barcodeBuffer = '';
+          lastKeyTime = 0;
+          clearTimeout(scanTimeout);
+
+          // If not currently typing in a regular form input (like student name, etc.)
+          if (!isRegularInput || isScannerInput) {
+            e.preventDefault();
+            this.handleGlobalBarcodeScan(scannedCode);
+            return;
+          }
+        }
+        return;
+      }
+
+      // Printable single characters
+      if (e.key && e.key.length === 1) {
+        const timeDiff = now - lastKeyTime;
+        lastKeyTime = now;
+
+        // Hardware scanners output characters with very short delay (< 65ms)
+        if (timeDiff < 65 || barcodeBuffer.length === 0) {
+          barcodeBuffer += e.key;
+        } else {
+          // Normal human typing: restart buffer with current key
+          barcodeBuffer = e.key;
+        }
+
+        clearTimeout(scanTimeout);
+        // For scanners configured without an Enter suffix:
+        scanTimeout = setTimeout(() => {
+          if (barcodeBuffer.length >= 5) {
+            const potentialCode = barcodeBuffer.trim();
+            if (!isRegularInput && (this.currentView === 'pointage' || potentialCode.includes('-'))) {
+              this.handleGlobalBarcodeScan(potentialCode);
+              barcodeBuffer = '';
+            }
+          }
+        }, 90);
+      }
+    }, true); // Use capture phase so scanner is intercepted reliably!
+  }
+
+  handleGlobalBarcodeScan(rawCode) {
+    const normalized = this.normalizeBarcodeCode(rawCode);
+    if (!normalized) return;
+
+    console.log('📡 Hardware Barcode Scanner captured:', rawCode, '->', normalized);
+
+    // If currently on Pointage view:
+    if (this.currentView === 'pointage') {
+      if (this.attendanceMode === 'entrance') {
+        const input = document.getElementById('entranceScanInput');
+        if (input) input.value = normalized;
+        this.handleEntranceScan();
+      } else {
+        // If in sheet mode, auto-switch to scan mode so result is visible
+        if (this.attendanceMode === 'sheet') {
+          this.switchAttendanceMode('scan');
+        }
+        const input = document.getElementById('pointageInput');
+        if (input) input.value = normalized;
+        this.handlePointageScan();
+      }
+    } else {
+      // If on Payments / Caisse:
+      if (this.currentView === 'paiements') {
+        const searchInput = document.getElementById('fastPayStudentSearch');
+        if (searchInput) {
+          searchInput.value = normalized;
+          this.onFastPayStudentSearch(normalized);
+        }
+      } else {
+        // Automatically switch to pointage scan and register!
+        this.switchView('pointage');
+        this.switchAttendanceMode('scan');
+        setTimeout(() => {
+          const input = document.getElementById('pointageInput');
+          if (input) input.value = normalized;
+          this.handlePointageScan();
+        }, 150);
+      }
+    }
+  }
+
   // -------------------------------------------------------------
   // RAPID POINTAGE SCANNER (ATTENDANCE & CHIME)
   // -------------------------------------------------------------
   async handlePointageScan() {
     const input = document.getElementById('pointageInput');
-    const code = input.value.trim();
-    if (!code) return;
+    if (!input) return;
+    const raw = input.value.trim();
+    if (!raw) return;
+
+    const code = this.normalizeBarcodeCode(raw);
+    input.value = code;
 
     const groupId = document.getElementById('scanSelectGroup')?.value || this.currentAttendanceGroup || null;
     const sessionDate = document.getElementById('scanSessionDate')?.value || this.currentAttendanceDate || new Date().toISOString().split('T')[0];
@@ -4622,16 +6348,23 @@ class EdumindApp {
 
       const s = data.student;
 
+      if (data.autoAssignedGroup) {
+        // Automatically update group dropdown to student's actual active group
+        this.currentAttendanceGroup = data.autoAssignedGroup.id;
+        const scanSelect = document.getElementById('scanSelectGroup');
+        if (scanSelect) scanSelect.value = data.autoAssignedGroup.id;
+      }
+
       if (data.notInSelectedGroup) {
         this.playChime('error');
         card.className = 'pointage-result-card status-due';
         badge.style.background = '#ef4444';
-        badge.textContent = this.lang === 'ar' ? '⚠️ غير مسجل في هذا الفوج' : '⚠️ NON INSCRIT DANS CE GROUPE';
+        badge.textContent = this.lang === 'ar' ? '⚠️ غير مسجل في أي فوج نشط' : '⚠️ NON INSCRIT DANS AUCUN GROUPE';
         infoText.innerHTML = `
           <h3 style="font-size: 20px; font-weight: 800; color: #fff;">${this.escapeHtml(s.first_name)} ${this.escapeHtml(s.last_name)}</h3>
           <p style="color: #94a3b8; font-size: 13.5px;">Matricule: <strong style="color: #60a5fa;">${s.matricule}</strong></p>
           <p style="color: #f87171; font-weight: 700; font-size: 13.5px; margin-top: 4px;">
-            ${this.lang === 'ar' ? 'التلميذ مسجل في المركز لكنه غير مقيد في هذا الفوج المختار!' : 'Cet élève n\'est pas inscrit dans ce groupe.'}
+            ${this.lang === 'ar' ? 'التلميذ مسجل في المركز لكنه غير مقيد في أي فوج نشط حالياً!' : 'Cet élève n\'est inscrit dans aucun groupe actif.'}
           </p>
         `;
       } else if (data.alreadyMarked) {
@@ -4657,6 +6390,7 @@ class EdumindApp {
           <p style="color: #10b981; font-weight: 700; margin-top: 4px; font-size: 13.5px;">
             ${this.lang === 'ar' ? 'تم تأكيد دفع اشتراك الشهر. سُجّل الحضور عند ' + data.timestamp : 'Paiement vérifié pour ce mois. Présence enregistrée à ' + data.timestamp}
           </p>
+          ${data.autoAssignedGroup ? `<p style="color: #38bdf8; font-size: 12.5px; margin-top: 4px; font-weight: 700;"><i class="fa-solid fa-users"></i> ${this.lang === 'ar' ? 'الفوج:' : 'Groupe:'} ${this.escapeHtml(data.autoAssignedGroup.name)} (${this.escapeHtml(data.autoAssignedGroup.subject_name || '')})</p>` : ''}
         `;
       } else {
         this.playChime('warning');
@@ -4669,6 +6403,7 @@ class EdumindApp {
           <p style="color: #ef4444; font-weight: 700; margin-top: 4px; font-size: 13.5px;">
             ${this.lang === 'ar' ? 'التلميذ لم يسدد اشتراك هذا الشهر بعد. تم تسجيل الحضور مع تنبيه بالمستحقات.' : 'L\'élève n\'a pas encore réglé ce mois. Présence notée avec retard de paiement.'}
           </p>
+          ${data.autoAssignedGroup ? `<p style="color: #38bdf8; font-size: 12.5px; margin-top: 4px; font-weight: 700;"><i class="fa-solid fa-users"></i> ${this.lang === 'ar' ? 'الفوج:' : 'Groupe:'} ${this.escapeHtml(data.autoAssignedGroup.name)} (${this.escapeHtml(data.autoAssignedGroup.subject_name || '')})</p>` : ''}
         `;
       }
 
@@ -4689,7 +6424,7 @@ class EdumindApp {
       }
 
       input.value = '';
-      setTimeout(() => { input.focus(); }, 15);
+      setTimeout(() => { input.focus(); }, 25);
     } catch (err) {
       console.error('Scan error:', err);
     }
@@ -4944,6 +6679,661 @@ class EdumindApp {
       if (btn) btn.disabled = false;
       alert('Erreur serveur lors de la clôture');
     }
+  }
+
+  // -------------------------------------------------------------
+  // GENERAL ENTRANCE ATTENDANCE (BORNE D'ENTRÉE - ÉLÈVES & ENSEIGNANTS)
+  // -------------------------------------------------------------
+  setEntranceMode(mode) {
+    this.entranceMode = mode;
+    ['btnModeAuto', 'btnModeIn', 'btnModeOut'].forEach(id => {
+      document.getElementById(id)?.classList.remove('active');
+    });
+    if (mode === 'auto') document.getElementById('btnModeAuto')?.classList.add('active');
+    else if (mode === 'in') document.getElementById('btnModeIn')?.classList.add('active');
+    else if (mode === 'out') document.getElementById('btnModeOut')?.classList.add('active');
+    setTimeout(() => document.getElementById('entranceScanInput')?.focus(), 20);
+  }
+
+  onEntranceDateChange(date) {
+    this.entranceDate = date || new Date().toISOString().split('T')[0];
+    this.loadEntranceLiveList();
+  }
+
+  startEntranceClock() {
+    if (this.entranceClockTimer) clearInterval(this.entranceClockTimer);
+    const update = () => {
+      const el = document.getElementById('entranceDigitalClock');
+      if (el) {
+        el.textContent = new Date().toLocaleTimeString(this.lang === 'ar' ? 'ar-DZ' : 'fr-FR');
+      }
+    };
+    update();
+    this.entranceClockTimer = setInterval(update, 1000);
+  }
+
+  async loadEntranceView() {
+    this.startEntranceClock();
+    const dateInput = document.getElementById('entranceSessionDate');
+    if (dateInput && !dateInput.value) {
+      dateInput.value = this.entranceDate;
+    }
+    await this.loadEntranceLiveList();
+    setTimeout(() => {
+      const inp = document.getElementById('entranceScanInput');
+      if (inp) inp.focus();
+    }, 100);
+  }
+
+  async handleEntranceScan() {
+    const input = document.getElementById('entranceScanInput');
+    if (!input) return;
+    const raw = input.value.trim();
+    if (!raw) return;
+
+    const code = this.normalizeBarcodeCode(raw);
+    input.value = code;
+
+    const dateVal = document.getElementById('entranceSessionDate')?.value || this.entranceDate || new Date().toISOString().split('T')[0];
+
+    try {
+      const res = await fetch('/api/entrance/scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: code,
+          session_date: dateVal,
+          mode: this.entranceMode
+        })
+      });
+
+      const data = await res.json();
+      const card = document.getElementById('entranceResultCard');
+      const badge = document.getElementById('entranceBadge');
+      const avatarBox = document.getElementById('entranceAvatar');
+      const infoText = document.getElementById('entranceInfoText');
+
+      if (!data.success) {
+        this.playChime('error');
+        if (card && badge && infoText) {
+          card.style.display = 'block';
+          card.style.borderColor = '#ef4444';
+          badge.style.background = '#ef4444';
+          badge.textContent = this.lang === 'ar' ? '❌ غير مسجل في النظام' : '❌ INTROUVABLE DANS LE SYSTÈME';
+          let localizedError = data.error;
+          if (this.lang !== 'ar') {
+            if (data.error === 'الرمز أو رقم القيد غير موجود في النظام') {
+              localizedError = 'Le code ou matricule scanné est introuvable dans le système.';
+            } else if (data.error === 'يرجى إدخال كود الباركود أو رقم القيد') {
+              localizedError = 'Veuillez saisir le matricule ou scanner le code-barres.';
+            }
+          }
+          infoText.innerHTML = `
+            <h3 style="color: #ef4444; font-size: 19px; font-weight: 800; margin: 0 0 6px 0;">${this.escapeHtml(localizedError)}</h3>
+            <p style="color: #94a3b8; font-size: 13.5px; margin: 0;">${this.lang === 'ar' ? 'تأكد من صحة رقم القيد أو الكود المقروء.' : 'Vérifiez le matricule ou le code-barres scanné.'}</p>
+          `;
+          if (avatarBox) avatarBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i>';
+        }
+        input.value = '';
+        setTimeout(() => input.focus(), 20);
+        return;
+      }
+
+      const p = data.person;
+      const isStudent = data.person_type === 'student';
+      const action = data.action;
+
+      // Audio feedback
+      if (action === 'check_in') {
+        this.playChime('success');
+      } else if (action === 'check_out') {
+        this.playChime('warning');
+      } else {
+        this.playChime('warning');
+      }
+
+      // Update card UI
+      if (card && badge && infoText && avatarBox) {
+        card.style.display = 'block';
+
+        let badgeBg = '#10b981';
+        let badgeText = '';
+        let borderColor = '#10b981';
+
+        if (action === 'check_in') {
+          badgeBg = '#10b981';
+          borderColor = '#10b981';
+          badgeText = isStudent
+            ? (this.lang === 'ar' ? '🟢 دخول تلميذ (حاضر)' : '🟢 ENTRÉE ÉLÈVE VALIDÉE')
+            : (this.lang === 'ar' ? '🟢 حضور أستاذ' : '🟢 ARRIVÉE ENSEIGNANT VALIDÉE');
+        } else if (action === 'check_out') {
+          badgeBg = '#f59e0b';
+          borderColor = '#f59e0b';
+          badgeText = isStudent
+            ? (this.lang === 'ar' ? '👋 خروج تلميذ (انصراف)' : '👋 SORTIE ÉLÈVE ENREGISTRÉE')
+            : (this.lang === 'ar' ? '👋 انصراف أستاذ' : '👋 SORTIE ENSEIGNANT ENREGISTRÉE');
+        } else {
+          badgeBg = '#3b82f6';
+          borderColor = '#3b82f6';
+          badgeText = this.lang === 'ar' ? 'ℹ️ مسجل مسبقاً اليوم' : 'ℹ️ DÉJÀ ENREGISTRÉ AUJOURD\'HUI';
+        }
+
+        card.style.borderColor = borderColor;
+        badge.style.background = badgeBg;
+        badge.textContent = badgeText;
+
+        // Avatar
+        if (p.photo_url) {
+          avatarBox.innerHTML = `<img src="${p.photo_url}" alt="${this.escapeHtml(p.first_name)}" style="width: 100%; height: 100%; object-fit: cover;">`;
+        } else {
+          avatarBox.innerHTML = isStudent
+            ? this.getStudentAvatarSvg(p.gender)
+            : '<div style="font-size: 38px; text-align: center; line-height: 90px; color: #f97316;">👨‍🏫</div>';
+        }
+
+        // Info Details
+        const roleLabel = isStudent
+          ? `<span class="badge-role-student"><i class="fa-solid fa-user-graduate"></i> ${this.lang === 'ar' ? 'تلميذ' : 'Élève'}</span>`
+          : `<span class="badge-role-teacher"><i class="fa-solid fa-chalkboard-user"></i> ${this.lang === 'ar' ? 'أستاذ' : 'Enseignant'}</span>`;
+
+        const subTitle = isStudent ? (p.level_name || 'Niveau non défini') : (p.subject_name ? `${this.lang === 'ar' ? 'أستاذ مادة:' : 'Matière:'} ${p.subject_name}` : 'Enseignant');
+
+        let durationText = '';
+        if (data.attendance?.duration_minutes > 0) {
+          const h = Math.floor(data.attendance.duration_minutes / 60);
+          const m = data.attendance.duration_minutes % 60;
+          durationText = h > 0 ? `${h}h ${m}m` : `${m} min`;
+        }
+
+        let displayMessage = data.message;
+        if (this.lang !== 'ar') {
+          if (action === 'check_in') {
+            displayMessage = isStudent ? 'Entrée élève validée avec succès.' : 'Arrivée enseignant enregistrée avec succès.';
+          } else if (action === 'check_out') {
+            displayMessage = isStudent ? 'Sortie élève enregistrée avec succès.' : 'Sortie enseignant enregistrée avec succès.';
+          } else if (action === 'already_checked') {
+            displayMessage = 'Pointage déjà enregistré aujourd\'hui.';
+          }
+        }
+
+        infoText.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+            ${roleLabel}
+            <span style="font-family: monospace; font-weight: 700; color: #60a5fa; font-size: 13px;">${p.matricule}</span>
+          </div>
+          <h3 style="font-size: 22px; font-weight: 800; color: #fff; margin: 0 0 6px 0;">${this.escapeHtml(p.first_name)} ${this.escapeHtml(p.last_name)}</h3>
+          <p style="color: #94a3b8; font-size: 14px; margin: 0 0 8px 0;">${this.escapeHtml(subTitle)}</p>
+          <div style="font-size: 13.5px; font-weight: 700; color: ${borderColor};">
+            ${this.escapeHtml(displayMessage)}
+          </div>
+          <div style="font-size: 12px; color: #94a3b8; margin-top: 6px; display: flex; gap: 14px; flex-wrap: wrap;">
+            <span><i class="fa-regular fa-clock"></i> ${this.lang === 'ar' ? 'وقت الدخول:' : 'Entrée:'} <strong>${data.attendance?.check_in_time || '--:--'}</strong></span>
+            ${data.attendance?.check_out_time ? `<span><i class="fa-solid fa-clock-rotate-left"></i> ${this.lang === 'ar' ? 'وقت الخروج:' : 'Sortie:'} <strong>${data.attendance.check_out_time}</strong></span>` : ''}
+            ${durationText ? `<span><i class="fa-solid fa-hourglass-half"></i> ${this.lang === 'ar' ? 'المدة:' : 'Durée:'} <strong>${durationText}</strong></span>` : ''}
+          </div>
+        `;
+      }
+
+      // Update statistics
+      if (data.stats) {
+        this.updateEntranceStatsWidgets(data.stats, `${p.first_name} ${p.last_name} (${data.timestamp})`);
+      }
+
+      await this.loadEntranceLiveList();
+
+      input.value = '';
+      setTimeout(() => input.focus(), 20);
+    } catch (err) {
+      console.error('handleEntranceScan error:', err);
+    }
+  }
+
+  updateEntranceStatsWidgets(stats, lastScanText) {
+    const elStud = document.getElementById('entranceStatStudents');
+    const elTeach = document.getElementById('entranceStatTeachers');
+    const elTot = document.getElementById('entranceStatTotal');
+    const elLast = document.getElementById('entranceStatLastScan');
+
+    if (elStud) elStud.textContent = `${stats.students_present} / ${stats.students_total}`;
+    if (elTeach) elTeach.textContent = `${stats.teachers_present} / ${stats.teachers_total}`;
+    if (elTot) elTot.textContent = stats.total_present;
+    if (elLast && lastScanText) elLast.textContent = lastScanText;
+  }
+
+  async loadEntranceLiveList() {
+    const dateVal = document.getElementById('entranceSessionDate')?.value || this.entranceDate || new Date().toISOString().split('T')[0];
+    const typeVal = document.getElementById('entranceFilterType')?.value || 'all';
+
+    try {
+      const res = await fetch(`/api/entrance/live-list?session_date=${dateVal}&type=${typeVal}`);
+      const data = await res.json();
+      if (!data.success) return;
+
+      this.entranceRecords = data.records || [];
+      if (data.stats) {
+        this.updateEntranceStatsWidgets(data.stats);
+      }
+
+      const badgeCount = document.getElementById('entranceLiveCountBadge');
+      if (badgeCount) {
+        badgeCount.textContent = `${this.entranceRecords.length} ${this.lang === 'ar' ? 'مسجلين' : 'pointages'}`;
+      }
+
+      const searchInput = document.getElementById('entranceSearchInput');
+      if (searchInput && searchInput.value.trim()) {
+        this.filterEntranceList(searchInput.value);
+      } else {
+        this.renderEntranceTable(this.entranceRecords);
+      }
+    } catch (err) {
+      console.error('loadEntranceLiveList error:', err);
+    }
+  }
+
+  renderEntranceTable(list) {
+    const tbody = document.getElementById('entranceLiveTableBody');
+    if (!tbody) return;
+
+    if (!list || list.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="10" style="text-align: center; padding: 40px; color: var(--text-muted);">
+            <i class="fa-solid fa-qrcode" style="font-size: 32px; margin-bottom: 10px; display: block; opacity: 0.4;"></i>
+            ${this.lang === 'ar' ? 'لا توجد تسجيلات حضور في هذا التاريخ.' : 'Aucun pointage enregistré pour cette date.'}
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = list.map((r, idx) => {
+      const isStudent = r.person_type === 'student';
+      const roleBadge = isStudent
+        ? `<span class="badge-role-student"><i class="fa-solid fa-user-graduate"></i> ${this.lang === 'ar' ? 'تلميذ' : 'Élève'}</span>`
+        : `<span class="badge-role-teacher"><i class="fa-solid fa-chalkboard-user"></i> ${this.lang === 'ar' ? 'أستاذ' : 'Prof'}</span>`;
+
+      let durationText = '-';
+      if (r.duration_minutes > 0) {
+        const h = Math.floor(r.duration_minutes / 60);
+        const m = r.duration_minutes % 60;
+        durationText = h > 0 ? `${h}h ${m}m` : `${m}m`;
+      }
+
+      const statusBadge = r.check_out_time
+        ? `<span style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: 11px;">${this.lang === 'ar' ? 'منصرف' : 'Sorti'}</span>`
+        : `<span style="background: rgba(16, 185, 129, 0.15); color: #10b981; padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: 11px;">${this.lang === 'ar' ? 'حاضر بالمدرسة' : 'Présent'}</span>`;
+
+      return `
+        <tr>
+          <td style="color: var(--text-muted); font-size: 12px;">${idx + 1}</td>
+          <td>${roleBadge}</td>
+          <td><strong style="color: #60a5fa; font-family: monospace;">${r.matricule}</strong></td>
+          <td><strong>${this.escapeHtml(r.first_name)} ${this.escapeHtml(r.last_name)}</strong></td>
+          <td style="color: var(--text-muted); font-size: 13px;">${this.escapeHtml(r.extra_label || '-')}</td>
+          <td style="text-align: center; font-weight: 700; color: #10b981;">${r.check_in_time}</td>
+          <td style="text-align: center; font-weight: 700; color: #f59e0b;">${r.check_out_time || '-'}</td>
+          <td style="text-align: center; font-size: 12.5px;">${durationText}</td>
+          <td style="text-align: center;">${statusBadge}</td>
+          <td style="text-align: center;">
+            <button class="btn-icon" style="color: #ef4444; width: 28px; height: 28px; font-size: 12px;" title="${this.lang === 'ar' ? 'إلغاء هذا التسجيل' : 'Supprimer'}" onclick="app.deleteEntranceRecord(${r.id})">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  filterEntranceList(query) {
+    const term = (query || '').toLowerCase().trim();
+    if (!term) {
+      this.renderEntranceTable(this.entranceRecords);
+      return;
+    }
+    const filtered = this.entranceRecords.filter(r =>
+      (r.first_name && r.first_name.toLowerCase().includes(term)) ||
+      (r.last_name && r.last_name.toLowerCase().includes(term)) ||
+      (r.matricule && r.matricule.toLowerCase().includes(term)) ||
+      (r.extra_label && r.extra_label.toLowerCase().includes(term))
+    );
+    this.renderEntranceTable(filtered);
+  }
+
+  async deleteEntranceRecord(id) {
+    if (!confirm(this.lang === 'ar' ? 'هل أنت متأكد من حذف تسجيل الحضور هذا؟' : 'Supprimer cet enregistrement de présence ?')) return;
+
+    try {
+      const res = await fetch(`/api/entrance/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        this.playChime('warning');
+        await this.loadEntranceLiveList();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  toggleEntranceFullscreen() {
+    this.isEntranceFullscreen = !this.isEntranceFullscreen;
+    const body = document.body;
+    const btn = document.getElementById('btnEntranceFullscreen');
+
+    if (this.isEntranceFullscreen) {
+      body.classList.add('entrance-kiosk-active');
+      if (btn) {
+        btn.innerHTML = `<i class="fa-solid fa-compress"></i> <span>${this.lang === 'ar' ? 'خروج من الشاشة الكاملة' : 'Quitter Plein Écran'}</span>`;
+        btn.style.background = '#ef4444';
+        btn.style.color = '#fff';
+      }
+      try {
+        if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        }
+      } catch (e) {}
+    } else {
+      body.classList.remove('entrance-kiosk-active');
+      if (btn) {
+        btn.innerHTML = `<i class="fa-solid fa-expand"></i> <span>${this.lang === 'ar' ? 'وضع ملء الشاشة (Kiosk)' : 'Plein Écran (Kiosk)'}</span>`;
+        btn.style.background = '';
+        btn.style.color = '';
+      }
+      try {
+        if (document.fullscreenElement && document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        }
+      } catch (e) {}
+    }
+
+    setTimeout(() => document.getElementById('entranceScanInput')?.focus(), 100);
+  }
+
+  printEntranceJournal() {
+    const records = this.entranceRecords || [];
+    const dateVal = document.getElementById('entranceSessionDate')?.value || this.entranceDate || new Date().toISOString().split('T')[0];
+    const schoolName = this.settings?.school_name || 'EDUMIND ACADEMY';
+    const isAr = this.lang === 'ar';
+
+    const printWin = window.open('', '_blank');
+    if (!printWin) {
+      alert(isAr ? 'يرجى السماح بالنوافذ المنبثقة لطباعة السجل.' : 'Veuillez autoriser les fenêtres pop-up.');
+      return;
+    }
+
+    const studentsCount = records.filter(r => r.person_type === 'student').length;
+    const teachersCount = records.filter(r => r.person_type === 'teacher').length;
+
+    const rowsHtml = records.map((r, idx) => `
+      <tr>
+        <td style="text-align: center; border: 1px solid #cbd5e1; padding: 6px;">${idx + 1}</td>
+        <td style="border: 1px solid #cbd5e1; padding: 6px;"><strong>${r.person_type === 'student' ? (isAr ? 'تلميذ' : 'Élève') : (isAr ? 'أستاذ' : 'Enseignant')}</strong></td>
+        <td style="border: 1px solid #cbd5e1; padding: 6px; font-family: monospace;">${r.matricule}</td>
+        <td style="border: 1px solid #cbd5e1; padding: 6px;"><strong>${this.escapeHtml(r.first_name)} ${this.escapeHtml(r.last_name)}</strong></td>
+        <td style="border: 1px solid #cbd5e1; padding: 6px;">${this.escapeHtml(r.extra_label || '-')}</td>
+        <td style="text-align: center; border: 1px solid #cbd5e1; padding: 6px;">${r.check_in_time}</td>
+        <td style="text-align: center; border: 1px solid #cbd5e1; padding: 6px;">${r.check_out_time || '-'}</td>
+        <td style="border: 1px solid #cbd5e1; padding: 6px;"></td>
+      </tr>
+    `).join('');
+
+    const html = `
+      <!DOCTYPE html>
+      <html lang="${this.lang}" dir="${isAr ? 'rtl' : 'ltr'}">
+      <head>
+        <meta charset="UTF-8">
+        <title>${isAr ? 'سجل الحضور اليومي للمدخل' : 'Journal des Présences d\'Entrée'} - ${dateVal}</title>
+        <style>
+          @page { size: A4 landscape; margin: 12mm; }
+          body { font-family: system-ui, -apple-system, sans-serif; color: #0f172a; margin: 0; padding: 20px; }
+          .header { display: flex; justify-content: space-between; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 16px; }
+          .title { font-size: 20px; font-weight: 800; }
+          .stats { display: flex; gap: 16px; margin-bottom: 16px; font-size: 13px; }
+          .stat-box { background: #f1f5f9; padding: 6px 14px; border-radius: 6px; border: 1px solid #cbd5e1; }
+          table { width: 100%; border-collapse: collapse; font-size: 12px; }
+          th { background: #e2e8f0; border: 1px solid #cbd5e1; padding: 8px 6px; font-weight: 700; text-align: ${isAr ? 'right' : 'left'}; }
+          .footer { display: flex; justify-content: space-between; margin-top: 30px; font-size: 13px; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div>
+            <div class="title">🎓 ${schoolName}</div>
+            <div style="font-size: 14px; font-weight: 700; color: #475569; margin-top: 4px;">
+              ${isAr ? 'سجل الحضور والانصراف اليومي عند المدخل' : 'Journal Général de Présence & Pointage d\'Entrée'}
+            </div>
+          </div>
+          <div style="text-align: ${isAr ? 'left' : 'right'}; font-size: 13px;">
+            <div><strong>${isAr ? 'التاريخ:' : 'Date:'}</strong> ${dateVal}</div>
+            <div><strong>${isAr ? 'تاريخ الطباعة:' : 'Imprimé le:'}</strong> ${new Date().toLocaleTimeString()}</div>
+          </div>
+        </div>
+
+        <div class="stats">
+          <div class="stat-box"><strong>${isAr ? 'إجمالي الحضور:' : 'Total Présents:'}</strong> ${records.length}</div>
+          <div class="stat-box"><strong>${isAr ? 'التلاميذ:' : 'Élèves:'}</strong> ${studentsCount}</div>
+          <div class="stat-box"><strong>${isAr ? 'الأساتذة:' : 'Enseignants:'}</strong> ${teachersCount}</div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 40px; text-align: center;">#</th>
+              <th style="width: 90px;">${isAr ? 'الصفة' : 'Type'}</th>
+              <th style="width: 110px;">${isAr ? 'رقم القيد' : 'Matricule'}</th>
+              <th>${isAr ? 'الاسم واللقب' : 'Nom & Prénom'}</th>
+              <th>${isAr ? 'القسم / المادة' : 'Classe / Matière'}</th>
+              <th style="width: 100px; text-align: center;">${isAr ? 'وقت الدخول' : 'Heure Entrée'}</th>
+              <th style="width: 100px; text-align: center;">${isAr ? 'وقت الخروج' : 'Heure Sortie'}</th>
+              <th style="width: 140px;">${isAr ? 'الملاحظات / التأشيرة' : 'Visa / Émargement'}</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml || `<tr><td colspan="8" style="text-align: center; padding: 20px;">${isAr ? 'لا توجد بيانات' : 'Aucune donnée'}</td></tr>`}
+          </tbody>
+        </table>
+
+        <div class="footer">
+          <div>${isAr ? 'تأشيرة مسؤول المدخل والاستقبال' : 'Visa du Responsable d\'Accueil'}</div>
+          <div>${isAr ? 'تأشيرة وختم الإدارة' : 'Visa et Cachet de la Direction'}</div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    printWin.document.open();
+    printWin.document.write(html);
+    printWin.document.close();
+    setTimeout(() => {
+      printWin.focus();
+      printWin.print();
+    }, 500);
+  }
+
+  // -------------------------------------------------------------
+  // TEACHER CARD & BARCODE BADGE
+  // -------------------------------------------------------------
+  async showTeacherCard(teacherId) {
+    try {
+      const res = await fetch(`/api/teachers/${teacherId}`);
+      const data = await res.json();
+      if (!data.success || !data.teacher) {
+        alert(this.lang === 'ar' ? 'تعذر تحميل بيانات الأستاذ' : 'Impossible de charger l\'enseignant');
+        return;
+      }
+
+      const t = data.teacher;
+      this.currentCardTeacher = t;
+
+      const schoolName = this.settings?.school_name || 'EDUMIND ACADEMY';
+      const schoolYear = this.settings?.school_year || '2025/2026';
+      const schoolLogo = this.settings?.school_logo || '/img/logo-icon.png';
+
+      const sNameEl = document.getElementById('cardTeacherSchoolName');
+      if (sNameEl) sNameEl.textContent = schoolName;
+
+      const sYearEl = document.getElementById('cardTeacherSchoolYear');
+      if (sYearEl) sYearEl.textContent = schoolYear;
+
+      const sLogoEl = document.getElementById('cardTeacherSchoolLogo');
+      if (sLogoEl && schoolLogo) sLogoEl.src = schoolLogo;
+
+      const fullName = `${t.first_name || ''} ${t.last_name || ''}`.trim();
+      const matricule = t.matricule || `ENS-${String(t.id).padStart(3, '0')}`;
+      const subject = t.subject_name || (this.lang === 'ar' ? 'أستاذ عام' : 'Enseignant');
+      const phone = t.phone || '-';
+
+      const nameEl = document.getElementById('cardTeacherName');
+      if (nameEl) nameEl.textContent = fullName;
+
+      const matEl = document.getElementById('cardTeacherMatricule');
+      if (matEl) matEl.textContent = matricule;
+
+      const subEl = document.getElementById('cardTeacherSubject');
+      if (subEl) subEl.textContent = subject;
+
+      const phoneEl = document.getElementById('cardTeacherPhone');
+      if (phoneEl) phoneEl.textContent = phone;
+
+      // Barcode generation with JsBarcode
+      try {
+        if (window.JsBarcode) {
+          JsBarcode('#cardTeacherBarcodeSvg', matricule, {
+            format: 'CODE128',
+            lineColor: '#000000',
+            background: '#ffffff',
+            width: 2.0,
+            height: 48,
+            displayValue: true,
+            font: 'monospace',
+            fontOptions: 'bold',
+            fontSize: 13,
+            textMargin: 3,
+            margin: 4
+          });
+        }
+      } catch (e) {
+        console.warn('JsBarcode teacher error:', e);
+      }
+
+      document.getElementById('modalTeacherCard')?.classList.add('active');
+    } catch (err) {
+      console.error('showTeacherCard error:', err);
+    }
+  }
+
+  copyTeacherBarcodeMatricule() {
+    if (!this.currentCardTeacher?.matricule) return;
+    navigator.clipboard.writeText(this.currentCardTeacher.matricule).then(() => {
+      alert(this.lang === 'ar' ? 'تم نسخ كود الأستاذ بنجاح!' : 'Matricule copié dans le presse-papier !');
+    });
+  }
+
+  printSingleTeacherCard() {
+    const t = this.currentCardTeacher;
+    if (!t) return;
+
+    const schoolName = this.settings?.school_name || 'EDUMIND ACADEMY';
+    const schoolYear = this.settings?.school_year || '2025/2026';
+    const matricule = t.matricule || `ENS-${String(t.id).padStart(3, '0')}`;
+    const fullName = `${t.first_name || ''} ${t.last_name || ''}`.trim();
+    const subject = t.subject_name || 'Enseignant';
+    const phone = t.phone || '-';
+
+    const barcodeSvgEl = document.getElementById('cardTeacherBarcodeSvg');
+    const barcodeSvgHtml = barcodeSvgEl ? barcodeSvgEl.outerHTML : '';
+
+    const isAr = this.lang === 'ar';
+    const printWin = window.open('', '_blank');
+    if (!printWin) {
+      alert(isAr ? 'يرجى السماح بالنوافذ المنبثقة لطباعة البطاقة.' : 'Veuillez autoriser les fenêtres pop-up.');
+      return;
+    }
+
+    const cardHtml = `
+      <div class="print-cr80-card theme-teacher" style="border-top: 4px solid #ea580c;">
+        <div class="card-header">
+          <div class="brand">
+            <div class="logo">🎓</div>
+            <div>
+              <div class="school-name">${this.escapeHtml(schoolName)}</div>
+              <div class="school-tag">${isAr ? 'هيئة التدريس والتعليم المتميز' : 'CORPS ENSEIGNANT'}</div>
+            </div>
+          </div>
+          <div class="badge-col">
+            <span class="badge-tag" style="background: rgba(249, 115, 22, 0.2); color: #ea580c; border: 1px solid rgba(249, 115, 22, 0.4);">${isAr ? 'أستاذ' : 'ENSEIGNANT'}</span>
+            <span class="year-tag">${this.escapeHtml(schoolYear)}</span>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="avatar-box">
+            <div style="font-size: 38px; text-align: center; line-height: 80px;">👨‍🏫</div>
+          </div>
+          <div class="details-box">
+            <div class="student-name">${this.escapeHtml(fullName)}</div>
+            <div class="matricule-pill" style="color: #ea580c;">N° ${this.escapeHtml(matricule)}</div>
+            <div class="info-line"><strong>${isAr ? 'المادة :' : 'Matière :'}</strong> ${this.escapeHtml(subject)}</div>
+            <div class="info-line"><strong>${isAr ? 'الهاتف :' : 'Tél :'}</strong> ${this.escapeHtml(phone)}</div>
+          </div>
+        </div>
+
+        <div class="barcode-box">
+          ${barcodeSvgHtml}
+        </div>
+      </div>
+    `;
+
+    const html = `
+      <!DOCTYPE html>
+      <html lang="${this.lang}" dir="ltr">
+      <head>
+        <meta charset="UTF-8">
+        <title>${isAr ? 'بطاقة الأستاذ' : 'Badge Enseignant'} — ${this.escapeHtml(fullName)}</title>
+        <style>
+          @page { size: A4 portrait; margin: 10mm; }
+          * { box-sizing: border-box; }
+          body { font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 20px; background: #f8fafc; color: #0f172a; }
+          .single-card-wrap { position: relative; width: 85.6mm; height: 54mm; margin: 40px auto 10px; }
+          .print-cr80-card {
+            width: 85.6mm; height: 54mm; border-radius: 4.5mm; padding: 3.5mm 4.5mm;
+            background: #ffffff; color: #0f172a; border: 1.2px solid #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); display: flex; flex-direction: column;
+            justify-content: space-between; overflow: hidden;
+          }
+          .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid #e2e8f0; padding-bottom: 2mm; margin-bottom: 2mm; }
+          .brand { display: flex; align-items: center; gap: 2.5mm; }
+          .logo { font-size: 18px; }
+          .school-name { font-size: 11px; font-weight: 800; color: #1e293b; text-transform: uppercase; }
+          .school-tag { font-size: 7px; font-weight: 700; color: #ea580c; letter-spacing: 0.5px; }
+          .badge-col { display: flex; flex-direction: column; align-items: flex-end; gap: 1mm; }
+          .badge-tag { font-size: 7.5px; font-weight: 800; padding: 1px 5px; border-radius: 3px; }
+          .year-tag { font-size: 8px; font-weight: 700; color: #64748b; }
+          .card-body { display: flex; gap: 3.5mm; align-items: center; flex: 1; }
+          .avatar-box { width: 22mm; height: 26mm; border-radius: 3mm; border: 1.2px solid #cbd5e1; background: #f1f5f9; overflow: hidden; flex-shrink: 0; }
+          .details-box { flex: 1; min-width: 0; }
+          .student-name { font-size: 12px; font-weight: 800; color: #0f172a; margin-bottom: 1.5mm; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+          .matricule-pill { font-family: monospace; font-size: 10px; font-weight: 800; margin-bottom: 1.5mm; }
+          .info-line { font-size: 8.5px; color: #475569; margin-bottom: 0.8mm; }
+          .barcode-box { text-align: center; border-top: 1px dashed #cbd5e1; padding-top: 1.5mm; }
+          .barcode-box svg { max-height: 12mm; width: 90%; }
+        </style>
+      </head>
+      <body>
+        <div class="single-card-wrap">
+          ${cardHtml}
+        </div>
+        <div style="text-align: center; font-size: 11px; color: #64748b; margin-top: 12px;">${isAr ? 'علامات قص للتقطيع بالمقص • الحجم القياسي CR-80 (85.6 مم × 54 مم)' : 'Format Standard CR-80 (85.6mm × 54mm) • Badge Professionnel Enseignant'}</div>
+      </body>
+      </html>
+    `;
+
+    printWin.document.open();
+    printWin.document.write(html);
+    printWin.document.close();
+    setTimeout(() => {
+      printWin.focus();
+      printWin.print();
+    }, 500);
   }
 
   // -------------------------------------------------------------
@@ -5644,18 +8034,35 @@ class EdumindApp {
   }
 
   renderReceipt(p) {
+    const isAr = this.lang === 'ar';
     document.getElementById('rcptSchoolName').textContent = this.settings.school_name || 'EDUMIND ACADEMY';
     document.getElementById('rcptSchoolContact').textContent = `${this.settings.school_address || 'Alger, Algérie'} | Tél: ${this.settings.school_phone || '0550 00 00 00'}`;
     document.getElementById('rcptNumber').textContent = p.receipt_no;
 
     const pDate = p.payment_date ? new Date(p.payment_date) : new Date();
-    document.getElementById('rcptDate').textContent = pDate.toLocaleString('fr-FR');
+    document.getElementById('rcptDate').textContent = pDate.toLocaleString(isAr ? 'ar-DZ' : 'fr-FR');
+
+    const lblStudent = document.getElementById('rcptStudentLabel');
+    const lblMatricule = document.getElementById('rcptMatriculeLabel');
+    if (lblStudent) lblStudent.textContent = isAr ? 'التلميذ:' : 'Élève:';
+    if (lblMatricule) lblMatricule.textContent = isAr ? 'رقم القيد:' : 'Matricule:';
+
     document.getElementById('rcptStudent').textContent = `${p.first_name} ${p.last_name}`;
     document.getElementById('rcptMatricule').textContent = p.matricule;
     document.getElementById('rcptGroup').textContent = `${p.group_name} (${p.subject_name || ''})`;
     document.getElementById('rcptTeacher').textContent = p.teacher_name || 'Équipe pédagogique';
     document.getElementById('rcptMonth').textContent = p.month_period;
     document.getElementById('rcptMethod').textContent = p.payment_method;
+
+    const singleTable = document.getElementById('rcptSingleTable');
+    const multiTable = document.getElementById('rcptMultiTable');
+    const familyTable = document.getElementById('rcptFamilyTable');
+    const familyRemBox = document.getElementById('rcptFamilyRemainingBox');
+
+    if (singleTable) singleTable.style.display = 'table';
+    if (multiTable) multiTable.style.display = 'none';
+    if (familyTable) familyTable.style.display = 'none';
+    if (familyRemBox) familyRemBox.style.display = 'none';
 
     document.getElementById('rcptBasePrice').textContent = `${Number(p.base_amount).toLocaleString()} DA`;
     document.getElementById('rcptDiscount').textContent = `${Number(p.discount || 0).toLocaleString()} DA`;
@@ -5665,38 +8072,1720 @@ class EdumindApp {
     document.getElementById('modalReceipt').classList.add('active');
   }
 
+  // ===========================================================================
+  // FAST CASHIER & MULTI-PAYMENT (ENCAISSEMENT RAPIDE & MULTI-COURS)
+  // ===========================================================================
+
+  setFastPayMode(mode = 'student') {
+    this._fastPayMode = mode;
+    const isParent = mode === 'parent';
+
+    const btnStudent = document.getElementById('btnModeFastPayStudent');
+    const btnParent = document.getElementById('btnModeFastPayParent');
+    const studentWrapper = document.getElementById('fastPayStudentSearchWrapper');
+    const parentWrapper = document.getElementById('fastPayParentSearchWrapper');
+    const studentActive = document.getElementById('fastPayActiveContainer');
+    const parentActive = document.getElementById('fastPayParentActiveContainer');
+    const studentEmpty = document.getElementById('fastPayEmptyPlaceholder');
+    const parentEmpty = document.getElementById('fastPayParentEmptyPlaceholder');
+    const headerIcon = document.getElementById('fastPayHeaderIcon');
+
+    if (btnStudent && btnParent) {
+      if (isParent) {
+        btnStudent.style.background = 'transparent';
+        btnStudent.style.color = 'var(--text-muted)';
+        btnParent.style.background = 'linear-gradient(135deg, #7c3aed, #a855f7)';
+        btnParent.style.color = 'white';
+        btnParent.style.boxShadow = '0 2px 10px rgba(168, 85, 247, 0.4)';
+        if (headerIcon) {
+          headerIcon.style.background = 'rgba(168, 85, 247, 0.2)';
+          headerIcon.style.color = '#c084fc';
+          headerIcon.innerHTML = '<i class="fa-solid fa-people-roof"></i>';
+        }
+      } else {
+        btnParent.style.background = 'transparent';
+        btnParent.style.color = 'var(--text-muted)';
+        btnParent.style.boxShadow = 'none';
+        btnStudent.style.background = '#10b981';
+        btnStudent.style.color = 'white';
+        if (headerIcon) {
+          headerIcon.style.background = 'rgba(16, 185, 129, 0.18)';
+          headerIcon.style.color = '#10b981';
+          headerIcon.innerHTML = '<i class="fa-solid fa-cash-register"></i>';
+        }
+      }
+    }
+
+    if (studentWrapper) studentWrapper.style.display = isParent ? 'none' : 'block';
+    if (parentWrapper) parentWrapper.style.display = isParent ? 'block' : 'none';
+
+    if (isParent) {
+      if (studentActive) studentActive.style.display = 'none';
+      if (studentEmpty) studentEmpty.style.display = 'none';
+      if (this._fastPayParentData) {
+        if (parentActive) parentActive.style.display = 'block';
+        if (parentEmpty) parentEmpty.style.display = 'none';
+      } else {
+        if (parentActive) parentActive.style.display = 'none';
+        if (parentEmpty) parentEmpty.style.display = 'block';
+        setTimeout(() => document.getElementById('fastPayParentSearch')?.focus(), 50);
+      }
+    } else {
+      if (parentActive) parentActive.style.display = 'none';
+      if (parentEmpty) parentEmpty.style.display = 'none';
+      if (this._fastPayData) {
+        if (studentActive) studentActive.style.display = 'block';
+        if (studentEmpty) studentEmpty.style.display = 'none';
+      } else {
+        if (studentActive) studentActive.style.display = 'none';
+        if (studentEmpty) studentEmpty.style.display = 'block';
+        setTimeout(() => document.getElementById('fastPayStudentSearch')?.focus(), 50);
+      }
+    }
+  }
+
+  jumpToParentPay(parentId) {
+    this.setFastPayMode('parent');
+    if (parentId) {
+      this.selectFastPayParent(parentId);
+    }
+  }
+
+  onFastPayStudentSearch(query) {
+    const listContainer = document.getElementById('fastPaySearchResults');
+    const clearBtn = document.getElementById('btnFastPayClearSearch');
+    if (!listContainer) return;
+
+    const term = (query || '').trim().toLowerCase();
+    if (!term) {
+      listContainer.style.display = 'none';
+      if (clearBtn) clearBtn.style.display = 'none';
+      return;
+    }
+
+    if (clearBtn) clearBtn.style.display = 'block';
+
+    const norm = (str) => (str || '').toLowerCase()
+      .replace(/[أإآ]/g, 'ا')
+      .replace(/ة/g, 'ه')
+      .replace(/ى/g, 'ي')
+      .trim();
+
+    const normTerm = norm(term);
+    const students = (this.students || []).filter(s => s.active !== 0);
+
+    const filtered = students.filter(s => {
+      const fn = norm(s.first_name);
+      const ln = norm(s.last_name);
+      const mat = (s.matricule || '').toLowerCase();
+      const phone = (s.phone || '').toLowerCase();
+      const pphone = (s.parent_phone || '').toLowerCase();
+      const pname = norm(s.parent_name);
+      return `${fn} ${ln}`.includes(normTerm) ||
+             `${ln} ${fn}`.includes(normTerm) ||
+             mat.includes(normTerm) ||
+             phone.includes(normTerm) ||
+             pphone.includes(normTerm) ||
+             pname.includes(normTerm);
+    }).slice(0, 15);
+
+    const isAr = this.lang === 'ar';
+
+    if (filtered.length === 0) {
+      listContainer.innerHTML = `
+        <div style="padding: 14px 16px; text-align: center; color: var(--text-muted); font-size: 12.5px;">
+          <i class="fa-solid fa-user-slash" style="margin-right: 6px;"></i> ${isAr ? 'لم يتم العثور على أي تلميذ يطابق البحث' : 'Aucun élève trouvé'}
+        </div>
+      `;
+      listContainer.style.display = 'block';
+      return;
+    }
+
+    listContainer.innerHTML = filtered.map(s => {
+      const initials = `${(s.first_name || '')[0] || ''}${(s.last_name || '')[0] || ''}`.toUpperCase() || 'E';
+      const lvl = s.level_name || (this.levels && this.levels.find(l => l.id === s.level_id)?.name) || '';
+      const avatarHtml = s.photo_url
+        ? `<img src="${s.photo_url}" style="width:28px; height:28px; border-radius:50%; object-fit:cover; flex-shrink:0;">`
+        : `<div style="width:28px; height:28px; border-radius:50%; background:linear-gradient(135deg, #10b981, #059669); color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:11px; flex-shrink:0;">${initials}</div>`;
+
+      return `
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: background 0.15s;"
+             onmouseover="this.style.background='rgba(16, 185, 129, 0.1)'" onmouseout="this.style.background=''"
+             onclick="app.selectFastPayStudent(${s.id})">
+          <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+            ${avatarHtml}
+            <div style="min-width: 0;">
+              <strong style="color: var(--text-heading); font-size: 13px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                ${this.escapeHtml(s.first_name)} ${this.escapeHtml(s.last_name)}
+              </strong>
+              <div style="font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
+                <span>${this.escapeHtml(lvl)}</span>
+                ${s.parent_name ? `<span style="color: #a78bfa;"><i class="fa-solid fa-people-roof"></i> ${this.escapeHtml(s.parent_name)}${s.parent_discount_percent > 0 ? ` (${s.parent_discount_percent}%)` : ''}</span>` : ''}
+              </div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <code style="font-size: 11px; background: rgba(0,0,0,0.25); padding: 2px 6px; border-radius: 4px; color: #10b981;">
+              ${this.escapeHtml(s.matricule || '')}
+            </code>
+            ${s.parent_id ? `
+              <button type="button" class="btn-secondary" style="font-size: 10.5px; padding: 2px 7px; color: #c084fc; border-color: rgba(168, 85, 247, 0.4); border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;"
+                      onclick="event.stopPropagation(); app.jumpToParentPay(${s.parent_id})" title="${isAr ? 'الدفع لجميع الإخوة معاً' : 'Payer pour la famille'}">
+                <i class="fa-solid fa-people-roof"></i> ${isAr ? 'عائلي' : 'Famille'}
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    listContainer.style.display = 'block';
+  }
+
+  async selectFastPayStudent(studentId) {
+    const listContainer = document.getElementById('fastPaySearchResults');
+    if (listContainer) listContainer.style.display = 'none';
+
+    const isAr = this.lang === 'ar';
+
+    try {
+      const res = await fetch(`/api/students/${studentId}/due-summary`);
+      const data = await res.json();
+
+      if (!data.success) {
+        this.showToast(data.error || 'Erreur chargement élève', 'error');
+        return;
+      }
+
+      this._fastPayData = data;
+
+      const searchInput = document.getElementById('fastPayStudentSearch');
+      if (searchInput) {
+        searchInput.value = `${data.student.first_name} ${data.student.last_name} (${data.student.matricule})`;
+      }
+      const clearBtn = document.getElementById('btnFastPayClearSearch');
+      if (clearBtn) clearBtn.style.display = 'block';
+
+      this.renderFastPayStudentPanel();
+    } catch (err) {
+      console.error('Erreur selectFastPayStudent:', err);
+      this.showToast(isAr ? 'خطأ في الاتصال بالخادم' : 'Erreur de connexion', 'error');
+    }
+  }
+
+  clearFastPayStudent() {
+    this._fastPayData = null;
+    const searchInput = document.getElementById('fastPayStudentSearch');
+    if (searchInput) searchInput.value = '';
+    const clearBtn = document.getElementById('btnFastPayClearSearch');
+    if (clearBtn) clearBtn.style.display = 'none';
+    const listContainer = document.getElementById('fastPaySearchResults');
+    if (listContainer) listContainer.style.display = 'none';
+
+    const activeContainer = document.getElementById('fastPayActiveContainer');
+    if (activeContainer) activeContainer.style.display = 'none';
+    const emptyPlaceholder = document.getElementById('fastPayEmptyPlaceholder');
+    if (emptyPlaceholder) emptyPlaceholder.style.display = 'block';
+  }
+
+  getFastPayMonthsList() {
+    return [
+      'Septembre 2026',
+      'Octobre 2026',
+      'Novembre 2026',
+      'Décembre 2026',
+      'Janvier 2027',
+      'Février 2027',
+      'Mars 2027',
+      'Avril 2027',
+      'Mai 2027',
+      'Juin 2027'
+    ];
+  }
+
+  renderFastPayStudentPanel() {
+    const activeContainer = document.getElementById('fastPayActiveContainer');
+    const emptyPlaceholder = document.getElementById('fastPayEmptyPlaceholder');
+    if (!activeContainer || !this._fastPayData) return;
+
+    if (emptyPlaceholder) emptyPlaceholder.style.display = 'none';
+    activeContainer.style.display = 'block';
+
+    const { student, enrollments, payments } = this._fastPayData;
+    const isAr = this.lang === 'ar';
+    const initials = `${(student.first_name || '')[0] || ''}${(student.last_name || '')[0] || ''}`.toUpperCase() || 'E';
+
+    const avatarHtml = student.photo_url
+      ? `<img src="${student.photo_url}" style="width:42px; height:42px; border-radius:50%; object-fit:cover; border:2px solid #10b981;">`
+      : `<div style="width:42px; height:42px; border-radius:50%; background:linear-gradient(135deg, #10b981, #059669); color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:15px; border:2px solid #10b981;">${initials}</div>`;
+
+    const months = this.getFastPayMonthsList();
+    const defaultMonth = months[0];
+
+    // If no enrollments
+    let coursesHtml = '';
+    if (!enrollments || enrollments.length === 0) {
+      coursesHtml = `
+        <div style="padding: 24px; text-align: center; color: var(--text-muted); background: rgba(0,0,0,0.15); border-radius: 8px;">
+          <i class="fa-solid fa-graduation-cap" style="font-size: 24px; opacity: 0.6; margin-bottom: 6px; display: block;"></i>
+          <span>${isAr ? 'هذا التلميذ غير مسجل في أي فوج نشط حالياً.' : 'Cet élève n’est inscrit dans aucun groupe actif.'}</span>
+          <div style="margin-top: 10px;">
+            <button class="btn-secondary" style="font-size: 12px; padding: 6px 14px;" onclick="app.switchView('inscriptions')">
+              <i class="fa-solid fa-plus"></i> ${isAr ? 'تسجيل التلميذ في فوج' : 'Inscrire à un cours'}
+            </button>
+          </div>
+        </div>
+      `;
+    } else {
+      const rowsHtml = enrollments.map((g, idx) => {
+        const basePrice = parseFloat(g.price_monthly) || 0;
+        let defaultDiscount = parseFloat(g.discount_amount) || 0;
+        // Apply parent family discount percentage automatically if no custom course discount
+        if (defaultDiscount === 0 && student.parent_discount_percent > 0) {
+          defaultDiscount = Math.round(basePrice * (student.parent_discount_percent / 100));
+        }
+        const netDue = Math.max(0, basePrice - defaultDiscount);
+
+        // Check if already paid for defaultMonth
+        const paidRecord = payments.find(p => String(p.group_id) === String(g.group_id) && p.month_period === defaultMonth);
+        let isFullyPaid = false;
+        let isPartiallyPaid = false;
+        let remainingDue = netDue;
+        let defaultToPay = netDue;
+
+        if (paidRecord) {
+          const r = parseFloat(paidRecord.remaining_amount) || 0;
+          if (r <= 0) {
+            isFullyPaid = true;
+            defaultToPay = 0;
+            remainingDue = 0;
+          } else {
+            isPartiallyPaid = true;
+            remainingDue = r;
+            defaultToPay = r;
+          }
+        }
+
+        const isChecked = !isFullyPaid;
+
+        const statusTag = isFullyPaid
+          ? `<span class="badge-pill" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-weight:700;"><i class="fa-solid fa-circle-check"></i> ${isAr ? 'خالص' : 'Réglé'}</span>`
+          : (isPartiallyPaid
+            ? `<span class="badge-pill" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; font-weight:700;"><i class="fa-solid fa-circle-exclamation"></i> ${isAr ? `باقي ${remainingDue} دج` : `Reste ${remainingDue} DA`}</span>`
+            : `<span class="badge-pill" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; font-weight:700;"><i class="fa-solid fa-clock"></i> ${isAr ? 'غير مسدد' : 'Non réglé'}</span>`);
+
+        const monthOptions = months.map(m => `<option value="${m}" ${m === defaultMonth ? 'selected' : ''}>${m}</option>`).join('');
+
+        return `
+          <tr id="fastPayRow_${g.group_id}" style="transition: background 0.15s; background: ${isChecked ? 'rgba(16, 185, 129, 0.05)' : ''};">
+            <td style="text-align: center; width: 40px;">
+              <input type="checkbox" class="fastpay-row-chk" data-group-id="${g.group_id}"
+                     ${isChecked ? 'checked' : ''} onchange="app.onFastPayRowCheckChange(${g.group_id})">
+            </td>
+            <td>
+              <div style="font-weight: 700; color: var(--text-heading); font-size: 13.5px;">${this.escapeHtml(g.group_name)}</div>
+              <div style="font-size: 11.5px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+                <span style="color: ${g.subject_color || '#3b82f6'}; font-weight: 600;">${this.escapeHtml(g.subject_name || '')}</span>
+                <span>&bull;</span>
+                <span>${this.escapeHtml(g.teacher_name || '')}</span>
+              </div>
+            </td>
+            <td style="width: 150px;">
+              <select class="form-control fastpay-month-select" data-group-id="${g.group_id}"
+                      style="padding: 5px 8px; font-size: 12px; height: 32px;"
+                      onchange="app.onFastPayRowMonthChange(${g.group_id})">
+                ${monthOptions}
+              </select>
+            </td>
+            <td style="text-align: center; width: 110px;" id="fastPayStatus_${g.group_id}">
+              ${statusTag}
+            </td>
+            <td style="text-align: right; width: 90px; font-weight: 600;" id="fastPayBase_${g.group_id}" data-base="${basePrice}">
+              ${basePrice.toLocaleString('fr-FR')} DA
+            </td>
+            <td style="width: 100px;">
+              <input type="number" class="form-control fastpay-discount-input" data-group-id="${g.group_id}"
+                     style="padding: 5px 8px; font-size: 12px; height: 32px; text-align: right;"
+                     value="${defaultDiscount}" min="0" oninput="app.onFastPayDiscountInput(${g.group_id})">
+            </td>
+            <td style="text-align: right; width: 95px; font-weight: 700; color: #38bdf8;" id="fastPayNet_${g.group_id}">
+              ${netDue.toLocaleString('fr-FR')} DA
+            </td>
+            <td style="width: 120px;">
+              <input type="number" class="form-control fastpay-paid-input" data-group-id="${g.group_id}"
+                     style="padding: 5px 8px; font-size: 13px; height: 32px; text-align: right; font-weight: 700; color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4);"
+                     value="${defaultToPay}" min="0" oninput="app.updateFastPayCalculations()">
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      coursesHtml = `
+        <div class="table-responsive" style="max-height: 320px; overflow-y: auto; margin-bottom: 14px; border: 1px solid var(--border-color); border-radius: 8px;">
+          <table class="edumind-table" style="margin: 0; font-size: 12.5px;">
+            <thead>
+              <tr style="background: rgba(0,0,0,0.25);">
+                <th style="width: 40px; text-align: center;">
+                  <input type="checkbox" id="chkFastPaySelectAll" checked onchange="app.toggleAllFastPayCourses(this.checked)" title="${isAr ? 'تحديد الكل' : 'Tout sélectionner'}">
+                </th>
+                <th>${isAr ? 'الفوج والمادة والأستاذ' : 'GROUPE / MATIÈRE / ENSEIGNANT'}</th>
+                <th>${isAr ? 'الشهر المعني' : 'MOIS CONCERNÉ'}</th>
+                <th style="text-align: center;">${isAr ? 'حالة السداد' : 'STATUT'}</th>
+                <th style="text-align: right;">${isAr ? 'السعر' : 'TARIF'}</th>
+                <th style="text-align: right;">${isAr ? 'تخفيض (DA)' : 'REMISE'}</th>
+                <th style="text-align: right;">${isAr ? 'الصافي' : 'NET'}</th>
+                <th style="text-align: right;">${isAr ? 'المبلغ المدفوع (DA)' : 'MONTANT PAYÉ'}</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    activeContainer.innerHTML = `
+      <!-- Student Profile Hero Header -->
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: rgba(0, 0, 0, 0.2); border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--border-color); flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          ${avatarHtml}
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <strong style="color: var(--text-heading); font-size: 15px;">${this.escapeHtml(student.first_name)} ${this.escapeHtml(student.last_name)}</strong>
+              <code style="font-size: 11.5px; background: rgba(16, 185, 129, 0.15); color: #10b981; padding: 2px 7px; border-radius: 4px; font-weight: 700;">${this.escapeHtml(student.matricule || '')}</code>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+              <span><i class="fa-solid fa-layer-group" style="font-size: 10px; margin-right: 4px;"></i>${this.escapeHtml(student.level_name || '')}</span>
+              ${student.phone ? `<span><i class="fa-solid fa-phone" style="font-size: 10px; margin-right: 4px;"></i>${this.escapeHtml(student.phone)}</span>` : ''}
+              ${student.parent_name ? `<span class="badge" style="background: rgba(139, 92, 246, 0.15); color: #a78bfa; font-size: 11px; padding: 2px 7px; border-radius: 4px;"><i class="fa-solid fa-people-roof"></i> ${isAr ? 'الولي' : 'Parent'}: ${this.escapeHtml(student.parent_name)}${student.parent_discount_percent > 0 ? ` (-${student.parent_discount_percent}%)` : ''}</span>` : ''}
+              <span><i class="fa-solid fa-graduation-cap" style="font-size: 10px; margin-right: 4px;"></i>${enrollments.length} ${isAr ? 'أفواج مسجل بها' : 'cours inscrit(s)'}</span>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="btn-secondary" style="font-size: 12px; padding: 5px 12px;" onclick="app.clearFastPayStudent()">
+          <i class="fa-solid fa-user-xmark"></i> ${isAr ? 'تغيير التلميذ' : 'Changer d\'élève'}
+        </button>
+      </div>
+
+      <!-- Courses List with Checkboxes -->
+      ${coursesHtml}
+
+      <!-- Bottom Checkout Bar -->
+      <div style="background: rgba(0, 0, 0, 0.35); border-radius: 10px; padding: 12px 18px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+        
+        <!-- Left: Payment Options (Method, Date, Notes) -->
+        <div style="display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">
+          <div>
+            <label style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 3px;">
+              ${isAr ? 'طريقة الدفع' : 'Mode de paiement'}
+            </label>
+            <select id="fastPayMethod" class="form-control" style="width: 140px; padding: 6px 10px; font-size: 12.5px; height: 34px;">
+              <option value="espece">${isAr ? 'نقداً (Espèces)' : 'Espèces (Caisse)'}</option>
+              <option value="baridimob">BaridiMob / CCP</option>
+              <option value="cheque">${isAr ? 'شيك (Chèque)' : 'Chèque bancaire'}</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 3px;">
+              ${isAr ? 'تاريخ الدفع' : 'Date de paiement'}
+            </label>
+            <input type="date" id="fastPayDate" class="form-control" style="width: 140px; padding: 6px 10px; font-size: 12.5px; height: 34px;" value="${new Date().toISOString().split('T')[0]}">
+          </div>
+          <div>
+            <label style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 3px;">
+              ${isAr ? 'ملاحظات (اختياري)' : 'Notes / Remarques'}
+            </label>
+            <input type="text" id="fastPayNotes" class="form-control" placeholder="${isAr ? 'ملاحظة على الوصل...' : 'Ex: Paiement anticipé...'}" style="width: 180px; padding: 6px 10px; font-size: 12px; height: 34px;">
+          </div>
+        </div>
+
+        <!-- Right: Calculations & Submit Button -->
+        <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+          <div style="text-align: right;">
+            <div style="font-size: 11px; color: var(--text-muted);">${isAr ? 'الأفواج المحددة' : 'Cours sélectionnés'} : <strong id="fastPaySummaryCount" style="color: var(--text-heading); font-size: 13px;">0</strong></div>
+            <div style="font-size: 11px; color: var(--text-muted);">${isAr ? 'المستحق الصافي' : 'Total Net dû'} : <strong id="fastPaySummaryDue" style="color: #38bdf8; font-size: 13px;">0 DA</strong></div>
+          </div>
+          <div style="text-align: right; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 6px 14px;">
+            <span style="font-size: 11px; color: var(--text-muted); display: block;">${isAr ? 'المبلغ الإجمالي المقبوض' : 'Total à Encaisser'}</span>
+            <strong id="fastPaySummaryPaid" style="font-size: 18px; color: #10b981; font-weight: 800;">0 DA</strong>
+          </div>
+          <button type="button" class="btn-primary" id="btnSubmitFastPay" onclick="app.submitFastMultiPayment()"
+                  style="background: linear-gradient(135deg, #10b981, #059669); font-weight: 700; padding: 10px 22px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35); display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+            <i class="fa-solid fa-receipt"></i>
+            <span data-i18n="fast_pay_btn_submit">${isAr ? 'تأكيد الدفع وطباعة الوصل' : 'Encaisser & Imprimer le Reçu'}</span>
+          </button>
+        </div>
+
+      </div>
+    `;
+
+    this.updateFastPayCalculations();
+  }
+
+  onFastPayRowCheckChange(groupId) {
+    const row = document.getElementById(`fastPayRow_${groupId}`);
+    const chk = document.querySelector(`.fastpay-row-chk[data-group-id="${groupId}"]`);
+    if (row && chk) {
+      row.style.background = chk.checked ? 'rgba(16, 185, 129, 0.05)' : '';
+    }
+    this.updateFastPayCalculations();
+  }
+
+  toggleAllFastPayCourses(checked) {
+    document.querySelectorAll('.fastpay-row-chk').forEach(chk => {
+      chk.checked = checked;
+      const gid = chk.dataset.groupId;
+      const row = document.getElementById(`fastPayRow_${gid}`);
+      if (row) row.style.background = checked ? 'rgba(16, 185, 129, 0.05)' : '';
+    });
+    this.updateFastPayCalculations();
+  }
+
+  onFastPayDiscountInput(groupId) {
+    const baseEl = document.getElementById(`fastPayBase_${groupId}`);
+    const discInput = document.querySelector(`.fastpay-discount-input[data-group-id="${groupId}"]`);
+    const netEl = document.getElementById(`fastPayNet_${groupId}`);
+    const paidInput = document.querySelector(`.fastpay-paid-input[data-group-id="${groupId}"]`);
+
+    const base = parseFloat(baseEl?.dataset.base) || 0;
+    const disc = parseFloat(discInput?.value) || 0;
+    const net = Math.max(0, base - disc);
+
+    if (netEl) netEl.textContent = `${net.toLocaleString('fr-FR')} DA`;
+    if (paidInput) paidInput.value = net;
+
+    this.updateFastPayCalculations();
+  }
+
+  onFastPayRowMonthChange(groupId) {
+    if (!this._fastPayData) return;
+    const select = document.querySelector(`.fastpay-month-select[data-group-id="${groupId}"]`);
+    const statusContainer = document.getElementById(`fastPayStatus_${groupId}`);
+    const paidInput = document.querySelector(`.fastpay-paid-input[data-group-id="${groupId}"]`);
+    const baseEl = document.getElementById(`fastPayBase_${groupId}`);
+    const discInput = document.querySelector(`.fastpay-discount-input[data-group-id="${groupId}"]`);
+    const chk = document.querySelector(`.fastpay-row-chk[data-group-id="${groupId}"]`);
+
+    const selMonth = select ? select.value : '';
+    const payments = this._fastPayData.payments || [];
+    const base = parseFloat(baseEl?.dataset.base) || 0;
+    const disc = parseFloat(discInput?.value) || 0;
+    const net = Math.max(0, base - disc);
+
+    const paidRecord = payments.find(p => String(p.group_id) === String(groupId) && p.month_period === selMonth);
+    const isAr = this.lang === 'ar';
+
+    let isFullyPaid = false;
+    let isPartiallyPaid = false;
+    let rem = net;
+
+    if (paidRecord) {
+      const r = parseFloat(paidRecord.remaining_amount) || 0;
+      if (r <= 0) {
+        isFullyPaid = true;
+        rem = 0;
+      } else {
+        isPartiallyPaid = true;
+        rem = r;
+      }
+    }
+
+    if (statusContainer) {
+      statusContainer.innerHTML = isFullyPaid
+        ? `<span class="badge-pill" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-weight:700;"><i class="fa-solid fa-circle-check"></i> ${isAr ? 'خالص' : 'Réglé'}</span>`
+        : (isPartiallyPaid
+          ? `<span class="badge-pill" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; font-weight:700;"><i class="fa-solid fa-circle-exclamation"></i> ${isAr ? `باقي ${rem} دج` : `Reste ${rem} DA`}</span>`
+          : `<span class="badge-pill" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; font-weight:700;"><i class="fa-solid fa-clock"></i> ${isAr ? 'غير مسدد' : 'Non réglé'}</span>`);
+    }
+
+    if (paidInput) {
+      paidInput.value = rem;
+    }
+    if (chk) {
+      chk.checked = !isFullyPaid;
+      this.onFastPayRowCheckChange(groupId);
+    } else {
+      this.updateFastPayCalculations();
+    }
+  }
+
+  updateFastPayCalculations() {
+    let count = 0;
+    let totalNet = 0;
+    let totalPaid = 0;
+
+    document.querySelectorAll('.fastpay-row-chk:checked').forEach(chk => {
+      count++;
+      const gid = chk.dataset.groupId;
+      const baseEl = document.getElementById(`fastPayBase_${gid}`);
+      const discInput = document.querySelector(`.fastpay-discount-input[data-group-id="${gid}"]`);
+      const paidInput = document.querySelector(`.fastpay-paid-input[data-group-id="${gid}"]`);
+
+      const base = parseFloat(baseEl?.dataset.base) || 0;
+      const disc = parseFloat(discInput?.value) || 0;
+      const paid = parseFloat(paidInput?.value) || 0;
+      const net = Math.max(0, base - disc);
+
+      totalNet += net;
+      totalPaid += paid;
+    });
+
+    const elCount = document.getElementById('fastPaySummaryCount');
+    if (elCount) elCount.textContent = count;
+
+    const elDue = document.getElementById('fastPaySummaryDue');
+    if (elDue) elDue.textContent = `${totalNet.toLocaleString('fr-FR')} DA`;
+
+    const elPaid = document.getElementById('fastPaySummaryPaid');
+    if (elPaid) elPaid.textContent = `${totalPaid.toLocaleString('fr-FR')} DA`;
+
+    const btnSubmit = document.getElementById('btnSubmitFastPay');
+    if (btnSubmit) {
+      btnSubmit.disabled = count === 0 || totalPaid <= 0;
+      btnSubmit.style.opacity = (count === 0 || totalPaid <= 0) ? '0.5' : '1';
+      btnSubmit.style.cursor = (count === 0 || totalPaid <= 0) ? 'not-allowed' : 'pointer';
+    }
+  }
+
+  async submitFastMultiPayment() {
+    const isAr = this.lang === 'ar';
+    if (!this._fastPayData) return;
+
+    const items = [];
+    document.querySelectorAll('.fastpay-row-chk:checked').forEach(chk => {
+      const gid = chk.dataset.groupId;
+      const baseEl = document.getElementById(`fastPayBase_${gid}`);
+      const discInput = document.querySelector(`.fastpay-discount-input[data-group-id="${gid}"]`);
+      const paidInput = document.querySelector(`.fastpay-paid-input[data-group-id="${gid}"]`);
+      const monthSelect = document.querySelector(`.fastpay-month-select[data-group-id="${gid}"]`);
+
+      const base = parseFloat(baseEl?.dataset.base) || 0;
+      const disc = parseFloat(discInput?.value) || 0;
+      const paid = parseFloat(paidInput?.value) || 0;
+      const month = monthSelect ? monthSelect.value : 'Septembre 2026';
+
+      if (paid > 0 || (base - disc) > 0) {
+        items.push({
+          group_id: parseInt(gid, 10),
+          month_period: month,
+          base_amount: base,
+          discount: disc,
+          paid_amount: paid
+        });
+      }
+    });
+
+    if (items.length === 0) {
+      this.showToast(isAr ? 'يرجى تحديد فوج واحد على الأقل مع مبلغ صالح للدفع' : 'Veuillez sélectionner au moins un cours avec un montant valide.', 'warning');
+      return;
+    }
+
+    const payment_method = document.getElementById('fastPayMethod')?.value || 'espece';
+    const payment_date = document.getElementById('fastPayDate')?.value || new Date().toISOString().split('T')[0];
+    const notes = (document.getElementById('fastPayNotes')?.value || '').trim();
+
+    const btn = document.getElementById('btnSubmitFastPay');
+    if (btn) btn.disabled = true;
+
+    try {
+      const res = await fetch('/api/payments/multi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          student_id: this._fastPayData.student.id,
+          payment_method,
+          payment_date,
+          notes,
+          items
+        })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        this.playChime('success');
+        const msg = isAr
+          ? `تم استلام الدفع بنجاح! الوصل: ${data.receipt_no} (المجموع: ${Number(data.total_paid).toLocaleString('fr-FR')} دج)`
+          : `Paiement enregistré avec succès ! Reçu N° ${data.receipt_no} (Total: ${Number(data.total_paid).toLocaleString('fr-FR')} DA)`;
+        this.showToast(msg, 'success');
+
+        // Open and render official unified receipt
+        this.renderMultiReceipt(data);
+
+        // Refresh tables in background
+        await this.loadPayments();
+        if (this.loadDashboardData) this.loadDashboardData();
+        if (this.loadCaisse) this.loadCaisse();
+
+        // Refresh student panel status
+        await this.selectFastPayStudent(this._fastPayData.student.id);
+      } else {
+        this.playChime('error');
+        this.showToast(data.error || (isAr ? 'حدث خطأ أثناء تسجيل الدفع' : 'Erreur enregistrement paiement'), 'error');
+      }
+    } catch (err) {
+      console.error('Erreur submitFastMultiPayment:', err);
+      this.playChime('error');
+      this.showToast(isAr ? 'خطأ في الاتصال بالخادم' : 'Erreur de connexion serveur', 'error');
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  // ===========================================================================
+  // PARENT & FAMILY FAST PAYMENT (الدفع العائلي الموحد باسم الولي مع الدفع الجزئي)
+  // ===========================================================================
+
+  async onFastPayParentSearch(query) {
+    const listContainer = document.getElementById('fastPayParentSearchResults');
+    const clearBtn = document.getElementById('btnFastPayParentClearSearch');
+    if (!listContainer) return;
+
+    const term = (query || '').trim();
+    if (!term) {
+      listContainer.style.display = 'none';
+      if (clearBtn) clearBtn.style.display = 'none';
+      return;
+    }
+    if (clearBtn) clearBtn.style.display = 'block';
+
+    const isAr = this.lang === 'ar';
+
+    try {
+      const res = await fetch(`/api/parents?search=${encodeURIComponent(term)}`);
+      const data = await res.json();
+      const parents = (data && data.success && Array.isArray(data.parents)) ? data.parents : [];
+
+      if (parents.length === 0) {
+        listContainer.innerHTML = `
+          <div style="padding: 14px 16px; text-align: center; color: var(--text-muted); font-size: 12.5px;">
+            <i class="fa-solid fa-user-slash" style="margin-right: 6px; color: #a855f7;"></i> ${isAr ? 'لم يتم العثور على أي ولي يطابق البحث' : 'Aucun parent trouvé'}
+          </div>
+        `;
+        listContainer.style.display = 'block';
+        return;
+      }
+
+      listContainer.innerHTML = parents.slice(0, 15).map(p => {
+        const initials = (p.full_name || 'P').trim().split(/\s+/).slice(0, 2).map(w => w[0] || '').join('').toUpperCase() || 'P';
+        const children = p.children || [];
+        const childNames = children.map(c => `${c.first_name}`).join(', ');
+
+        return `
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: background 0.15s;"
+               onmouseover="this.style.background='rgba(168, 85, 247, 0.12)'" onmouseout="this.style.background=''"
+               onclick="app.selectFastPayParent(${p.id})">
+            <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+              <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #7c3aed, #a855f7); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 11.5px; flex-shrink: 0; box-shadow: 0 2px 6px rgba(124, 58, 237, 0.35);">
+                ${initials}
+              </div>
+              <div style="min-width: 0;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <strong style="color: var(--text-heading); font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    ${this.escapeHtml(p.full_name)}
+                  </strong>
+                  ${p.discount_percent > 0 ? `<span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981; font-size: 10.5px; padding: 1px 6px; border-radius: 4px;">-${p.discount_percent}%</span>` : ''}
+                </div>
+                <div style="font-size: 11.5px; color: var(--text-muted); display: flex; align-items: center; gap: 8px; margin-top: 2px;">
+                  ${p.phone ? `<span><i class="fa-solid fa-phone" style="font-size: 10px;"></i> ${this.escapeHtml(p.phone)}</span>` : ''}
+                  <span style="color: #c084fc; font-weight: 600;">
+                    <i class="fa-solid fa-people-roof"></i> ${p.children_count || children.length} ${isAr ? 'أبناء' : 'enfant(s)'}${childNames ? ` (${this.escapeHtml(childNames)})` : ''}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div style="text-align: right; flex-shrink: 0;">
+              ${p.total_debt > 0 ? `<div style="font-size: 11px; color: #ef4444; font-weight: 700;">${isAr ? 'ديون' : 'Dette'}: ${Number(p.total_debt).toLocaleString('fr-FR')} DA</div>` : `<span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-size: 10px;">${isAr ? 'حساب منتظم' : 'À jour'}</span>`}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      listContainer.style.display = 'block';
+    } catch (err) {
+      console.error('Erreur onFastPayParentSearch:', err);
+    }
+  }
+
+  async selectFastPayParent(parentId) {
+    const listContainer = document.getElementById('fastPayParentSearchResults');
+    if (listContainer) listContainer.style.display = 'none';
+
+    const isAr = this.lang === 'ar';
+
+    try {
+      const res = await fetch(`/api/parents/${parentId}`);
+      const data = await res.json();
+
+      if (!data.success) {
+        this.showToast(data.error || (isAr ? 'خطأ في جلب بيانات الولي' : 'Erreur chargement parent'), 'error');
+        return;
+      }
+
+      this._fastPayParentData = data;
+
+      const searchInput = document.getElementById('fastPayParentSearch');
+      if (searchInput) {
+        searchInput.value = `${data.parent.full_name} (${data.parent.phone || (isAr ? 'بدون هاتف' : 'Sans tél')})`;
+      }
+      const clearBtn = document.getElementById('btnFastPayParentClearSearch');
+      if (clearBtn) clearBtn.style.display = 'block';
+
+      this.renderFastPayParentPanel();
+    } catch (err) {
+      console.error('Erreur selectFastPayParent:', err);
+      this.showToast(isAr ? 'خطأ في الاتصال بالخادم' : 'Erreur de connexion', 'error');
+    }
+  }
+
+  clearFastPayParent() {
+    this._fastPayParentData = null;
+    const searchInput = document.getElementById('fastPayParentSearch');
+    if (searchInput) searchInput.value = '';
+    const clearBtn = document.getElementById('btnFastPayParentClearSearch');
+    if (clearBtn) clearBtn.style.display = 'none';
+    const listContainer = document.getElementById('fastPayParentSearchResults');
+    if (listContainer) listContainer.style.display = 'none';
+
+    const activeContainer = document.getElementById('fastPayParentActiveContainer');
+    if (activeContainer) activeContainer.style.display = 'none';
+    const emptyPlaceholder = document.getElementById('fastPayParentEmptyPlaceholder');
+    if (emptyPlaceholder) emptyPlaceholder.style.display = 'block';
+  }
+
+  renderFastPayParentPanel() {
+    const activeContainer = document.getElementById('fastPayParentActiveContainer');
+    const emptyPlaceholder = document.getElementById('fastPayParentEmptyPlaceholder');
+    if (!activeContainer || !this._fastPayParentData) return;
+
+    if (emptyPlaceholder) emptyPlaceholder.style.display = 'none';
+    activeContainer.style.display = 'block';
+
+    const { parent, children } = this._fastPayParentData;
+    const isAr = this.lang === 'ar';
+    const parentInitials = (parent.full_name || 'P').trim().split(/\s+/).slice(0, 2).map(w => w[0] || '').join('').toUpperCase() || 'P';
+
+    const months = this.getFastPayMonthsList();
+    const defaultMonth = months[0];
+
+    const activeChildren = (children || []).filter(c => c.active !== 0);
+
+    let childrenHtml = '';
+    if (activeChildren.length === 0) {
+      childrenHtml = `
+        <div style="padding: 24px; text-align: center; color: var(--text-muted); background: rgba(0,0,0,0.15); border-radius: 8px;">
+          <i class="fa-solid fa-user-slash" style="font-size: 24px; opacity: 0.6; margin-bottom: 6px; display: block; color: #a855f7;"></i>
+          <span>${isAr ? 'لا يوجد أي تلميذ مرتبط بهذا الولي حالياً.' : 'Aucun enfant associé à ce parent.'}</span>
+          <div style="margin-top: 10px;">
+            <button class="btn-secondary" style="font-size: 12px; padding: 6px 14px;" onclick="app.switchView('eleves')">
+              <i class="fa-solid fa-user-plus"></i> ${isAr ? 'إدارة التلاميذ' : 'Gérer les élèves'}
+            </button>
+          </div>
+        </div>
+      `;
+    } else {
+      childrenHtml = activeChildren.map(child => {
+        const cInitials = `${(child.first_name || '')[0] || ''}${(child.last_name || '')[0] || ''}`.toUpperCase() || 'E';
+        const enrollments = child.enrollments || [];
+        const payments = child.payments || [];
+
+        let coursesListHtml = '';
+        if (enrollments.length === 0) {
+          coursesListHtml = `
+            <div style="padding: 12px 16px; color: var(--text-muted); font-size: 12px; text-align: center; background: rgba(0,0,0,0.1); border-radius: 6px;">
+              <i class="fa-solid fa-circle-info" style="margin-right: 4px;"></i>
+              ${isAr ? 'غير مسجل في أي فوج نشط حالياً.' : 'Inscrit dans aucun groupe actif.'}
+            </div>
+          `;
+        } else {
+          const rows = enrollments.map(g => {
+            const basePrice = parseFloat(g.price_monthly) || 0;
+            let defaultDiscount = parseFloat(g.discount_amount) || 0;
+            if (defaultDiscount === 0 && parent.discount_percent > 0) {
+              defaultDiscount = Math.round(basePrice * (parent.discount_percent / 100));
+            }
+            const netDue = Math.max(0, basePrice - defaultDiscount);
+
+            const paidRecord = payments.find(p => String(p.group_id) === String(g.group_id) && p.month_period === defaultMonth);
+            let isFullyPaid = false;
+            let isPartiallyPaid = false;
+            let remainingDue = netDue;
+            let defaultToPay = netDue;
+
+            if (paidRecord) {
+              const r = parseFloat(paidRecord.remaining_amount) || 0;
+              if (r <= 0) {
+                isFullyPaid = true;
+                defaultToPay = 0;
+                remainingDue = 0;
+              } else {
+                isPartiallyPaid = true;
+                remainingDue = r;
+                defaultToPay = r;
+              }
+            }
+
+            const isChecked = !isFullyPaid;
+            const statusTag = isFullyPaid
+              ? `<span class="badge-pill" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-weight:700;"><i class="fa-solid fa-circle-check"></i> ${isAr ? 'خالص' : 'Réglé'}</span>`
+              : (isPartiallyPaid
+                ? `<span class="badge-pill" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; font-weight:700;"><i class="fa-solid fa-circle-exclamation"></i> ${isAr ? `باقي ${remainingDue} دج` : `Reste ${remainingDue} DA`}</span>`
+                : `<span class="badge-pill" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; font-weight:700;"><i class="fa-solid fa-clock"></i> ${isAr ? 'غير مسدد' : 'Non réglé'}</span>`);
+
+            const monthOptions = months.map(m => `<option value="${m}" ${m === defaultMonth ? 'selected' : ''}>${m}</option>`).join('');
+
+            return `
+              <tr id="fastPayParentRow_${child.id}_${g.group_id}" style="transition: background 0.15s; background: ${isChecked ? 'rgba(168, 85, 247, 0.05)' : ''};">
+                <td style="text-align: center; width: 36px;">
+                  <input type="checkbox" class="fastpay-parent-chk"
+                         data-student-id="${child.id}" data-student-name="${this.escapeHtml(child.first_name + ' ' + child.last_name)}"
+                         data-group-id="${g.group_id}" data-group-name="${this.escapeHtml(g.group_name)}"
+                         ${isChecked ? 'checked' : ''} onchange="app.onFastPayParentRowCheckChange(${child.id}, ${g.group_id})">
+                </td>
+                <td>
+                  <div style="font-weight: 700; color: var(--text-heading); font-size: 13px;">${this.escapeHtml(g.group_name)}</div>
+                  <div style="font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+                    <span style="color: ${g.subject_color || '#3b82f6'}; font-weight: 600;">${this.escapeHtml(g.subject_name || '')}</span>
+                    <span>&bull;</span>
+                    <span>${this.escapeHtml(g.teacher_name || '')}</span>
+                  </div>
+                </td>
+                <td style="width: 140px;">
+                  <select class="form-control fastpay-parent-month-select"
+                          data-student-id="${child.id}" data-group-id="${g.group_id}"
+                          style="padding: 4px 6px; font-size: 11.5px; height: 30px;"
+                          onchange="app.onFastPayParentRowMonthChange(${child.id}, ${g.group_id})">
+                    ${monthOptions}
+                  </select>
+                </td>
+                <td style="text-align: center; width: 100px;" id="fastPayParentStatus_${child.id}_${g.group_id}">
+                  ${statusTag}
+                </td>
+                <td style="text-align: right; width: 85px; font-weight: 600;" id="fastPayParentBase_${child.id}_${g.group_id}" data-base="${basePrice}">
+                  ${basePrice.toLocaleString('fr-FR')} DA
+                </td>
+                <td style="width: 90px;">
+                  <input type="number" class="form-control fastpay-parent-discount-input"
+                         data-student-id="${child.id}" data-group-id="${g.group_id}"
+                         style="padding: 4px 6px; font-size: 11.5px; height: 30px; text-align: right;"
+                         value="${defaultDiscount}" min="0" oninput="app.onFastPayParentDiscountInput(${child.id}, ${g.group_id})">
+                </td>
+                <td style="text-align: right; width: 90px; font-weight: 700; color: #38bdf8;" id="fastPayParentNet_${child.id}_${g.group_id}">
+                  ${netDue.toLocaleString('fr-FR')} DA
+                </td>
+                <td style="width: 115px;">
+                  <input type="number" class="form-control fastpay-parent-paid-input"
+                         data-student-id="${child.id}" data-group-id="${g.group_id}"
+                         style="padding: 4px 6px; font-size: 12.5px; height: 30px; text-align: right; font-weight: 700; color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4);"
+                         value="${defaultToPay}" min="0" oninput="app.updateFastPayParentCalculations(false)">
+                </td>
+                <td style="text-align: right; width: 85px; font-size: 11.5px; font-weight: 700; color: ${remainingDue > 0 ? '#ef4444' : 'var(--text-muted)'};" id="fastPayParentRemaining_${child.id}_${g.group_id}">
+                  ${remainingDue > 0 ? `${remainingDue.toLocaleString('fr-FR')} DA` : '0 DA'}
+                </td>
+              </tr>
+            `;
+          }).join('');
+
+          coursesListHtml = `
+            <div class="table-responsive" style="margin: 0; border: 1px solid var(--border-color); border-radius: 8px;">
+              <table class="edumind-table" style="margin: 0; font-size: 12px;">
+                <thead>
+                  <tr style="background: rgba(0,0,0,0.2);">
+                    <th style="width: 36px; text-align: center;">#</th>
+                    <th>${isAr ? 'الفوج والمادة' : 'GROUPE / MATIÈRE'}</th>
+                    <th>${isAr ? 'الشهر المعني' : 'MOIS'}</th>
+                    <th style="text-align: center;">${isAr ? 'الحالة' : 'STATUT'}</th>
+                    <th style="text-align: right;">${isAr ? 'السعر' : 'TARIF'}</th>
+                    <th style="text-align: right;">${isAr ? 'تخفيض' : 'REMISE'}</th>
+                    <th style="text-align: right;">${isAr ? 'الصافي' : 'NET'}</th>
+                    <th style="text-align: right;">${isAr ? 'المبلغ المدفوع' : 'MONTANT PAYÉ'}</th>
+                    <th style="text-align: right;">${isAr ? 'المتبقي (دين)' : 'RESTE'}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${rows}
+                </tbody>
+              </table>
+            </div>
+          `;
+        }
+
+        const childAvatar = child.photo_url
+          ? `<img src="${child.photo_url}" style="width:34px; height:34px; border-radius:50%; object-fit:cover; border:2px solid #a855f7;">`
+          : `<div style="width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg, #7c3aed, #a855f7); color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:12px; border:2px solid #a855f7;">${cInitials}</div>`;
+
+        return `
+          <div style="background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                ${childAvatar}
+                <div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <strong style="font-size: 14px; color: var(--text-heading);">${this.escapeHtml(child.first_name)} ${this.escapeHtml(child.last_name)}</strong>
+                    <code style="font-size: 11px; background: rgba(168, 85, 247, 0.15); color: #c084fc; padding: 1px 6px; border-radius: 4px;">${this.escapeHtml(child.matricule || '')}</code>
+                  </div>
+                  <div style="font-size: 11.5px; color: var(--text-muted); display: flex; align-items: center; gap: 10px; margin-top: 1px;">
+                    <span><i class="fa-solid fa-layer-group" style="font-size: 10px;"></i> ${this.escapeHtml(child.level_name || '')}</span>
+                    <span>&bull;</span>
+                    <span><i class="fa-solid fa-graduation-cap" style="font-size: 10px;"></i> ${enrollments.length} ${isAr ? 'أفواج مسجل بها' : 'cours'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            ${coursesListHtml}
+          </div>
+        `;
+      }).join('');
+    }
+
+    const monthOptions = months.map(m => `<option value="${m}" ${m === defaultMonth ? 'selected' : ''}>${m}</option>`).join('');
+
+    activeContainer.innerHTML = `
+      <!-- Parent Hero Header Banner -->
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(168, 85, 247, 0.05)); border-radius: 10px; margin-bottom: 14px; border: 1px solid rgba(168, 85, 247, 0.35); flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #7c3aed, #a855f7); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);">
+            ${parentInitials}
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <strong style="color: var(--text-heading); font-size: 16px;">${this.escapeHtml(parent.full_name)}</strong>
+              ${parent.discount_percent > 0 ? `<span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981; font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 700;"><i class="fa-solid fa-percent"></i> ${isAr ? `تخفيض عائلي ${parent.discount_percent}%` : `Remise famille ${parent.discount_percent}%`}</span>` : ''}
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">
+              ${parent.phone ? `<span><i class="fa-solid fa-phone" style="font-size: 10px; color: #c084fc;"></i> ${this.escapeHtml(parent.phone)}</span>` : ''}
+              ${parent.phone_secondary ? `<span><i class="fa-solid fa-phone" style="font-size: 10px;"></i> ${this.escapeHtml(parent.phone_secondary)}</span>` : ''}
+              <span><i class="fa-solid fa-people-roof" style="font-size: 10px; color: #c084fc;"></i> <strong style="color: #c084fc;">${activeChildren.length}</strong> ${isAr ? 'أبناء مسجلين' : 'enfant(s) inscrit(s)'}</span>
+              ${parent.total_debt > 0 ? `<span style="color: #ef4444; font-weight: 700;"><i class="fa-solid fa-circle-exclamation"></i> ${isAr ? `ديون سابقة: ${Number(parent.total_debt).toLocaleString('fr-FR')} DA` : `Dette antérieure: ${Number(parent.total_debt).toLocaleString('fr-FR')} DA`}</span>` : ''}
+            </div>
+          </div>
+        </div>
+        <button type="button" class="btn-secondary" style="font-size: 12px; padding: 6px 14px;" onclick="app.clearFastPayParent()">
+          <i class="fa-solid fa-user-xmark"></i> ${isAr ? 'تغيير الولي' : 'Changer de parent'}
+        </button>
+      </div>
+
+      <!-- Global Controls & Partial Payment Toolbar (شريط التحكم المالي والدفع الجزئي) -->
+      <div style="background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 10px; padding: 12px 16px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+        
+        <!-- Left: Global Month & Select All -->
+        <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); white-space: nowrap;">
+              <i class="fa-regular fa-calendar" style="color: #c084fc;"></i> ${isAr ? 'الشهر الموحد لجميع الأبناء:' : 'Mois pour tous les enfants :'}
+            </label>
+            <select id="fastPayParentGlobalMonth" class="form-control" style="width: 155px; padding: 5px 8px; font-size: 12px; height: 32px;"
+                    onchange="app.onFastPayParentGlobalMonthChange(this.value)">
+              ${monthOptions}
+            </select>
+          </div>
+          <button type="button" class="btn-secondary" style="font-size: 11.5px; padding: 4px 10px;" onclick="app.toggleAllFastPayParentCourses(true)">
+            <i class="fa-solid fa-check-double"></i> ${isAr ? 'تحديد كل الأفواج' : 'Tout cocher'}
+          </button>
+        </div>
+
+        <!-- Center & Right: Partial Payment Controller -->
+        <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+          <div style="text-align: right;">
+            <div style="font-size: 11px; color: var(--text-muted);">${isAr ? 'المستحق الصافي الإجمالي' : 'Total Net Dû'}</div>
+            <strong id="fastPayParentSummaryDue" style="font-size: 15px; color: #38bdf8;">0 DA</strong>
+          </div>
+
+          <!-- The Core Feature: Custom partial/full amount given by parent -->
+          <div style="display: flex; align-items: center; gap: 8px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 6px 12px;">
+            <div>
+              <label for="fastPayParentTotalPaidInput" style="font-size: 11px; font-weight: 700; color: #10b981; display: block; margin-bottom: 2px;">
+                ${isAr ? 'المبلغ المقبوض من الولي (دفع كلي أو جزئي):' : 'Montant versé par le parent :'}
+              </label>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <input type="number" id="fastPayParentTotalPaidInput" class="form-control" min="0" step="50"
+                       style="width: 130px; font-size: 14px; font-weight: 800; color: #10b981; border: 1px solid rgba(16, 185, 129, 0.6); text-align: right; height: 32px; padding: 4px 8px;"
+                       placeholder="0" oninput="app.onFastPayParentGlobalPaidInput(this.value)">
+                <span style="font-weight: 700; font-size: 12px; color: #10b981;">DA</span>
+              </div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 3px;">
+              <button type="button" class="btn-secondary" style="font-size: 10.5px; padding: 2px 8px; background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.3); color: #10b981;"
+                      onclick="app.fillFullFastPayParentAmount()" title="${isAr ? 'دفع كامل المبلغ المستحق' : 'Régler la totalité'}">
+                <i class="fa-solid fa-bolt"></i> ${isAr ? 'سداد كامل' : 'Tout payer'}
+              </button>
+              <button type="button" class="btn-secondary" style="font-size: 10.5px; padding: 2px 8px; background: rgba(168, 85, 247, 0.15); border-color: rgba(168, 85, 247, 0.3); color: #c084fc;"
+                      onclick="app.distributeFastPayParentAmount()" title="${isAr ? 'توزيع المبلغ المدخل على الأبناء' : 'Répartir le montant'}">
+                <i class="fa-solid fa-arrows-split-up-and-left"></i> ${isAr ? 'توزيع تلقائي' : 'Répartir'}
+              </button>
+            </div>
+          </div>
+
+          <!-- Remaining Debt Alert / Counter -->
+          <div id="fastPayParentRemainingBox" style="text-align: right; background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border-color); border-radius: 8px; padding: 6px 12px;">
+            <div style="font-size: 11px; color: var(--text-muted);">${isAr ? 'المتبقي (دين)' : 'Reste dû (Dette)'}</div>
+            <strong id="fastPayParentSummaryRemaining" style="font-size: 15px; color: #ef4444;">0 DA</strong>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Partial Payment Info Banner (Shows dynamically when debt exists) -->
+      <div id="fastPayParentPartialNotice" style="display: none; align-items: center; gap: 8px; padding: 8px 14px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; margin-bottom: 12px; font-size: 12px; color: #f59e0b;">
+        <i class="fa-solid fa-circle-exclamation" style="font-size: 14px;"></i>
+        <span>${isAr ? 'تنبيه: المبلغ المدفوع جزئي. سيتم تسجيل المتبقي كدين رسمي في حساب التلاميذ والأفواج المعنية، وسيظهر في الوصل العائلي.' : 'Note : Versement partiel. Le reliquat sera enregistré comme dette dans le compte des enfants et apparaîtra sur le reçu familial.'}</span>
+      </div>
+
+      <!-- Children Breakdown List -->
+      ${childrenHtml}
+
+      <!-- Bottom Checkout Bar -->
+      <div style="background: rgba(0, 0, 0, 0.4); border-radius: 10px; padding: 14px 18px; border: 1px solid rgba(168, 85, 247, 0.35); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-top: 14px;">
+        
+        <!-- Left: Payment Options (Method, Date, Notes) -->
+        <div style="display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">
+          <div>
+            <label style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 3px;">
+              ${isAr ? 'طريقة الدفع' : 'Mode de paiement'}
+            </label>
+            <select id="fastPayParentMethod" class="form-control" style="width: 140px; padding: 6px 10px; font-size: 12.5px; height: 34px;">
+              <option value="espece">${isAr ? 'نقداً (Espèces)' : 'Espèces (Caisse)'}</option>
+              <option value="baridimob">BaridiMob / CCP</option>
+              <option value="cheque">${isAr ? 'شيك (Chèque)' : 'Chèque bancaire'}</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 3px;">
+              ${isAr ? 'تاريخ الدفع' : 'Date de paiement'}
+            </label>
+            <input type="date" id="fastPayParentDate" class="form-control" style="width: 140px; padding: 6px 10px; font-size: 12.5px; height: 34px;" value="${new Date().toISOString().split('T')[0]}">
+          </div>
+          <div>
+            <label style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 3px;">
+              ${isAr ? 'ملاحظات (اختياري)' : 'Notes / Remarques'}
+            </label>
+            <input type="text" id="fastPayParentNotes" class="form-control" placeholder="${isAr ? 'ملاحظة على الوصل العائلي...' : 'Ex: Paiement familial partiel...'}" style="width: 190px; padding: 6px 10px; font-size: 12px; height: 34px;">
+          </div>
+        </div>
+
+        <!-- Right: Counters & Submit Button -->
+        <div style="display: flex; align-items: center; gap: 18px; flex-wrap: wrap;">
+          <div style="text-align: right;">
+            <div style="font-size: 11px; color: var(--text-muted);">${isAr ? 'الأفواج المحددة' : 'Cours sélectionnés'} : <strong id="fastPayParentSummaryCount" style="color: var(--text-heading); font-size: 13px;">0</strong></div>
+            <div style="font-size: 11px; color: var(--text-muted);">${isAr ? 'المجموع المستحق' : 'Net dû'} : <strong id="fastPayParentSummaryNetTotal" style="color: #38bdf8; font-size: 13px;">0 DA</strong></div>
+          </div>
+
+          <div style="text-align: right; background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(124, 58, 237, 0.15)); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; padding: 6px 14px;">
+            <span style="font-size: 11px; color: var(--text-muted); display: block;">${isAr ? 'المبلغ الإجمالي المقبوض' : 'Total à Encaisser'}</span>
+            <strong id="fastPayParentSummaryPaid" style="font-size: 18px; color: #10b981; font-weight: 800;">0 DA</strong>
+          </div>
+
+          <button type="button" class="btn-primary" id="btnSubmitFastPayParent" onclick="app.submitFastFamilyPayment()"
+                  style="background: linear-gradient(135deg, #7c3aed, #10b981); font-weight: 700; padding: 10px 22px; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35); display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+            <i class="fa-solid fa-receipt"></i>
+            <span>${isAr ? 'تأكيد الدفع وطباعة الوصل العائلي' : 'Encaisser & Imprimer le Reçu Familial'}</span>
+          </button>
+        </div>
+
+      </div>
+    `;
+
+    this.updateFastPayParentCalculations(true);
+  }
+
+  updateFastPayParentCalculations(syncGlobalInput = true) {
+    let count = 0;
+    let totalNet = 0;
+    let totalPaid = 0;
+
+    document.querySelectorAll('.fastpay-parent-chk').forEach(chk => {
+      const isChecked = chk.checked;
+      const sId = chk.dataset.studentId;
+      const gId = chk.dataset.groupId;
+
+      const row = document.getElementById(`fastPayParentRow_${sId}_${gId}`);
+      if (row) {
+        row.style.background = isChecked ? 'rgba(168, 85, 247, 0.05)' : '';
+      }
+
+      const baseEl = document.getElementById(`fastPayParentBase_${sId}_${gId}`);
+      const discInput = document.querySelector(`.fastpay-parent-discount-input[data-student-id="${sId}"][data-group-id="${gId}"]`);
+      const paidInput = document.querySelector(`.fastpay-parent-paid-input[data-student-id="${sId}"][data-group-id="${gId}"]`);
+      const netEl = document.getElementById(`fastPayParentNet_${sId}_${gId}`);
+      const remEl = document.getElementById(`fastPayParentRemaining_${sId}_${gId}`);
+
+      const base = parseFloat(baseEl?.dataset.base) || 0;
+      const disc = parseFloat(discInput?.value) || 0;
+      const net = Math.max(0, base - disc);
+      const paid = isChecked ? (parseFloat(paidInput?.value) || 0) : 0;
+      const rem = isChecked ? Math.max(0, net - paid) : 0;
+
+      if (netEl) netEl.textContent = `${net.toLocaleString('fr-FR')} DA`;
+      if (remEl) {
+        remEl.textContent = `${rem.toLocaleString('fr-FR')} DA`;
+        remEl.style.color = rem > 0 ? '#ef4444' : 'var(--text-muted)';
+      }
+
+      if (isChecked) {
+        count++;
+        totalNet += net;
+        totalPaid += paid;
+      }
+    });
+
+    const totalRemaining = Math.max(0, totalNet - totalPaid);
+
+    const elCount = document.getElementById('fastPayParentSummaryCount');
+    if (elCount) elCount.textContent = count;
+
+    const elDue = document.getElementById('fastPayParentSummaryDue');
+    if (elDue) elDue.textContent = `${totalNet.toLocaleString('fr-FR')} DA`;
+
+    const elNetTotal = document.getElementById('fastPayParentSummaryNetTotal');
+    if (elNetTotal) elNetTotal.textContent = `${totalNet.toLocaleString('fr-FR')} DA`;
+
+    const elPaid = document.getElementById('fastPayParentSummaryPaid');
+    if (elPaid) elPaid.textContent = `${totalPaid.toLocaleString('fr-FR')} DA`;
+
+    const elRem = document.getElementById('fastPayParentSummaryRemaining');
+    if (elRem) {
+      elRem.textContent = `${totalRemaining.toLocaleString('fr-FR')} DA`;
+      elRem.style.color = totalRemaining > 0 ? '#ef4444' : '#10b981';
+    }
+
+    const partialNotice = document.getElementById('fastPayParentPartialNotice');
+    if (partialNotice) {
+      partialNotice.style.display = (totalRemaining > 0 && totalPaid > 0) ? 'flex' : 'none';
+    }
+
+    if (syncGlobalInput) {
+      const globalInput = document.getElementById('fastPayParentTotalPaidInput');
+      if (globalInput && document.activeElement !== globalInput) {
+        globalInput.value = totalPaid;
+      }
+    }
+
+    const btnSubmit = document.getElementById('btnSubmitFastPayParent');
+    if (btnSubmit) {
+      const canSubmit = count > 0 && (totalPaid > 0 || totalNet > 0);
+      btnSubmit.disabled = !canSubmit;
+      btnSubmit.style.opacity = canSubmit ? '1' : '0.5';
+      btnSubmit.style.cursor = canSubmit ? 'pointer' : 'not-allowed';
+    }
+  }
+
+  onFastPayParentGlobalPaidInput(val) {
+    const amount = parseFloat(val);
+    if (isNaN(amount) || amount < 0) return;
+    this.distributeFastPayParentAmount(amount);
+  }
+
+  distributeFastPayParentAmount(customAmount = null) {
+    let amountLeft = customAmount !== null ? customAmount : (parseFloat(document.getElementById('fastPayParentTotalPaidInput')?.value) || 0);
+    amountLeft = Math.max(0, amountLeft);
+
+    const checkedRows = Array.from(document.querySelectorAll('.fastpay-parent-chk:checked'));
+    if (checkedRows.length === 0) return;
+
+    checkedRows.forEach(chk => {
+      const sId = chk.dataset.studentId;
+      const gId = chk.dataset.groupId;
+      const baseEl = document.getElementById(`fastPayParentBase_${sId}_${gId}`);
+      const discInput = document.querySelector(`.fastpay-parent-discount-input[data-student-id="${sId}"][data-group-id="${gId}"]`);
+      const paidInput = document.querySelector(`.fastpay-parent-paid-input[data-student-id="${sId}"][data-group-id="${gId}"]`);
+
+      const base = parseFloat(baseEl?.dataset.base) || 0;
+      const disc = parseFloat(discInput?.value) || 0;
+      const net = Math.max(0, base - disc);
+
+      const allocated = Math.min(net, amountLeft);
+      if (paidInput) {
+        paidInput.value = allocated;
+      }
+      amountLeft -= allocated;
+    });
+
+    this.updateFastPayParentCalculations(false);
+  }
+
+  fillFullFastPayParentAmount() {
+    document.querySelectorAll('.fastpay-parent-chk:checked').forEach(chk => {
+      const sId = chk.dataset.studentId;
+      const gId = chk.dataset.groupId;
+      const baseEl = document.getElementById(`fastPayParentBase_${sId}_${gId}`);
+      const discInput = document.querySelector(`.fastpay-parent-discount-input[data-student-id="${sId}"][data-group-id="${gId}"]`);
+      const paidInput = document.querySelector(`.fastpay-parent-paid-input[data-student-id="${sId}"][data-group-id="${gId}"]`);
+
+      const base = parseFloat(baseEl?.dataset.base) || 0;
+      const disc = parseFloat(discInput?.value) || 0;
+      const net = Math.max(0, base - disc);
+
+      if (paidInput) {
+        paidInput.value = net;
+      }
+    });
+
+    this.updateFastPayParentCalculations(true);
+  }
+
+  onFastPayParentGlobalMonthChange(newMonth) {
+    if (!this._fastPayParentData) return;
+
+    document.querySelectorAll('.fastpay-parent-month-select').forEach(sel => {
+      sel.value = newMonth;
+      const sId = sel.dataset.studentId;
+      const gId = sel.dataset.groupId;
+      this.onFastPayParentRowMonthChange(sId, gId, false);
+    });
+
+    this.updateFastPayParentCalculations(true);
+  }
+
+  onFastPayParentRowMonthChange(studentId, groupId, updateCalc = true) {
+    if (!this._fastPayParentData) return;
+    const child = (this._fastPayParentData.children || []).find(c => String(c.id) === String(studentId));
+    if (!child) return;
+
+    const select = document.querySelector(`.fastpay-parent-month-select[data-student-id="${studentId}"][data-group-id="${groupId}"]`);
+    const statusContainer = document.getElementById(`fastPayParentStatus_${studentId}_${groupId}`);
+    const paidInput = document.querySelector(`.fastpay-parent-paid-input[data-student-id="${studentId}"][data-group-id="${groupId}"]`);
+    const baseEl = document.getElementById(`fastPayParentBase_${studentId}_${groupId}`);
+    const discInput = document.querySelector(`.fastpay-parent-discount-input[data-student-id="${studentId}"][data-group-id="${groupId}"]`);
+    const chk = document.querySelector(`.fastpay-parent-chk[data-student-id="${studentId}"][data-group-id="${groupId}"]`);
+
+    const selMonth = select ? select.value : '';
+    const payments = child.payments || [];
+    const base = parseFloat(baseEl?.dataset.base) || 0;
+    const disc = parseFloat(discInput?.value) || 0;
+    const net = Math.max(0, base - disc);
+
+    const paidRecord = payments.find(p => String(p.group_id) === String(groupId) && p.month_period === selMonth);
+    const isAr = this.lang === 'ar';
+
+    let isFullyPaid = false;
+    let isPartiallyPaid = false;
+    let rem = net;
+
+    if (paidRecord) {
+      const r = parseFloat(paidRecord.remaining_amount) || 0;
+      if (r <= 0) {
+        isFullyPaid = true;
+        rem = 0;
+      } else {
+        isPartiallyPaid = true;
+        rem = r;
+      }
+    }
+
+    if (statusContainer) {
+      statusContainer.innerHTML = isFullyPaid
+        ? `<span class="badge-pill" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-weight:700;"><i class="fa-solid fa-circle-check"></i> ${isAr ? 'خالص' : 'Réglé'}</span>`
+        : (isPartiallyPaid
+          ? `<span class="badge-pill" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; font-weight:700;"><i class="fa-solid fa-circle-exclamation"></i> ${isAr ? `باقي ${rem} دج` : `Reste ${rem} DA`}</span>`
+          : `<span class="badge-pill" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; font-weight:700;"><i class="fa-solid fa-clock"></i> ${isAr ? 'غير مسدد' : 'Non réglé'}</span>`);
+    }
+
+    if (paidInput) {
+      paidInput.value = rem;
+    }
+    if (chk) {
+      chk.checked = !isFullyPaid;
+    }
+
+    if (updateCalc) {
+      this.updateFastPayParentCalculations(true);
+    }
+  }
+
+  onFastPayParentDiscountInput(studentId, groupId) {
+    const baseEl = document.getElementById(`fastPayParentBase_${studentId}_${groupId}`);
+    const discInput = document.querySelector(`.fastpay-parent-discount-input[data-student-id="${studentId}"][data-group-id="${groupId}"]`);
+    const netEl = document.getElementById(`fastPayParentNet_${studentId}_${groupId}`);
+    const paidInput = document.querySelector(`.fastpay-parent-paid-input[data-student-id="${studentId}"][data-group-id="${groupId}"]`);
+
+    const base = parseFloat(baseEl?.dataset.base) || 0;
+    const disc = parseFloat(discInput?.value) || 0;
+    const net = Math.max(0, base - disc);
+
+    if (netEl) netEl.textContent = `${net.toLocaleString('fr-FR')} DA`;
+    if (paidInput) paidInput.value = net;
+
+    this.updateFastPayParentCalculations(true);
+  }
+
+  onFastPayParentRowCheckChange(studentId, groupId) {
+    this.updateFastPayParentCalculations(true);
+  }
+
+  toggleAllFastPayParentCourses(checked) {
+    document.querySelectorAll('.fastpay-parent-chk').forEach(chk => {
+      chk.checked = checked;
+    });
+    this.updateFastPayParentCalculations(true);
+  }
+
+  async submitFastFamilyPayment() {
+    const isAr = this.lang === 'ar';
+    if (!this._fastPayParentData) return;
+
+    const items = [];
+    document.querySelectorAll('.fastpay-parent-chk:checked').forEach(chk => {
+      const sId = chk.dataset.studentId;
+      const sName = chk.dataset.studentName;
+      const gId = chk.dataset.groupId;
+      const gName = chk.dataset.groupName;
+
+      const baseEl = document.getElementById(`fastPayParentBase_${sId}_${gId}`);
+      const discInput = document.querySelector(`.fastpay-parent-discount-input[data-student-id="${sId}"][data-group-id="${gId}"]`);
+      const paidInput = document.querySelector(`.fastpay-parent-paid-input[data-student-id="${sId}"][data-group-id="${gId}"]`);
+      const monthSelect = document.querySelector(`.fastpay-parent-month-select[data-student-id="${sId}"][data-group-id="${gId}"]`);
+
+      const base = parseFloat(baseEl?.dataset.base) || 0;
+      const disc = parseFloat(discInput?.value) || 0;
+      const paid = parseFloat(paidInput?.value) || 0;
+      const month = monthSelect ? monthSelect.value : 'Septembre 2026';
+
+      if (paid > 0 || (base - disc) > 0) {
+        items.push({
+          student_id: parseInt(sId, 10),
+          student_name: sName,
+          group_id: parseInt(gId, 10),
+          group_name: gName,
+          month_period: month,
+          base_amount: base,
+          discount: disc,
+          paid_amount: paid
+        });
+      }
+    });
+
+    if (items.length === 0) {
+      this.showToast(isAr ? 'يرجى تحديد فوج واحد على الأقل مع مبلغ صالح للدفع' : 'Veuillez sélectionner au moins un cours avec un montant valide.', 'warning');
+      return;
+    }
+
+    const payment_method = document.getElementById('fastPayParentMethod')?.value || 'espece';
+    const payment_date = document.getElementById('fastPayParentDate')?.value || new Date().toISOString().split('T')[0];
+    const notes = (document.getElementById('fastPayParentNotes')?.value || '').trim();
+
+    const btn = document.getElementById('btnSubmitFastPayParent');
+    if (btn) btn.disabled = true;
+
+    try {
+      const res = await fetch('/api/payments/family', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          parent_id: this._fastPayParentData.parent.id,
+          parent_name: this._fastPayParentData.parent.full_name,
+          parent_phone: this._fastPayParentData.parent.phone,
+          payment_method,
+          payment_date,
+          notes,
+          items
+        })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        this.playChime('success');
+        const remMsg = data.total_remaining > 0
+          ? (isAr ? ` (المتبقي كدين: ${Number(data.total_remaining).toLocaleString('fr-FR')} دج)` : ` (Reste dû: ${Number(data.total_remaining).toLocaleString('fr-FR')} DA)`)
+          : '';
+        const msg = isAr
+          ? `تم استلام الدفع العائلي بنجاح! الوصل: ${data.receipt_no} (المجموع المدفوع: ${Number(data.total_paid).toLocaleString('fr-FR')} دج)${remMsg}`
+          : `Paiement familial enregistré avec succès ! Reçu N° ${data.receipt_no} (Total versé: ${Number(data.total_paid).toLocaleString('fr-FR')} DA)${remMsg}`;
+        this.showToast(msg, 'success');
+
+        // Open and render official unified family receipt
+        this.renderFamilyReceipt(data);
+
+        // Refresh tables in background
+        await this.loadPayments();
+        if (this.loadDashboardData) this.loadDashboardData();
+        if (this.loadCaisse) this.loadCaisse();
+        if (this.loadParents) this.loadParents();
+
+        // Refresh parent panel status
+        await this.selectFastPayParent(this._fastPayParentData.parent.id);
+      } else {
+        this.playChime('error');
+        this.showToast(data.error || (isAr ? 'حدث خطأ أثناء تسجيل الدفع العائلي' : 'Erreur enregistrement paiement familial'), 'error');
+      }
+    } catch (err) {
+      console.error('Erreur submitFastFamilyPayment:', err);
+      this.playChime('error');
+      this.showToast(isAr ? 'خطأ في الاتصال بالخادم' : 'Erreur de connexion serveur', 'error');
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  renderMultiReceipt(res) {
+    const isAr = this.lang === 'ar';
+    const st = res.student || {};
+    const payments = res.payments || [];
+
+    document.getElementById('rcptSchoolName').textContent = this.settings?.school_name || 'EDUMIND ACADEMY';
+    document.getElementById('rcptSchoolContact').textContent = `${this.settings?.school_address || 'Alger, Algérie'} | Tél: ${this.settings?.school_phone || '0550 00 00 00'}`;
+    document.getElementById('rcptNumber').textContent = res.receipt_no;
+
+    const pDate = res.payment_date ? new Date(res.payment_date) : new Date();
+    document.getElementById('rcptDate').textContent = pDate.toLocaleDateString(isAr ? 'ar-DZ' : 'fr-FR');
+
+    const lblStudent = document.getElementById('rcptStudentLabel');
+    const lblMatricule = document.getElementById('rcptMatriculeLabel');
+    if (lblStudent) lblStudent.textContent = isAr ? 'التلميذ:' : 'Élève:';
+    if (lblMatricule) lblMatricule.textContent = isAr ? 'رقم القيد:' : 'Matricule:';
+
+    document.getElementById('rcptStudent').textContent = `${st.first_name || ''} ${st.last_name || ''}`;
+    document.getElementById('rcptMatricule').textContent = st.matricule || '';
+
+    const singleTable = document.getElementById('rcptSingleTable');
+    const multiTable = document.getElementById('rcptMultiTable');
+    const multiBody = document.getElementById('rcptMultiTableBody');
+    const familyTable = document.getElementById('rcptFamilyTable');
+    const familyRemBox = document.getElementById('rcptFamilyRemainingBox');
+
+    if (familyTable) familyTable.style.display = 'none';
+    if (familyRemBox) familyRemBox.style.display = 'none';
+
+    const methodLabels = {
+      espece: isAr ? 'نقداً (Espèces)' : 'Espèces (Caisse)',
+      baridimob: 'BaridiMob / CCP',
+      cheque: isAr ? 'شيك (Chèque)' : 'Chèque bancaire'
+    };
+    document.getElementById('rcptMethod').textContent = methodLabels[res.payment_method] || res.payment_method;
+
+    if (payments.length > 1) {
+      document.getElementById('rcptGroup').textContent = isAr ? `دفع موحد (${payments.length} أفواج)` : `Paiement groupé (${payments.length} cours)`;
+      document.getElementById('rcptTeacher').textContent = '-';
+      document.getElementById('rcptMonth').textContent = isAr ? 'متعدد' : 'Multi-périodes';
+
+      if (singleTable) singleTable.style.display = 'none';
+      if (multiTable) {
+        multiTable.style.display = 'table';
+        if (multiBody) {
+          multiBody.innerHTML = payments.map((p, idx) => {
+            const net = Math.max(0, (parseFloat(p.base_amount) || 0) - (parseFloat(p.discount) || 0));
+            const paid = parseFloat(p.paid_amount) || 0;
+            const rem = parseFloat(p.remaining_amount) || 0;
+            return `
+              <tr>
+                <td style="text-align: center;">${idx + 1}</td>
+                <td>
+                  <strong>${this.escapeHtml(p.group_name)}</strong>
+                  <span style="font-size: 10px; color: var(--text-muted); display: block;">${this.escapeHtml(p.subject_name || '')} &bull; ${this.escapeHtml(p.teacher_name || '')}</span>
+                </td>
+                <td>${this.escapeHtml(p.month_period)}</td>
+                <td style="text-align: right;">${net.toLocaleString('fr-FR')} DA</td>
+                <td style="text-align: right;">${Number(p.discount || 0).toLocaleString('fr-FR')} DA</td>
+                <td style="text-align: right; font-weight: 700; color: #10b981;">${paid.toLocaleString('fr-FR')} DA</td>
+                <td style="text-align: right; color: ${rem > 0 ? '#ef4444' : 'var(--text-muted)'};">${rem.toLocaleString('fr-FR')} DA</td>
+              </tr>
+            `;
+          }).join('');
+        }
+      }
+    } else if (payments.length === 1) {
+      const p = payments[0];
+      document.getElementById('rcptGroup').textContent = `${p.group_name} (${p.subject_name || ''})`;
+      document.getElementById('rcptTeacher').textContent = p.teacher_name || 'Équipe pédagogique';
+      document.getElementById('rcptMonth').textContent = p.month_period;
+
+      if (multiTable) multiTable.style.display = 'none';
+      if (singleTable) {
+        singleTable.style.display = 'table';
+        document.getElementById('rcptBasePrice').textContent = `${Number(p.base_amount).toLocaleString('fr-FR')} DA`;
+        document.getElementById('rcptDiscount').textContent = `${Number(p.discount || 0).toLocaleString('fr-FR')} DA`;
+        document.getElementById('rcptRemaining').textContent = `${Number(p.remaining_amount || 0).toLocaleString('fr-FR')} DA`;
+      }
+    }
+
+    document.getElementById('rcptTotalPaid').textContent = `${Number(res.total_paid).toLocaleString('fr-FR')} DA`;
+    document.getElementById('modalReceipt').classList.add('active');
+  }
+
+  renderFamilyReceipt(res) {
+    const isAr = this.lang === 'ar';
+    const parent = res.parent || {};
+    const payments = res.payments || [];
+
+    document.getElementById('rcptSchoolName').textContent = this.settings?.school_name || 'EDUMIND ACADEMY';
+    document.getElementById('rcptSchoolContact').textContent = `${this.settings?.school_address || 'Alger, Algérie'} | Tél: ${this.settings?.school_phone || '0550 00 00 00'}`;
+    document.getElementById('rcptNumber').textContent = res.receipt_no;
+
+    const pDate = res.payment_date ? new Date(res.payment_date) : new Date();
+    document.getElementById('rcptDate').textContent = pDate.toLocaleDateString(isAr ? 'ar-DZ' : 'fr-FR');
+
+    const lblStudent = document.getElementById('rcptStudentLabel');
+    const lblMatricule = document.getElementById('rcptMatriculeLabel');
+    if (lblStudent) lblStudent.textContent = isAr ? 'ولي الأمر:' : 'Parent d\'élève:';
+    if (lblMatricule) lblMatricule.textContent = isAr ? 'هاتف الولي:' : 'Tél. Parent:';
+
+    document.getElementById('rcptStudent').textContent = parent.full_name || (isAr ? 'ولي تلميذ' : 'Parent');
+    document.getElementById('rcptMatricule').textContent = parent.phone || '-';
+
+    document.getElementById('rcptGroup').textContent = isAr
+      ? `دفع عائلي (${res.children_count || 1} أبناء / ${payments.length} أفواج)`
+      : `Paiement familial (${res.children_count || 1} enfants / ${payments.length} cours)`;
+    document.getElementById('rcptTeacher').textContent = '-';
+    document.getElementById('rcptMonth').textContent = isAr ? 'أشهر متعددة' : 'Multi-périodes';
+
+    const singleTable = document.getElementById('rcptSingleTable');
+    const multiTable = document.getElementById('rcptMultiTable');
+    const familyTable = document.getElementById('rcptFamilyTable');
+    const familyBody = document.getElementById('rcptFamilyTableBody');
+    const familyRemBox = document.getElementById('rcptFamilyRemainingBox');
+    const familyRemVal = document.getElementById('rcptFamilyTotalRemaining');
+
+    if (singleTable) singleTable.style.display = 'none';
+    if (multiTable) multiTable.style.display = 'none';
+    if (familyTable) {
+      familyTable.style.display = 'table';
+      if (familyBody) {
+        familyBody.innerHTML = payments.map((p, idx) => {
+          const net = Math.max(0, (parseFloat(p.base_amount) || 0) - (parseFloat(p.discount) || 0));
+          const paid = parseFloat(p.paid_amount) || 0;
+          const rem = parseFloat(p.remaining_amount) || 0;
+          return `
+            <tr>
+              <td style="text-align: center;">${idx + 1}</td>
+              <td>
+                <strong>${this.escapeHtml(p.first_name || '')} ${this.escapeHtml(p.last_name || '')}</strong>
+                <span style="font-size: 10px; color: var(--text-muted); display: block;">${this.escapeHtml(p.matricule || '')}</span>
+              </td>
+              <td>
+                <strong>${this.escapeHtml(p.group_name)}</strong>
+                <span style="font-size: 10px; color: var(--text-muted); display: block;">${this.escapeHtml(p.subject_name || '')} &bull; ${this.escapeHtml(p.teacher_name || '')}</span>
+              </td>
+              <td>${this.escapeHtml(p.month_period)}</td>
+              <td style="text-align: right;">${net.toLocaleString('fr-FR')} DA</td>
+              <td style="text-align: right;">${Number(p.discount || 0).toLocaleString('fr-FR')} DA</td>
+              <td style="text-align: right; font-weight: 700; color: #10b981;">${paid.toLocaleString('fr-FR')} DA</td>
+              <td style="text-align: right; color: ${rem > 0 ? '#ef4444' : 'var(--text-muted)'}; font-weight: ${rem > 0 ? '700' : 'normal'};">${rem.toLocaleString('fr-FR')} DA</td>
+            </tr>
+          `;
+        }).join('');
+      }
+    }
+
+    const methodLabels = {
+      espece: isAr ? 'نقداً (Espèces)' : 'Espèces (Caisse)',
+      baridimob: 'BaridiMob / CCP',
+      cheque: isAr ? 'شيك (Chèque)' : 'Chèque bancaire'
+    };
+    document.getElementById('rcptMethod').textContent = methodLabels[res.payment_method] || res.payment_method;
+    document.getElementById('rcptTotalPaid').textContent = `${Number(res.total_paid).toLocaleString('fr-FR')} DA`;
+
+    const totalRemaining = parseFloat(res.total_remaining) || 0;
+    if (familyRemBox && familyRemVal) {
+      if (totalRemaining > 0) {
+        familyRemVal.textContent = `${totalRemaining.toLocaleString('fr-FR')} DA`;
+        familyRemBox.style.display = 'flex';
+      } else {
+        familyRemBox.style.display = 'none';
+      }
+    }
+
+    document.getElementById('modalReceipt').classList.add('active');
+  }
+
   // -------------------------------------------------------------
   // ECHEANCES & CAISSE
   // -------------------------------------------------------------
   async loadEcheances() {
     try {
-      const res = await fetch('/api/dashboard/stats');
+      const res = await fetch('/api/echeances');
       const data = await res.json();
       if (!data.success) return;
 
-      const tbody = document.getElementById('echeancesTableBody');
-      if (data.unpaidStudents.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">Aucun impayé pour le moment!</td></tr>`;
-        return;
+      this.echeances = data.echeances || [];
+      const searchInput = document.getElementById('searchEcheancesInput');
+      if (searchInput && searchInput.value.trim()) {
+        this.filterEcheances(searchInput.value);
+      } else {
+        this.renderEcheancesTable(this.echeances);
       }
+    } catch (err) {
+      console.error('Erreur loadEcheances:', err);
+    }
+  }
 
-      tbody.innerHTML = data.unpaidStudents.map(u => `
+  filterEcheances(query = '') {
+    const list = this.echeances || [];
+    const term = (query || '').trim().toLowerCase();
+    if (!term) {
+      this.renderEcheancesTable(list);
+      return;
+    }
+
+    const norm = (str) => (str || '').toLowerCase()
+      .replace(/[أإآ]/g, 'ا')
+      .replace(/ة/g, 'ه')
+      .replace(/ى/g, 'ي')
+      .trim();
+
+    const normTerm = norm(term);
+
+    const filtered = list.filter(e => {
+      const sName = norm(e.student_name);
+      const pName = norm(e.parent_name);
+      const gName = norm(e.group_name);
+      const subj = norm(e.subject_name);
+      const phone = (e.student_phone || '').toLowerCase();
+      const pPhone = (e.parent_phone || '').toLowerCase();
+      const mat = (e.matricule || '').toLowerCase();
+
+      return sName.includes(normTerm) ||
+             pName.includes(normTerm) ||
+             gName.includes(normTerm) ||
+             subj.includes(normTerm) ||
+             phone.includes(normTerm) ||
+             pPhone.includes(normTerm) ||
+             mat.includes(normTerm);
+    });
+
+    this.renderEcheancesTable(filtered);
+  }
+
+  renderEcheancesTable(list) {
+    const tbody = document.getElementById('echeancesTableBody');
+    if (!tbody) return;
+
+    const isAr = this.lang === 'ar';
+    if (!list || list.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">${isAr ? 'لا توجد ديون أو مستحقات غير مسددة!' : 'Aucun impayé pour le moment !'}</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = list.map(u => {
+      const parentHtml = u.parent_name
+        ? `<div style="font-weight: 600; color: var(--text-heading); font-size: 13px; display: flex; align-items: center; gap: 6px;">
+             <i class="fa-solid fa-people-roof" style="color: #8b5cf6; font-size: 12px;"></i>
+             <span>${this.escapeHtml(u.parent_name)}</span>
+             ${u.parent_discount_percent > 0 ? `<span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-size: 11px; padding: 2px 6px; border-radius: 4px;">-${u.parent_discount_percent}%</span>` : ''}
+           </div>
+           ${u.parent_phone ? `<div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;"><i class="fa-solid fa-phone" style="font-size: 10px;"></i> ${this.escapeHtml(u.parent_phone)}</div>` : ''}`
+        : `<span style="color: var(--text-muted); font-size: 12px;">—</span>`;
+
+      return `
         <tr>
-          <td><strong>${u.student_name}</strong></td>
-          <td>${u.group_name}</td>
-          <td><span class="badge-pill" style="background: rgba(239, 68, 68, 0.15); color: #f87171;">${u.subject_name}</span></td>
-          <td>${u.phone || '-'}</td>
-          <td><strong style="color: #ef4444;">${Number(u.amount_due).toLocaleString()} DA</strong></td>
           <td>
-            <button class="btn-primary" style="padding: 6px 14px; font-size: 12px;" onclick="app.openModalPayment()">
-              Régulariser
+            <strong>${this.escapeHtml(u.student_name)}</strong>
+            ${u.matricule ? `<div style="font-size: 11px; color: #60a5fa; font-family: monospace;">${this.escapeHtml(u.matricule)}</div>` : ''}
+          </td>
+          <td>${parentHtml}</td>
+          <td>${this.escapeHtml(u.group_name)}</td>
+          <td><span class="badge-pill" style="background: rgba(239, 68, 68, 0.15); color: #f87171;">${this.escapeHtml(u.subject_name || '')}</span></td>
+          <td>${this.escapeHtml(u.student_phone || u.parent_phone || '—')}</td>
+          <td><strong style="color: #ef4444; font-size: 14px;">${Number(u.amount_due).toLocaleString()} DA</strong></td>
+          <td>
+            <button class="btn-primary" style="padding: 6px 14px; font-size: 12px; background: linear-gradient(135deg, #10b981, #059669);" onclick="app.selectFastPayStudent(${u.student_id}); app.switchView('paiements');">
+              ${isAr ? 'تسديد فوري' : 'Régulariser'}
             </button>
           </td>
         </tr>
-      `).join('');
-    } catch (err) {
-      console.error(err);
-    }
+      `;
+    }).join('');
   }
 
   // -------------------------------------------------------------
@@ -6360,7 +10449,13 @@ class EdumindApp {
   // -------------------------------------------------------------
   async loadTeachers() {
     try {
-      const res = await fetch('/api/teachers');
+      const monthInput = document.getElementById('filterTeacherMonth');
+      if (monthInput && !monthInput.value) {
+        const now = new Date();
+        monthInput.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      }
+      const month = monthInput?.value || new Date().toISOString().slice(0, 7);
+      const res = await fetch(`/api/teachers?month=${month}`);
       const data = await res.json();
       if (!data.success) return;
       this.teachers = data.teachers || [];
@@ -6413,7 +10508,7 @@ class EdumindApp {
 
     if (!list || list.length === 0) {
       const isAr = this.lang === 'ar';
-      tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 35px;">
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 35px;">
         <i class="fa-solid fa-chalkboard-user" style="font-size: 28px; margin-bottom: 8px; opacity: 0.4; display: block;"></i>
         ${isAr ? 'لم يتم العثور على أي أستاذ مطابق' : 'Aucun enseignant trouvé'}
       </td></tr>`;
@@ -6434,6 +10529,62 @@ class EdumindApp {
     tbody.innerHTML = list.map(t => {
       const mKey = t.remuneration_type || 'percent';
       const mLabel = modeLabels[mKey] || mKey;
+
+      // Financial status badge
+      let statusBadgeHtml = '';
+      if (t.payout_status === 'paid') {
+        statusBadgeHtml = `
+          <span class="badge-pill" style="background: rgba(16, 185, 129, 0.15); color: #059669; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+            <i class="fa-solid fa-circle-check"></i> ${this.lang === 'ar' ? 'مسدد بالكامل' : 'Réglé'}
+          </span>
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
+            ${Number(t.already_paid || 0).toLocaleString()} DA
+          </div>
+        `;
+      } else if (t.payout_status === 'partial') {
+        statusBadgeHtml = `
+          <span class="badge-pill" style="background: rgba(245, 158, 11, 0.15); color: #d97706; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+            <i class="fa-solid fa-clock-rotate-left"></i> ${this.lang === 'ar' ? 'مسدد جزئياً' : 'Partiel'}
+          </span>
+          <div style="font-size: 11px; color: #d97706; font-weight: 600; margin-top: 2px;">
+            ${this.lang === 'ar' ? 'الباقي:' : 'Reste:'} ${Number(t.remaining_due || 0).toLocaleString()} DA
+          </div>
+        `;
+      } else if (t.payout_status === 'unpaid') {
+        statusBadgeHtml = `
+          <span class="badge-pill" style="background: rgba(239, 68, 68, 0.12); color: #dc2626; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+            <i class="fa-solid fa-circle-exclamation"></i> ${this.lang === 'ar' ? 'غير مسدد' : 'À régler'}
+          </span>
+          <div style="font-size: 11px; color: #dc2626; font-weight: 600; margin-top: 2px;">
+            ${Number(t.remaining_due || 0).toLocaleString()} DA
+          </div>
+        `;
+      } else {
+        statusBadgeHtml = `<span style="color: var(--text-muted); font-size: 12px;">0 DA</span>`;
+      }
+
+      // Payout action button
+      let payoutBtnHtml = '';
+      if (t.payout_status === 'paid') {
+        payoutBtnHtml = `
+          <button class="btn-primary" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 5px 12px; font-size: 11px; display: flex; align-items: center; gap: 5px;" onclick="app.openModalTeacherPayout(${t.id})" title="${this.lang === 'ar' ? 'تم تسديد كامل المستحقات (عرض / تعديل)' : 'Honoraires entièrement réglés (Détails / Ajuster)'}">
+            <i class="fa-solid fa-circle-check"></i> ${this.lang === 'ar' ? 'مسدد (تفاصيل)' : 'Réglé (Détails)'}
+          </button>
+        `;
+      } else if (t.payout_status === 'partial') {
+        payoutBtnHtml = `
+          <button class="btn-primary" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 5px 12px; font-size: 11px; display: flex; align-items: center; gap: 5px;" onclick="app.openModalTeacherPayout(${t.id})">
+            <i class="fa-solid fa-hand-holding-dollar"></i> ${this.lang === 'ar' ? `دفع الباقي (${Number(t.remaining_due).toLocaleString()} دج)` : `Solder (${Number(t.remaining_due).toLocaleString()} DA)`}
+          </button>
+        `;
+      } else {
+        payoutBtnHtml = `
+          <button class="btn-primary" style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); padding: 5px 12px; font-size: 11px; display: flex; align-items: center; gap: 5px;" onclick="app.openModalTeacherPayout(${t.id})">
+            <i class="fa-solid fa-hand-holding-dollar"></i> ${this.lang === 'ar' ? 'تسوية المستحقات' : 'Régler Honoraires'}
+          </button>
+        `;
+      }
+
       return `
         <tr>
           <td><strong style="color: #f97316;">${t.matricule}</strong></td>
@@ -6446,11 +10597,13 @@ class EdumindApp {
             </span>
           </td>
           <td>${t.groups_count} ${this.lang === 'ar' ? 'أفواج' : 'groupe(s)'}</td>
+          <td>${statusBadgeHtml}</td>
           <td>
             <div style="display: flex; gap: 8px; align-items: center;">
-              <button class="btn-primary" style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); padding: 5px 12px; font-size: 11px; display: flex; align-items: center; gap: 5px;" onclick="app.openModalTeacherPayout(${t.id})">
-                <i class="fa-solid fa-hand-holding-dollar"></i> ${this.lang === 'ar' ? 'تسوية المستحقات' : 'Régler Honoraires'}
+              <button class="btn-action-badge" title="${this.lang === 'ar' ? 'بطاقة الأستاذ' : 'Badge Enseignant'}" onclick="app.showTeacherCard(${t.id})">
+                <i class="fa-solid fa-id-badge"></i>
               </button>
+              ${payoutBtnHtml}
               <button class="btn-icon" title="Modifier" onclick="app.editTeacher(${t.id})">
                 <i class="fa-solid fa-pen-to-square"></i>
               </button>
@@ -6470,8 +10623,8 @@ class EdumindApp {
 
   async openModalTeacherPayout(teacherId) {
     this.activePayoutTeacherId = teacherId;
-    const now = new Date();
-    const period = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const monthFilter = document.getElementById('filterTeacherMonth');
+    const period = monthFilter?.value || new Date().toISOString().slice(0, 7);
     document.getElementById('payoutPeriod').value = period;
     document.getElementById('payoutTeacherId').value = teacherId;
     document.getElementById('modalTeacherPayout').classList.add('active');
@@ -6501,25 +10654,129 @@ class EdumindApp {
       document.getElementById('payoutTotalSessions').textContent = `${data.sessionsPerMonth} (${data.hoursPerMonth}h)`;
       document.getElementById('payoutTotalCollected').textContent = `${Number(data.totalCollected).toLocaleString()} DA`;
 
+      // Update Financial Summary KPIs
+      const isAr = this.lang === 'ar';
+      const activeGross = data.activeGross || 0;
+      const alreadyPaid = data.alreadyPaid || 0;
+      const activeRemaining = data.activeRemaining || 0;
+
+      document.getElementById('payoutSummaryGross').textContent = `${Number(activeGross).toLocaleString()} DA`;
+      document.getElementById('payoutSummaryPaid').textContent = `${Number(alreadyPaid).toLocaleString()} DA`;
+      document.getElementById('payoutSummaryRemaining').textContent = `${Number(activeRemaining).toLocaleString()} DA`;
+
+      // Update Status Alert Banner
+      const banner = document.getElementById('payoutStatusBanner');
+      const btnSubmit = document.getElementById('btnSubmitPayout');
+      const btnSubmitText = document.getElementById('btnSubmitPayoutText');
+
+      if (banner) {
+        banner.style.display = 'block';
+        if (activeRemaining === 0 && alreadyPaid > 0) {
+          banner.style.background = 'rgba(16, 185, 129, 0.12)';
+          banner.style.border = '1.5px solid #10b981';
+          banner.style.color = '#065f46';
+          banner.style.borderRadius = '8px';
+          banner.style.padding = '10px 14px';
+          banner.style.fontSize = '13px';
+          banner.innerHTML = `<i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 16px; margin-right: 6px;"></i>
+            <strong>${isAr ? 'مستحقات هذا الأستاذ مسددة بالكامل لهذا الشهر' : 'Honoraires entièrement soldés pour cette période'}</strong> (0 DA restant).
+            <div style="font-size: 11.5px; margin-top: 3px; color: #047857;">${isAr ? 'تم صرف كامل المستحقات. يمكنك تسجيل مكافأة إضافية أو مراجعة تفاصيل الوصل أدناه.' : 'Le compte de l’enseignant est à jour. Vous pouvez toujours verser une prime ou consulter les reçus ci-dessous.'}</div>`;
+          if (btnSubmitText) btnSubmitText.textContent = isAr ? 'صرف مكافأة / مبلغ إضافي' : 'Verser une prime / Extra';
+          if (btnSubmit) btnSubmit.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+        } else if (alreadyPaid > 0 && activeRemaining > 0) {
+          banner.style.background = 'rgba(245, 158, 11, 0.12)';
+          banner.style.border = '1.5px solid #f59e0b';
+          banner.style.color = '#92400e';
+          banner.style.borderRadius = '8px';
+          banner.style.padding = '10px 14px';
+          banner.style.fontSize = '13px';
+          banner.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color: #f59e0b; font-size: 16px; margin-right: 6px;"></i>
+            <strong>${isAr ? 'تسديد جزئي سابق' : 'Règlement partiel en cours'} :</strong>
+            ${Number(alreadyPaid).toLocaleString()} DA ${isAr ? 'مدفوعة' : 'déjà réglés'}.
+            ${isAr ? 'المبلغ المتبقي للصرف:' : 'Reste à régler:'} <strong>${Number(activeRemaining).toLocaleString()} DA</strong>.`;
+          if (btnSubmitText) btnSubmitText.textContent = isAr ? `تسديد الباقي (${Number(activeRemaining).toLocaleString()} دج)` : `Solder le reste (${Number(activeRemaining).toLocaleString()} DA)`;
+          if (btnSubmit) btnSubmit.style.background = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+        } else {
+          banner.style.background = 'rgba(59, 130, 246, 0.08)';
+          banner.style.border = '1.5px solid #93c5fd';
+          banner.style.color = '#1e40af';
+          banner.style.borderRadius = '8px';
+          banner.style.padding = '10px 14px';
+          banner.style.fontSize = '13px';
+          banner.innerHTML = `<i class="fa-solid fa-circle-info" style="color: #3b82f6; font-size: 16px; margin-right: 6px;"></i>
+            ${isAr ? 'إجمالي المستحقات الواجب تسديدها:' : 'Total net calculé pour ce mois:'} <strong>${Number(activeGross).toLocaleString()} DA</strong>.`;
+          if (btnSubmitText) btnSubmitText.textContent = isAr ? 'تأكيد وصرف المستحقات' : 'Valider & Décaisser';
+          if (btnSubmit) btnSubmit.style.background = 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)';
+        }
+      }
+
       // Render 8 mode cards
       const modesGrid = document.getElementById('payoutModesGrid');
-      const curMode = data.teacher.remuneration_type || 'percent';
+      const curMode = data.activeModeKey || data.teacher.remuneration_type || 'percent';
       this.selectedPayoutMode = curMode;
 
       modesGrid.innerHTML = Object.entries(data.modes).map(([key, info]) => {
         const isActive = key === curMode;
+        const remainingDA = info.remaining || 0;
+        const grossDA = info.gross_amount || 0;
         return `
-          <div class="payout-mode-card ${isActive ? 'active' : ''}" id="payoutModeCard_${key}" onclick="app.selectPayoutMode('${key}')">
+          <div class="payout-mode-card ${isActive ? 'active' : ''}" id="payoutModeCard_${key}" onclick="app.selectPayoutMode('${key}')" style="cursor: pointer;">
             <div>
               <div class="payout-mode-title">${info.label}</div>
               <div class="payout-mode-desc">Taux: <strong>${info.rate} ${info.unit}</strong></div>
+              ${info.already_paid > 0 ? `<div style="font-size: 10px; color: #059669; margin-top: 2px;"><i class="fa-solid fa-check"></i> Déjà payé: ${Number(info.already_paid).toLocaleString()} DA</div>` : ''}
             </div>
-            <div class="payout-mode-val">${Number(info.amount).toLocaleString()} DA</div>
+            <div style="text-align: right;">
+              <div class="payout-mode-val" style="font-size: 14px;">${Number(grossDA).toLocaleString()} DA</div>
+              <div style="font-size: 11px; font-weight: 700; color: ${remainingDA === 0 ? '#10b981' : '#ea580c'};">
+                ${remainingDA === 0 ? (isAr ? 'مسدد (0 دج)' : 'Soldé (0 DA)') : `${isAr ? 'باقي:' : 'Reste:'} ${Number(remainingDA).toLocaleString()} DA`}
+              </div>
+            </div>
           </div>
         `;
       }).join('');
 
       this.selectPayoutMode(curMode);
+
+      // Render Period Existing Payouts List
+      const periodPayouts = data.periodPayouts || [];
+      const historyBody = document.getElementById('payoutPeriodHistoryBody');
+      const historyCount = document.getElementById('payoutPeriodHistoryCount');
+      if (historyCount) {
+        historyCount.textContent = `${periodPayouts.length} ${isAr ? 'دفعات' : 'versement(s)'}`;
+      }
+
+      if (historyBody) {
+        if (periodPayouts.length === 0) {
+          historyBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 14px;">
+            ${isAr ? 'لا يوجد أي تسديد مسجل لهذا الشهر حتى الآن.' : 'Aucun versement enregistré pour cette période pour le moment.'}
+          </td></tr>`;
+        } else {
+          historyBody.innerHTML = periodPayouts.map(p => {
+            const dt = p.payout_date ? new Date(p.payout_date).toLocaleString('fr-FR') : '-';
+            const safePayload = encodeURIComponent(JSON.stringify(p));
+            return `
+              <tr>
+                <td><strong>${dt}</strong></td>
+                <td><strong style="color: #059669;">${Number(p.paid_amount).toLocaleString()} DA</strong></td>
+                <td><span class="badge-pill" style="font-size: 10.5px;">${p.remuneration_mode || '-'}</span></td>
+                <td>${p.payment_method || 'espece'}</td>
+                <td>
+                  <div style="display: flex; gap: 6px; align-items: center;">
+                    <button type="button" class="btn-icon" title="${isAr ? 'طباعة الوصل' : 'Imprimer le reçu'}" onclick="app.openBulletinPaieFromData('${safePayload}')">
+                      <i class="fa-solid fa-print"></i>
+                    </button>
+                    <button type="button" class="btn-icon" style="color: #ef4444;" title="${isAr ? 'إلغاء هذا الدفع وإرجاع المبلغ للصندوق' : 'Annuler ce versement et restaurer la caisse'}" onclick="app.cancelTeacherPayout(${p.id})">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          }).join('');
+        }
+      }
+
     } catch (err) {
       loading.style.display = 'none';
       console.error(err);
@@ -6530,12 +10787,24 @@ class EdumindApp {
     if (!this.currentPayoutEarnings?.modes?.[modeKey]) return;
     this.selectedPayoutMode = modeKey;
     const info = this.currentPayoutEarnings.modes[modeKey];
+    const isAr = this.lang === 'ar';
 
     document.querySelectorAll('.payout-mode-card').forEach(card => card.classList.remove('active'));
     document.getElementById(`payoutModeCard_${modeKey}`)?.classList.add('active');
 
-    document.getElementById('payoutCalculatedAmountBadge').textContent = `${Number(info.amount).toLocaleString()} DA`;
-    document.getElementById('payoutAmountPaid').value = info.amount;
+    // Display gross and remaining
+    document.getElementById('payoutCalculatedAmountBadge').textContent = `${Number(info.gross_amount || 0).toLocaleString()} DA`;
+    document.getElementById('payoutRemainingAmountBadge').textContent = `${Number(info.remaining || 0).toLocaleString()} DA`;
+
+    // Amount to pay defaults to remaining balance
+    const amountInput = document.getElementById('payoutAmountPaid');
+    if (amountInput) {
+      amountInput.value = info.remaining > 0 ? info.remaining : 0;
+    }
+
+    // Update financial KPI recap with selected mode
+    document.getElementById('payoutSummaryGross').textContent = `${Number(info.gross_amount || 0).toLocaleString()} DA`;
+    document.getElementById('payoutSummaryRemaining').textContent = `${Number(info.remaining || 0).toLocaleString()} DA`;
   }
 
   async submitTeacherPayout() {
@@ -6559,6 +10828,7 @@ class EdumindApp {
         hours_count: this.currentPayoutEarnings?.hoursPerMonth || 0,
         total_collected: this.currentPayoutEarnings?.totalCollected || 0,
         teacher_share_percent: modeInfo.unit === '%' ? modeInfo.rate : 0,
+        gross_amount: modeInfo.gross_amount || paid_amount,
         paid_amount,
         payment_method,
         notes
@@ -6586,6 +10856,51 @@ class EdumindApp {
       alert('Erreur réseau');
     }
   }
+
+  async cancelTeacherPayout(payoutId) {
+    if (!payoutId) return;
+    const isAr = this.lang === 'ar';
+    const confirmMsg = isAr
+      ? 'هل أنت متأكد من رغبتك في إلغاء هذا الدفع؟\nسيتم استرجاع المبلغ تلقائياً إلى رصيد الصندوق وإعادة احتساب المتبقي للأستاذ.'
+      : 'Êtes-vous sûr de vouloir annuler ce règlement d\'honoraires ?\nLe montant sera automatiquement réintégré dans le solde de la Caisse et le reste à payer sera actualisé.';
+
+    if (!confirm(confirmMsg)) return;
+
+    try {
+      const res = await fetch(`/api/teachers/payouts/${payoutId}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (!data.success) {
+        alert(data.error || 'Erreur lors de l’annulation');
+        return;
+      }
+
+      // Refresh Caisse, Teachers List, and Payout Modal
+      this.loadCaisse();
+      this.loadTeachers();
+      await this.refreshTeacherPayoutData();
+
+      alert(data.message || (isAr ? 'تم إلغاء الدفع واسترجاع الصندوق بنجاح' : 'Règlement annulé avec succès'));
+    } catch (err) {
+      console.error(err);
+      alert('Erreur réseau');
+    }
+  }
+
+  openBulletinPaieFromData(payoutJsonEncoded) {
+    try {
+      const payout = JSON.parse(decodeURIComponent(payoutJsonEncoded));
+      const teacher = this.currentPayoutEarnings?.teacher || {};
+      payout.first_name = payout.first_name || teacher.first_name;
+      payout.last_name = payout.last_name || teacher.last_name;
+      payout.matricule = payout.matricule || teacher.matricule;
+      this.openBulletinPaie(payout, {});
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
 
   openBulletinPaie(payout, modeInfo) {
     const s = this.settings || {};
@@ -7939,12 +12254,18 @@ class EdumindApp {
       submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${isAr ? 'جاري الحفظ...' : 'Enregistrement...'}`;
     }
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
+
     try {
       const res = await fetch(url, {
         method: method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
+
       const data = await res.json();
       if (data.success) {
         this.closeModals();
@@ -7958,8 +12279,13 @@ class EdumindApp {
         this.showToast(data.error || (isAr ? 'حدث خطأ أثناء الحفظ' : 'Erreur lors de l’enregistrement'), 'error');
       }
     } catch (e) {
+      clearTimeout(timeoutId);
       console.error(e);
-      this.showToast(isAr ? 'خطأ في الاتصال بالخادم' : 'Erreur réseau ou serveur', 'error');
+      if (e.name === 'AbortError') {
+        this.showToast(isAr ? 'انتهت مهلة الاتصال بالخادم، يرجى إعادة المحاولة' : 'Délai d’attente dépassé, veuillez réessayer', 'warning');
+      } else {
+        this.showToast(isAr ? 'خطأ في الاتصال بالخادم' : 'Erreur réseau ou serveur', 'error');
+      }
     } finally {
       this._savingTeacher = false;
       if (submitBtn) {
@@ -9705,6 +14031,463 @@ class EdumindApp {
     }
   }
 
+  // ===========================================================================
+  // INSCRIPTION GROUPÉE (MULTI-ÉLÈVES & MULTI-GROUPES)
+  // ===========================================================================
+
+  async openBulkEnrollmentModal() {
+    const isAr = this.lang === 'ar';
+    try {
+      // Ensure all master data is loaded
+      await Promise.all([
+        this.loadStudents(),
+        this.loadGroups(),
+        this.loadLevels ? this.loadLevels() : Promise.resolve(),
+        this.loadSubjects ? this.loadSubjects() : Promise.resolve(),
+        this.loadInscriptionsList ? this.loadInscriptionsList() : Promise.resolve()
+      ]);
+
+      // Populate Level filter for Students
+      const lvlStudentFilter = document.getElementById('bulkStudentLevelFilter');
+      if (lvlStudentFilter) {
+        lvlStudentFilter.innerHTML = `<option value="">${isAr ? 'كل المستويات' : 'Tous les niveaux'}</option>` +
+          (this.levels || []).map(l => `<option value="${l.id}">${this.escapeHtml(l.name)}</option>`).join('');
+        lvlStudentFilter.value = '';
+      }
+
+      // Populate Level filter for Groups
+      const lvlGroupFilter = document.getElementById('bulkGroupLevelFilter');
+      if (lvlGroupFilter) {
+        lvlGroupFilter.innerHTML = `<option value="">${isAr ? 'كل المستويات' : 'Tous les niveaux'}</option>` +
+          (this.levels || []).map(l => `<option value="${l.id}">${this.escapeHtml(l.name)}</option>`).join('');
+        lvlGroupFilter.value = '';
+      }
+
+      // Set default registration date to today
+      const dateInput = document.getElementById('bulkEnrollRegDate');
+      if (dateInput) {
+        dateInput.value = new Date().toISOString().split('T')[0];
+      }
+
+      // Set discount to 0
+      const discountInput = document.getElementById('bulkEnrollDiscount');
+      if (discountInput) {
+        discountInput.value = '0';
+      }
+
+      // Set school year
+      const schoolYearSelect = document.getElementById('bulkEnrollSchoolYear');
+      if (schoolYearSelect) {
+        const activeYear = this.settings?.active_year || '2025-2026';
+        if (!Array.from(schoolYearSelect.options).some(o => o.value === activeYear)) {
+          const opt = document.createElement('option');
+          opt.value = activeYear;
+          opt.textContent = activeYear;
+          schoolYearSelect.appendChild(opt);
+        }
+        schoolYearSelect.value = activeYear;
+      }
+
+      // Reset search inputs
+      const sSearch = document.getElementById('bulkStudentSearchInput');
+      if (sSearch) sSearch.value = '';
+      const gSearch = document.getElementById('bulkGroupSearchInput');
+      if (gSearch) gSearch.value = '';
+
+      // Reset select-all checkboxes
+      const chkAllS = document.getElementById('chkBulkSelectAllStudents');
+      if (chkAllS) chkAllS.checked = false;
+      const chkAllG = document.getElementById('chkBulkSelectAllGroups');
+      if (chkAllG) chkAllG.checked = false;
+
+      // Reset selection state
+      this._bulkSelectedStudentIds = new Set();
+      this._bulkSelectedGroupIds = new Set();
+
+      // Render both panels
+      this.renderBulkStudentsList();
+      this.renderBulkGroupsList();
+      this.updateBulkEnrollmentSummary();
+
+      // Open Modal
+      const modal = document.getElementById('modalBulkEnrollment');
+      if (modal) modal.classList.add('active');
+    } catch (err) {
+      console.error('Erreur lors de l’ouverture du modal d’inscription groupée:', err);
+      this.showToast(isAr ? 'حدث خطأ أثناء تحميل البيانات' : 'Erreur lors du chargement des données', 'error');
+    }
+  }
+
+  filterBulkStudents() {
+    this.renderBulkStudentsList();
+  }
+
+  filterBulkGroups() {
+    this.renderBulkGroupsList();
+  }
+
+  renderBulkStudentsList() {
+    const container = document.getElementById('bulkStudentsListContainer');
+    if (!container) return;
+
+    const isAr = this.lang === 'ar';
+    const sSearch = document.getElementById('bulkStudentSearchInput');
+    const lvlFilter = document.getElementById('bulkStudentLevelFilter');
+
+    const term = (sSearch ? sSearch.value : '').trim().toLowerCase();
+    const lvlVal = lvlFilter ? lvlFilter.value : '';
+
+    const norm = (str) => (str || '').toLowerCase()
+      .replace(/[أإآ]/g, 'ا')
+      .replace(/ة/g, 'ه')
+      .replace(/ى/g, 'ي')
+      .trim();
+
+    const normTerm = norm(term);
+
+    // Active students
+    let filtered = (this.students || []).filter(s => s.active !== 0);
+
+    if (lvlVal) {
+      filtered = filtered.filter(s => String(s.level_id) === String(lvlVal));
+    }
+
+    if (normTerm) {
+      filtered = filtered.filter(s => {
+        const fn = norm(s.first_name);
+        const ln = norm(s.last_name);
+        const mat = (s.matricule || '').toLowerCase();
+        const ph = (s.phone || '').toLowerCase();
+        const pph = (s.parent_phone || '').toLowerCase();
+        return `${fn} ${ln}`.includes(normTerm) ||
+               `${ln} ${fn}`.includes(normTerm) ||
+               mat.includes(normTerm) ||
+               ph.includes(normTerm) ||
+               pph.includes(normTerm);
+      });
+    }
+
+    this._bulkFilteredStudents = filtered;
+
+    // Update count labels
+    const countBadge = document.getElementById('bulkStudentsBadgeCount');
+    if (countBadge) {
+      countBadge.textContent = `${this._bulkSelectedStudentIds.size} ${isAr ? 'محدد' : 'sélectionné(s)'}`;
+    }
+
+    const visibleCount = document.getElementById('bulkStudentsVisibleCount');
+    if (visibleCount) {
+      visibleCount.textContent = `${filtered.length} ${isAr ? 'تلميذ' : 'élève(s)'}`;
+    }
+
+    // Checkbox "Tout sélectionner" sync
+    const chkAll = document.getElementById('chkBulkSelectAllStudents');
+    if (chkAll) {
+      chkAll.checked = filtered.length > 0 && filtered.every(s => this._bulkSelectedStudentIds.has(s.id));
+    }
+
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div style="padding: 30px 16px; text-align: center; color: var(--text-muted);">
+          <i class="fa-solid fa-user-slash" style="font-size: 24px; margin-bottom: 8px; opacity: 0.6; display: block;"></i>
+          <span style="font-size: 13px;">${isAr ? 'لا يوجد أي تلميذ يطابق المعايير' : 'Aucun élève correspondant'}</span>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = filtered.map(s => {
+      const isSelected = this._bulkSelectedStudentIds.has(s.id);
+      const initials = `${(s.first_name || '')[0] || ''}${(s.last_name || '')[0] || ''}`.toUpperCase() || 'E';
+      const lvl = s.level_name || (this.levels && this.levels.find(l => l.id === s.level_id)?.name) || '';
+      
+      const activeEnrollments = (this.inscriptionsList || []).filter(e => String(e.student_id) === String(s.id) && e.status === 'active').length;
+
+      const avatarHtml = s.photo_url
+        ? `<img src="${s.photo_url}" style="width:34px; height:34px; border-radius:50%; object-fit:cover; flex-shrink:0;" alt="">`
+        : `<div style="width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg, #0284c7, #06b6d4); color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:12px; flex-shrink:0;">${initials}</div>`;
+
+      return `
+        <div style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: all 0.15s ease; user-select: none;
+                    background: ${isSelected ? 'rgba(56, 189, 248, 0.12)' : 'rgba(255, 255, 255, 0.03)'};
+                    border: 1px solid ${isSelected ? '#38bdf8' : 'var(--border-color)'};"
+             onclick="app.toggleBulkStudent(${s.id})">
+          <input type="checkbox" style="cursor: pointer; width: 16px; height: 16px; accent-color: #38bdf8;"
+                 ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); app.toggleBulkStudent(${s.id})">
+          ${avatarHtml}
+          <div style="flex: 1; min-width: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+              <strong style="color: var(--text-heading); font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                ${this.escapeHtml(s.first_name)} ${this.escapeHtml(s.last_name)}
+              </strong>
+              <code style="font-size: 11px; background: rgba(0,0,0,0.25); padding: 1px 5px; border-radius: 4px; color: var(--text-muted);">${this.escapeHtml(s.matricule || '')}</code>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
+              <span style="font-size: 11.5px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                ${lvl ? `<i class="fa-solid fa-layer-group" style="font-size: 10px; margin-right: 4px;"></i>${this.escapeHtml(lvl)}` : ''}
+              </span>
+              <span style="font-size: 11px; color: ${activeEnrollments > 0 ? '#38bdf8' : 'var(--text-muted)'};">
+                ${activeEnrollments > 0 ? `${activeEnrollments} ${isAr ? 'أفواج مسجل بها' : 'cours actif(s)'}` : (isAr ? 'غير مسجل' : 'Non inscrit')}
+              </span>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  renderBulkGroupsList() {
+    const container = document.getElementById('bulkGroupsListContainer');
+    if (!container) return;
+
+    const isAr = this.lang === 'ar';
+    const gSearch = document.getElementById('bulkGroupSearchInput');
+    const lvlFilter = document.getElementById('bulkGroupLevelFilter');
+
+    const term = (gSearch ? gSearch.value : '').trim().toLowerCase();
+    const lvlVal = lvlFilter ? lvlFilter.value : '';
+
+    const norm = (str) => (str || '').toLowerCase()
+      .replace(/[أإآ]/g, 'ا')
+      .replace(/ة/g, 'ه')
+      .replace(/ى/g, 'ي')
+      .trim();
+
+    const normTerm = norm(term);
+
+    // Active groups
+    let filtered = (this.groups || []).filter(g => g.active !== 0);
+
+    if (lvlVal) {
+      filtered = filtered.filter(g => String(g.level_id) === String(lvlVal));
+    }
+
+    if (normTerm) {
+      filtered = filtered.filter(g => {
+        const gn = norm(g.name);
+        const sub = norm(g.subject_name);
+        const tn = norm(g.teacher_name);
+        return gn.includes(normTerm) || sub.includes(normTerm) || tn.includes(normTerm);
+      });
+    }
+
+    this._bulkFilteredGroups = filtered;
+
+    // Update count labels
+    const countBadge = document.getElementById('bulkGroupsBadgeCount');
+    if (countBadge) {
+      countBadge.textContent = `${this._bulkSelectedGroupIds.size} ${isAr ? 'محدد' : 'sélectionné(s)'}`;
+    }
+
+    const visibleCount = document.getElementById('bulkGroupsVisibleCount');
+    if (visibleCount) {
+      visibleCount.textContent = `${filtered.length} ${isAr ? 'فوج' : 'groupe(s)'}`;
+    }
+
+    // Checkbox "Tout sélectionner" sync
+    const chkAll = document.getElementById('chkBulkSelectAllGroups');
+    if (chkAll) {
+      chkAll.checked = filtered.length > 0 && filtered.every(g => this._bulkSelectedGroupIds.has(g.id));
+    }
+
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div style="padding: 30px 16px; text-align: center; color: var(--text-muted);">
+          <i class="fa-solid fa-users-slash" style="font-size: 24px; margin-bottom: 8px; opacity: 0.6; display: block;"></i>
+          <span style="font-size: 13px;">${isAr ? 'لا يوجد أي فوج يطابق المعايير' : 'Aucun groupe correspondant'}</span>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = filtered.map(g => {
+      const isSelected = this._bulkSelectedGroupIds.has(g.id);
+      const lvl = this.levels && this.levels.find(l => l.id === g.level_id)?.name || '';
+      const price = parseFloat(g.price_monthly) || 0;
+      const enrolledCount = (this.inscriptionsList || []).filter(e => String(e.group_id) === String(g.id) && e.status === 'active').length;
+      const maxStudents = g.max_students || 25;
+
+      return `
+        <div style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: all 0.15s ease; user-select: none;
+                    background: ${isSelected ? 'rgba(167, 139, 250, 0.12)' : 'rgba(255, 255, 255, 0.03)'};
+                    border: 1px solid ${isSelected ? '#a78bfa' : 'var(--border-color)'};"
+             onclick="app.toggleBulkGroup(${g.id})">
+          <input type="checkbox" style="cursor: pointer; width: 16px; height: 16px; accent-color: #a78bfa;"
+                 ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); app.toggleBulkGroup(${g.id})">
+          <div style="width: 34px; height: 34px; border-radius: 8px; background: rgba(167, 139, 250, 0.15); color: #a78bfa; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;">
+            <i class="fa-solid fa-graduation-cap"></i>
+          </div>
+          <div style="flex: 1; min-width: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+              <strong style="color: var(--text-heading); font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                ${this.escapeHtml(g.name)}
+              </strong>
+              <span style="font-size: 12px; font-weight: 700; color: #10b981; white-space: nowrap;">
+                ${price.toLocaleString('fr-FR')} DA
+              </span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
+              <span style="font-size: 11.5px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                ${g.subject_name ? `<strong style="color:var(--text-body);">${this.escapeHtml(g.subject_name)}</strong> &bull; ` : ''}${this.escapeHtml(g.teacher_name || '')}
+              </span>
+              <span style="font-size: 10.5px; background: rgba(0,0,0,0.25); padding: 1px 6px; border-radius: 4px; color: var(--text-muted);">
+                <i class="fa-solid fa-users" style="font-size: 9px; margin-right: 3px;"></i>${enrolledCount}/${maxStudents}
+              </span>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  toggleBulkStudent(id) {
+    if (this._bulkSelectedStudentIds.has(id)) {
+      this._bulkSelectedStudentIds.delete(id);
+    } else {
+      this._bulkSelectedStudentIds.add(id);
+    }
+    this.renderBulkStudentsList();
+    this.updateBulkEnrollmentSummary();
+  }
+
+  toggleBulkGroup(id) {
+    if (this._bulkSelectedGroupIds.has(id)) {
+      this._bulkSelectedGroupIds.delete(id);
+    } else {
+      this._bulkSelectedGroupIds.add(id);
+    }
+    this.renderBulkGroupsList();
+    this.updateBulkEnrollmentSummary();
+  }
+
+  toggleAllBulkStudents(checked) {
+    const list = this._bulkFilteredStudents || [];
+    list.forEach(s => {
+      if (checked) {
+        this._bulkSelectedStudentIds.add(s.id);
+      } else {
+        this._bulkSelectedStudentIds.delete(s.id);
+      }
+    });
+    this.renderBulkStudentsList();
+    this.updateBulkEnrollmentSummary();
+  }
+
+  toggleAllBulkGroups(checked) {
+    const list = this._bulkFilteredGroups || [];
+    list.forEach(g => {
+      if (checked) {
+        this._bulkSelectedGroupIds.add(g.id);
+      } else {
+        this._bulkSelectedGroupIds.delete(g.id);
+      }
+    });
+    this.renderBulkGroupsList();
+    this.updateBulkEnrollmentSummary();
+  }
+
+  updateBulkEnrollmentSummary() {
+    const isAr = this.lang === 'ar';
+    const sCount = this._bulkSelectedStudentIds ? this._bulkSelectedStudentIds.size : 0;
+    const gCount = this._bulkSelectedGroupIds ? this._bulkSelectedGroupIds.size : 0;
+    const totalCombinations = sCount * gCount;
+
+    const elS = document.getElementById('bulkSummaryStudents');
+    if (elS) elS.textContent = `${sCount} ${isAr ? 'تلميذ' : 'élève(s)'}`;
+
+    const elG = document.getElementById('bulkSummaryGroups');
+    if (elG) elG.textContent = `${gCount} ${isAr ? 'فوج' : 'groupe(s)'}`;
+
+    const elT = document.getElementById('bulkSummaryTotal');
+    if (elT) elT.textContent = `${totalCombinations} ${isAr ? 'تسجيل' : 'inscription(s)'}`;
+
+    const btn = document.getElementById('btnConfirmBulkEnrollment');
+    if (btn) {
+      btn.disabled = totalCombinations === 0;
+      btn.style.opacity = totalCombinations > 0 ? '1' : '0.5';
+      btn.style.cursor = totalCombinations > 0 ? 'pointer' : 'not-allowed';
+    }
+  }
+
+  async confirmBulkEnrollment() {
+    const isAr = this.lang === 'ar';
+    const student_ids = Array.from(this._bulkSelectedStudentIds || []);
+    const group_ids = Array.from(this._bulkSelectedGroupIds || []);
+
+    if (student_ids.length === 0 || group_ids.length === 0) {
+      this.showToast(isAr ? 'يرجى تحديد تلميذ واحد وفوج واحد على الأقل للمتابعة' : 'Veuillez sélectionner au moins un élève et un groupe.', 'warning');
+      return;
+    }
+
+    const discount_amount = parseFloat(document.getElementById('bulkEnrollDiscount')?.value) || 0;
+    const registration_date = document.getElementById('bulkEnrollRegDate')?.value || new Date().toISOString().split('T')[0];
+    const school_year = document.getElementById('bulkEnrollSchoolYear')?.value || '2025-2026';
+
+    const btn = document.getElementById('btnConfirmBulkEnrollment');
+    const btnText = document.getElementById('btnConfirmBulkEnrollText');
+
+    if (btn) {
+      btn.disabled = true;
+      btn.style.opacity = '0.7';
+    }
+    if (btnText) {
+      btnText.textContent = isAr ? 'جاري التسجيل الجماعي...' : 'Inscriptions en cours...';
+    }
+
+    try {
+      const res = await fetch('/api/enrollments/batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          student_ids,
+          group_ids,
+          school_year,
+          discount_amount,
+          registration_date
+        })
+      });
+
+      let data;
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        data = { success: false, error: isAr ? `خطأ من الخادم (${res.status})` : `Erreur serveur HTTP (${res.status})` };
+      }
+
+      if (data.success) {
+        this.playChime('success');
+        let msg = '';
+        if (isAr) {
+          msg = `تمت العملية بنجاح! تم إنشاء ${data.enrolled} تسجيل جديد`;
+          if (data.reactivated > 0) msg += `، وإعادة تفعيل ${data.reactivated}`;
+          if (data.alreadyActive > 0) msg += ` (${data.alreadyActive} مسجلون مسبقاً)`;
+        } else {
+          msg = `Opération réussie ! ${data.enrolled} nouvelle(s) inscription(s)`;
+          if (data.reactivated > 0) msg += `, ${data.reactivated} réactivée(s)`;
+          if (data.alreadyActive > 0) msg += ` (${data.alreadyActive} déjà active(s))`;
+        }
+        this.showToast(msg, 'success');
+        this.closeModals();
+        await this.loadInscriptionsList();
+      } else {
+        this.playChime('error');
+        this.showToast(data.error || (isAr ? 'حدث خطأ أثناء تنفيذ التسجيل الجماعي' : 'Erreur lors de l’inscription groupée'), 'error');
+      }
+    } catch (err) {
+      console.error('Erreur confirmBulkEnrollment:', err);
+      this.playChime('error');
+      this.showToast(isAr ? 'خطأ في الاتصال بالخادم' : 'Erreur de connexion avec le serveur', 'error');
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }
+      if (btnText) {
+        btnText.textContent = isAr ? 'تأكيد التسجيل الجماعي' : 'Confirmer les inscriptions groupées';
+      }
+    }
+  }
+
   // -------------------------------------------------------------
   // PARAMÈTRES (SETTINGS) VIEW
   // -------------------------------------------------------------
@@ -9717,8 +14500,38 @@ class EdumindApp {
     });
   }
 
+  async loadNetworkInfo() {
+    try {
+      const res = await fetch('/api/network/info');
+      const data = await res.json();
+      if (!data.success) return;
+      const urlBox = document.getElementById('lanServerUrlDisplay');
+      if (urlBox) urlBox.value = data.primaryUrl;
+      const listContainer = document.getElementById('lanAddressesList');
+      if (listContainer) {
+        listContainer.innerHTML = (data.addresses || []).map(a => `
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: rgba(255,255,255,0.04); border-radius: 8px; margin-bottom: 8px;">
+            <div>
+              <strong style="color: #60a5fa; font-size: 14px;"><i class="fa-solid fa-wifi" style="margin-right: 6px;"></i> ${a.name}</strong>
+              <div style="font-size: 12px; color: var(--text-muted);">${a.ip}</div>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <code style="background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 4px; color: #34d399; font-weight: bold;">${a.url}</code>
+              <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 12px;" onclick="navigator.clipboard.writeText('${a.url}'); app.showToast(app.lang === 'ar' ? 'تم نسخ الرابط!' : 'Lien copié !', 'success')">
+                <i class="fa-regular fa-copy"></i>
+              </button>
+            </div>
+          </div>
+        `).join('') || '<div style="color: var(--text-muted);">Aucune carte réseau active détectée.</div>';
+      }
+    } catch(e) {
+      console.warn('Network info error:', e);
+    }
+  }
+
   async loadSettingsInputs() {
     await this.loadSettings();
+    this.loadNetworkInfo();
 
     // 1. Établissement
     const schoolNameInput = document.getElementById('settingSchoolName');
@@ -10035,6 +14848,56 @@ class EdumindApp {
     }
   }
 
+  async downloadBackup(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const isAr = this.lang === 'ar';
+    try {
+      const now = new Date().toISOString().split('T')[0];
+      const filename = `EDUMIND_Backup_${now}.sqlite`;
+      const res = await fetch('/api/backup/download');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      }, 1000);
+      if (typeof this.playChime === 'function') this.playChime('success');
+    } catch (err) {
+      console.warn('Fallback direct download:', err);
+      window.location.href = '/api/backup/download';
+    }
+  }
+
+  async downloadArchiveBackup(filename, e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const isAr = this.lang === 'ar';
+    try {
+      const res = await fetch(`/api/backup/download-archive/${encodeURIComponent(filename)}`);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      }, 1000);
+      if (typeof this.playChime === 'function') this.playChime('success');
+    } catch (err) {
+      console.warn('Fallback download:', err);
+      window.location.href = `/api/backup/download-archive/${encodeURIComponent(filename)}`;
+    }
+  }
+
   async loadBackupsList() {
     const listContainer = document.getElementById('backupsListContainer');
     if (!listContainer) return;
@@ -10056,7 +14919,7 @@ class EdumindApp {
               <button type="button" class="btn-secondary" onclick="app.restoreArchiveBackup('${b.filename}')" style="padding: 5px 12px; font-size: 11.5px; border: 1px solid #f59e0b; color: #f59e0b; background: rgba(245,158,11,0.1); cursor: pointer; display: inline-flex; align-items: center; gap: 6px;" title="${isAr ? 'استرجاع هذه النسخة الاحتياطية' : 'Restaurer cette archive'}">
                 <i class="fa-solid fa-rotate-left"></i> ${isAr ? 'استرجاع' : 'Restaurer'}
               </button>
-              <a href="/api/backup/download-archive/${b.filename}" class="btn-secondary" style="padding: 5px 12px; font-size: 11.5px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+              <a href="/api/backup/download-archive/${encodeURIComponent(b.filename)}" download="${b.filename}" onclick="app.downloadArchiveBackup('${b.filename}', event)" class="btn-secondary" style="padding: 5px 12px; font-size: 11.5px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
                 <i class="fa-solid fa-download"></i> ${isAr ? 'تحميل' : 'Télécharger'}
               </a>
             </div>
