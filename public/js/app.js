@@ -2160,8 +2160,8 @@ class EdumindApp {
     this._lastViewLoads = this._lastViewLoads || {};
     const now = Date.now();
     const lastLoad = this._lastViewLoads[viewName] || 0;
-    // Always reload pointage so live status is accurate; buffer other views for 15s
-    const shouldReload = forceReload || viewName === 'pointage' || (now - lastLoad > 15000);
+    // Always reload pointage and enseignants so live status is accurate; buffer other views for 15s
+    const shouldReload = forceReload || viewName === 'pointage' || viewName === 'enseignants' || (now - lastLoad > 15000);
 
     if (!shouldReload) {
       return; // Instant view toggle with zero network lag
@@ -10516,6 +10516,8 @@ class EdumindApp {
   // TEACHERS & 8-MODES REMUNERATION SETTLEMENTS
   // -------------------------------------------------------------
   async loadTeachers() {
+    const tbody = document.getElementById('teachersTableBody');
+    const isAr = this.lang === 'ar';
     try {
       const monthInput = document.getElementById('filterTeacherMonth');
       if (monthInput && !monthInput.value) {
@@ -10523,9 +10525,17 @@ class EdumindApp {
         monthInput.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
       }
       const month = monthInput?.value || new Date().toISOString().slice(0, 7);
-      const res = await fetch(`/api/teachers?month=${month}`);
+      const res = await fetch(`/api/teachers?month=${encodeURIComponent(month)}&_t=${Date.now()}`);
       const data = await res.json();
-      if (!data.success) return;
+      if (!data.success) {
+        if (tbody && (!this.teachers || this.teachers.length === 0)) {
+          tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #ef4444; padding: 25px;">
+            <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
+            ${this.escapeHtml(data.error || (isAr ? 'فشل تحميل بيانات الأساتذة' : 'Erreur lors du chargement des enseignants'))}
+          </td></tr>`;
+        }
+        return;
+      }
       this.teachers = data.teachers || [];
 
       const searchInput = document.getElementById('searchTeacherInput');
@@ -10535,7 +10545,13 @@ class EdumindApp {
         this.renderTeachersTable(this.teachers);
       }
     } catch (err) {
-      console.error(err);
+      console.error('Error loading teachers:', err);
+      if (tbody && (!this.teachers || this.teachers.length === 0)) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #ef4444; padding: 25px;">
+          <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
+          ${isAr ? 'خطأ في الاتصال بقاعدة البيانات أو الخادم' : 'Erreur de connexion au serveur'}
+        </td></tr>`;
+      }
     }
   }
 
@@ -10574,8 +10590,9 @@ class EdumindApp {
     const tbody = document.getElementById('teachersTableBody');
     if (!tbody) return;
 
+    const isAr = this.lang === 'ar';
+
     if (!list || list.length === 0) {
-      const isAr = this.lang === 'ar';
       tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 35px;">
         <i class="fa-solid fa-chalkboard-user" style="font-size: 28px; margin-bottom: 8px; opacity: 0.4; display: block;"></i>
         ${isAr ? 'لم يتم العثور على أي أستاذ مطابق' : 'Aucun enseignant trouvé'}
@@ -10584,105 +10601,115 @@ class EdumindApp {
     }
 
     const modeLabels = {
-      percent: this.lang === 'ar' ? 'نسبة مئوية (%)' : 'Pourcentage (%)',
-      hourly: this.lang === 'ar' ? 'سعر بالساعة (دج/سا)' : 'Tarif horaire (DA/h)',
-      per_session: this.lang === 'ar' ? 'سعر بالحصة (دج)' : 'Tarif par séance (DA)',
-      fixed_salary: this.lang === 'ar' ? 'راتب شهري ثابت (دج)' : 'Salaire fixe (DA)',
-      hourly_per_student: this.lang === 'ar' ? 'ساعي × عدد التلاميذ' : 'Horaire × Nb élèves',
-      session_per_student: this.lang === 'ar' ? 'حصص × عدد التلاميذ' : 'Séance × Nb élèves',
-      percent_per_student: this.lang === 'ar' ? 'نسبة حسب التلميذ' : 'Pourcentage par élève',
-      fixed_per_student: this.lang === 'ar' ? 'مبلغ ثابت لكل تلميذ' : 'Forfait fixe par élève'
+      percent: isAr ? 'نسبة مئوية (%)' : 'Pourcentage (%)',
+      hourly: isAr ? 'سعر بالساعة (دج/سا)' : 'Tarif horaire (DA/h)',
+      per_session: isAr ? 'سعر بالحصة (دج)' : 'Tarif par séance (DA)',
+      fixed_salary: isAr ? 'راتب شهري ثابت (دج)' : 'Salaire fixe (DA)',
+      hourly_per_student: isAr ? 'ساعي × عدد التلاميذ' : 'Horaire × Nb élèves',
+      session_per_student: isAr ? 'حصص × عدد التلاميذ' : 'Séance × Nb élèves',
+      percent_per_student: isAr ? 'نسبة حسب التلميذ' : 'Pourcentage par élève',
+      fixed_per_student: isAr ? 'مبلغ ثابت لكل تلميذ' : 'Forfait fixe par élève'
     };
 
-    tbody.innerHTML = list.map(t => {
-      const mKey = t.remuneration_type || 'percent';
-      const mLabel = modeLabels[mKey] || mKey;
+    try {
+      tbody.innerHTML = list.map(t => {
+        const mKey = t.remuneration_type || 'percent';
+        const mLabel = modeLabels[mKey] || mKey;
 
-      // Financial status badge
-      let statusBadgeHtml = '';
-      if (t.payout_status === 'paid') {
-        statusBadgeHtml = `
-          <span class="badge-pill" style="background: rgba(16, 185, 129, 0.15); color: #059669; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
-            <i class="fa-solid fa-circle-check"></i> ${this.lang === 'ar' ? 'مسدد بالكامل' : 'Réglé'}
-          </span>
-          <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
-            ${Number(t.already_paid || 0).toLocaleString()} DA
-          </div>
-        `;
-      } else if (t.payout_status === 'partial') {
-        statusBadgeHtml = `
-          <span class="badge-pill" style="background: rgba(245, 158, 11, 0.15); color: #d97706; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
-            <i class="fa-solid fa-clock-rotate-left"></i> ${this.lang === 'ar' ? 'مسدد جزئياً' : 'Partiel'}
-          </span>
-          <div style="font-size: 11px; color: #d97706; font-weight: 600; margin-top: 2px;">
-            ${this.lang === 'ar' ? 'الباقي:' : 'Reste:'} ${Number(t.remaining_due || 0).toLocaleString()} DA
-          </div>
-        `;
-      } else if (t.payout_status === 'unpaid') {
-        statusBadgeHtml = `
-          <span class="badge-pill" style="background: rgba(239, 68, 68, 0.12); color: #dc2626; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
-            <i class="fa-solid fa-circle-exclamation"></i> ${this.lang === 'ar' ? 'غير مسدد' : 'À régler'}
-          </span>
-          <div style="font-size: 11px; color: #dc2626; font-weight: 600; margin-top: 2px;">
-            ${Number(t.remaining_due || 0).toLocaleString()} DA
-          </div>
-        `;
-      } else {
-        statusBadgeHtml = `<span style="color: var(--text-muted); font-size: 12px;">0 DA</span>`;
-      }
-
-      // Payout action button
-      let payoutBtnHtml = '';
-      if (t.payout_status === 'paid') {
-        payoutBtnHtml = `
-          <button class="btn-primary" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 5px 12px; font-size: 11px; display: flex; align-items: center; gap: 5px;" onclick="app.openModalTeacherPayout(${t.id})" title="${this.lang === 'ar' ? 'تم تسديد كامل المستحقات (عرض / تعديل)' : 'Honoraires entièrement réglés (Détails / Ajuster)'}">
-            <i class="fa-solid fa-circle-check"></i> ${this.lang === 'ar' ? 'مسدد (تفاصيل)' : 'Réglé (Détails)'}
-          </button>
-        `;
-      } else if (t.payout_status === 'partial') {
-        payoutBtnHtml = `
-          <button class="btn-primary" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 5px 12px; font-size: 11px; display: flex; align-items: center; gap: 5px;" onclick="app.openModalTeacherPayout(${t.id})">
-            <i class="fa-solid fa-hand-holding-dollar"></i> ${this.lang === 'ar' ? `دفع الباقي (${Number(t.remaining_due).toLocaleString()} دج)` : `Solder (${Number(t.remaining_due).toLocaleString()} DA)`}
-          </button>
-        `;
-      } else {
-        payoutBtnHtml = `
-          <button class="btn-primary" style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); padding: 5px 12px; font-size: 11px; display: flex; align-items: center; gap: 5px;" onclick="app.openModalTeacherPayout(${t.id})">
-            <i class="fa-solid fa-hand-holding-dollar"></i> ${this.lang === 'ar' ? 'تسوية المستحقات' : 'Régler Honoraires'}
-          </button>
-        `;
-      }
-
-      return `
-        <tr>
-          <td><strong style="color: #f97316;">${t.matricule}</strong></td>
-          <td><strong>${this.escapeHtml(t.first_name)} ${this.escapeHtml(t.last_name)}</strong></td>
-          <td>${this.escapeHtml(t.subject_name || '-')}</td>
-          <td>${this.escapeHtml(t.phone || '-')}</td>
-          <td>
-            <span class="badge-pill" style="background: rgba(249, 115, 22, 0.12); color: #ea580c; font-size: 11.5px;">
-              ${mLabel}
+        // Financial status badge
+        let statusBadgeHtml = '';
+        if (t.payout_status === 'paid') {
+          statusBadgeHtml = `
+            <span class="badge-pill" style="background: rgba(16, 185, 129, 0.15); color: #059669; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+              <i class="fa-solid fa-circle-check"></i> ${isAr ? 'مسدد بالكامل' : 'Réglé'}
             </span>
-          </td>
-          <td>${t.groups_count} ${this.lang === 'ar' ? 'أفواج' : 'groupe(s)'}</td>
-          <td>${statusBadgeHtml}</td>
-          <td>
-            <div style="display: flex; gap: 8px; align-items: center;">
-              <button class="btn-action-badge" title="${this.lang === 'ar' ? 'بطاقة الأستاذ' : 'Badge Enseignant'}" onclick="app.showTeacherCard(${t.id})">
-                <i class="fa-solid fa-id-badge"></i>
-              </button>
-              ${payoutBtnHtml}
-              <button class="btn-icon" title="Modifier" onclick="app.editTeacher(${t.id})">
-                <i class="fa-solid fa-pen-to-square"></i>
-              </button>
-              <button class="btn-icon" style="color: #ef4444;" title="Supprimer" onclick="app.deleteTeacher(${t.id})">
-                <i class="fa-solid fa-trash"></i>
-              </button>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
+              ${Number(t.already_paid || 0).toLocaleString()} DA
             </div>
-          </td>
-        </tr>
-      `;
-    }).join('');
+          `;
+        } else if (t.payout_status === 'partial') {
+          statusBadgeHtml = `
+            <span class="badge-pill" style="background: rgba(245, 158, 11, 0.15); color: #d97706; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+              <i class="fa-solid fa-clock-rotate-left"></i> ${isAr ? 'مسدد جزئياً' : 'Partiel'}
+            </span>
+            <div style="font-size: 11px; color: #d97706; font-weight: 600; margin-top: 2px;">
+              ${isAr ? 'الباقي:' : 'Reste:'} ${Number(t.remaining_due || 0).toLocaleString()} DA
+            </div>
+          `;
+        } else if (t.payout_status === 'unpaid') {
+          statusBadgeHtml = `
+            <span class="badge-pill" style="background: rgba(239, 68, 68, 0.12); color: #dc2626; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+              <i class="fa-solid fa-circle-exclamation"></i> ${isAr ? 'غير مسدد' : 'À régler'}
+            </span>
+            <div style="font-size: 11px; color: #dc2626; font-weight: 600; margin-top: 2px;">
+              ${Number(t.remaining_due || 0).toLocaleString()} DA
+            </div>
+          `;
+        } else {
+          statusBadgeHtml = `<span style="color: var(--text-muted); font-size: 12px;">0 DA</span>`;
+        }
+
+        // Payout action button
+        let payoutBtnHtml = '';
+        if (t.payout_status === 'paid') {
+          payoutBtnHtml = `
+            <button class="btn-primary" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 5px 12px; font-size: 11px; display: flex; align-items: center; gap: 5px;" onclick="app.openModalTeacherPayout(${t.id})" title="${isAr ? 'تم تسديد كامل المستحقات (عرض / تعديل)' : 'Honoraires entièrement réglés (Détails / Ajuster)'}">
+              <i class="fa-solid fa-circle-check"></i> ${isAr ? 'مسدد (تفاصيل)' : 'Réglé (Détails)'}
+            </button>
+          `;
+        } else if (t.payout_status === 'partial') {
+          payoutBtnHtml = `
+            <button class="btn-primary" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 5px 12px; font-size: 11px; display: flex; align-items: center; gap: 5px;" onclick="app.openModalTeacherPayout(${t.id})">
+              <i class="fa-solid fa-hand-holding-dollar"></i> ${isAr ? `دفع الباقي (${Number(t.remaining_due || 0).toLocaleString()} دج)` : `Solder (${Number(t.remaining_due || 0).toLocaleString()} DA)`}
+            </button>
+          `;
+        } else {
+          payoutBtnHtml = `
+            <button class="btn-primary" style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); padding: 5px 12px; font-size: 11px; display: flex; align-items: center; gap: 5px;" onclick="app.openModalTeacherPayout(${t.id})">
+              <i class="fa-solid fa-hand-holding-dollar"></i> ${isAr ? 'تسوية المستحقات' : 'Régler Honoraires'}
+            </button>
+          `;
+        }
+
+        const fullName = `${this.escapeHtml(t.first_name || '')} ${this.escapeHtml(t.last_name || '')}`.trim();
+
+        return `
+          <tr>
+            <td><strong style="color: #f97316;">${this.escapeHtml(t.matricule || '-')}</strong></td>
+            <td><strong>${fullName || '-'}</strong></td>
+            <td>${this.escapeHtml(t.subject_name || '-')}</td>
+            <td>${this.escapeHtml(t.phone || '-')}</td>
+            <td>
+              <span class="badge-pill" style="background: rgba(249, 115, 22, 0.12); color: #ea580c; font-size: 11.5px;">
+                ${mLabel}
+              </span>
+            </td>
+            <td>${t.groups_count || 0} ${isAr ? 'أفواج' : 'groupe(s)'}</td>
+            <td>${statusBadgeHtml}</td>
+            <td>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <button class="btn-action-badge" title="${isAr ? 'بطاقة الأستاذ' : 'Badge Enseignant'}" onclick="app.showTeacherCard(${t.id})">
+                  <i class="fa-solid fa-id-badge"></i>
+                </button>
+                ${payoutBtnHtml}
+                <button class="btn-icon" title="Modifier" onclick="app.editTeacher(${t.id})">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                <button class="btn-icon" style="color: #ef4444;" title="Supprimer" onclick="app.deleteTeacher(${t.id})">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    } catch (renderErr) {
+      console.error('Error rendering teachers table:', renderErr);
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #ef4444; padding: 25px;">
+        <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
+        ${isAr ? 'حدث خطأ أثناء عرض بيانات الأساتذة' : 'Erreur lors de l’affichage des enseignants'}
+      </td></tr>`;
+    }
   }
 
   onTeacherRemunTypeChange() {
