@@ -296,7 +296,7 @@ async function createMainWindow() {
         overrideBrowserWindowOptions: {
           width: 960,
           height: 780,
-          backgroundColor: '#0a1124',
+          backgroundColor: url.startsWith('about:blank') ? '#ffffff' : '#0a1124',
           icon: appIcon,
           autoHideMenuBar: true,
           webPreferences: {

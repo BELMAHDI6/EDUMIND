@@ -7090,13 +7090,16 @@ class EdumindApp {
         <title>${isAr ? 'سجل الحضور اليومي للمدخل' : 'Journal des Présences d\'Entrée'} - ${dateVal}</title>
         <style>
           @page { size: A4 landscape; margin: 12mm; }
-          body { font-family: system-ui, -apple-system, sans-serif; color: #0f172a; margin: 0; padding: 20px; }
+          html, body { background-color: #ffffff !important; color: #0f172a !important; }
+          body { font-family: system-ui, -apple-system, sans-serif; color: #0f172a; margin: 0; padding: 20px; background: #ffffff !important; }
           .header { display: flex; justify-content: space-between; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 16px; }
           .title { font-size: 20px; font-weight: 800; }
           .stats { display: flex; gap: 16px; margin-bottom: 16px; font-size: 13px; }
           .stat-box { background: #f1f5f9; padding: 6px 14px; border-radius: 6px; border: 1px solid #cbd5e1; }
-          table { width: 100%; border-collapse: collapse; font-size: 12px; }
-          th { background: #e2e8f0; border: 1px solid #cbd5e1; padding: 8px 6px; font-weight: 700; text-align: ${isAr ? 'right' : 'left'}; }
+          table { width: 100%; border-collapse: collapse; font-size: 12px; background-color: #ffffff !important; }
+          th { background: #e2e8f0; border: 1px solid #cbd5e1; padding: 8px 6px; font-weight: 700; text-align: ${isAr ? 'right' : 'left'}; color: #0f172a; }
+          tbody tr { background-color: #ffffff !important; }
+          tbody tr:nth-child(even) { background-color: #f8fafc !important; }
           .footer { display: flex; justify-content: space-between; margin-top: 30px; font-size: 13px; }
         </style>
       </head>
@@ -7734,19 +7737,21 @@ class EdumindApp {
         <meta charset="UTF-8">
         <title>${title} — EDUMIND</title>
         <style>
-          body { font-family: system-ui, -apple-system, sans-serif; margin: 20px; color: #1e293b; font-size: 12px; }
+          html, body { background-color: #ffffff !important; color: #1e293b !important; }
+          body { font-family: system-ui, -apple-system, sans-serif; margin: 20px; color: #1e293b; font-size: 12px; background: #ffffff !important; }
           .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0f766e; padding-bottom: 12px; margin-bottom: 15px; }
           .school-title { font-size: 20px; font-weight: 800; color: #0f766e; margin: 0; }
           .kpi-boxes { display: flex; gap: 15px; margin-bottom: 15px; }
           .kpi-box { flex: 1; padding: 10px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; text-align: center; }
           .kpi-val { font-size: 16px; font-weight: 700; color: #0f766e; }
-          table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-          th, td { border: 1px solid #cbd5e1; padding: 6px 8px; text-align: ${isAr ? 'right' : 'left'}; }
-          th { background-color: #f1f5f9; font-weight: 700; font-size: 11px; text-transform: uppercase; }
-          tr:nth-child(even) { background-color: #f8fafc; }
+          table { width: 100%; border-collapse: collapse; margin-top: 10px; background-color: #ffffff !important; }
+          th, td { border: 1px solid #cbd5e1; padding: 6px 8px; text-align: ${isAr ? 'right' : 'left'}; color: #1e293b; }
+          th { background-color: #f1f5f9; font-weight: 700; font-size: 11px; text-transform: uppercase; color: #334155; }
+          tbody tr { background-color: #ffffff !important; }
+          tbody tr:nth-child(even) { background-color: #f8fafc !important; }
           .amount { font-weight: 700; color: #047857; text-align: right; }
           .footer { margin-top: 30px; display: flex; justify-content: space-between; padding-top: 10px; }
-          .signature-box { width: 220px; text-align: center; padding-top: 40px; border-top: 1px dashed #94a3b8; font-weight: 600; }
+          .signature-box { width: 220px; text-align: center; padding-top: 40px; border-top: 1px dashed #94a3b8; font-weight: 600; color: #475569; }
           @media print {
             body { margin: 10mm; font-size: 11px; }
             button { display: none; }
@@ -10211,23 +10216,25 @@ class EdumindApp {
         <meta charset="UTF-8">
         <title>${title} — EDUMIND</title>
         <style>
-          body { font-family: system-ui, -apple-system, sans-serif; margin: 20px; color: #1e293b; font-size: 12px; }
+          html, body { background-color: #ffffff !important; color: #1e293b !important; }
+          body { font-family: system-ui, -apple-system, sans-serif; margin: 20px; color: #1e293b; font-size: 12px; background: #ffffff !important; }
           .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #d97706; padding-bottom: 12px; margin-bottom: 15px; }
           .school-title { font-size: 20px; font-weight: 800; color: #b45309; margin: 0; }
           .kpi-boxes { display: flex; gap: 12px; margin-bottom: 15px; }
           .kpi-box { flex: 1; padding: 10px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; text-align: center; }
           .kpi-val { font-size: 16px; font-weight: 700; margin-top: 4px; }
-          table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-          th, td { border: 1px solid #cbd5e1; padding: 6px 8px; text-align: ${isAr ? 'right' : 'left'}; }
-          th { background-color: #f1f5f9; font-weight: 700; font-size: 11px; text-transform: uppercase; }
-          tr:nth-child(even) { background-color: #f8fafc; }
+          table { width: 100%; border-collapse: collapse; margin-top: 10px; background-color: #ffffff !important; }
+          th, td { border: 1px solid #cbd5e1; padding: 6px 8px; text-align: ${isAr ? 'right' : 'left'}; color: #1e293b; }
+          th { background-color: #f1f5f9; font-weight: 700; font-size: 11px; text-transform: uppercase; color: #334155; }
+          tbody tr { background-color: #ffffff !important; }
+          tbody tr:nth-child(even) { background-color: #f8fafc !important; }
           .inflow { font-weight: 700; color: #047857; text-align: right; }
           .outflow { font-weight: 700; color: #b91c1c; text-align: right; }
           .badge-flux { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; }
           .badge-entree { background: #d1fae5; color: #065f46; }
           .badge-sortie { background: #fee2e2; color: #991b1b; }
           .footer { margin-top: 30px; display: flex; justify-content: space-between; padding-top: 10px; }
-          .signature-box { width: 220px; text-align: center; padding-top: 40px; border-top: 1px dashed #94a3b8; font-weight: 600; }
+          .signature-box { width: 220px; text-align: center; padding-top: 40px; border-top: 1px dashed #94a3b8; font-weight: 600; color: #475569; }
           @media print {
             body { margin: 10mm; font-size: 11px; }
             button { display: none; }
@@ -12469,15 +12476,17 @@ class EdumindApp {
         <title>${subtitle} - ${schoolName}</title>
         <style>
           @page { size: A4 landscape; margin: 12mm; }
-          body { font-family: 'Segoe UI', Arial, sans-serif; color: #1e293b; margin: 0; padding: 10px; font-size: 12px; }
+          html, body { background-color: #ffffff !important; color: #1e293b !important; }
+          body { font-family: 'Segoe UI', Arial, sans-serif; color: #1e293b; margin: 0; padding: 10px; font-size: 12px; background: #ffffff !important; }
           .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #2563eb; padding-bottom: 10px; margin-bottom: 14px; }
           .title { font-size: 20px; font-weight: bold; color: #1e3a8a; }
           .subtitle { font-size: 14px; color: #2563eb; font-weight: 600; margin-top: 4px; }
           .meta { text-align: right; font-size: 11px; color: #64748b; }
-          table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 10px; background-color: #ffffff !important; }
           th { background: #f1f5f9; color: #334155; font-weight: 700; text-align: left; padding: 8px 10px; border: 1px solid #cbd5e1; font-size: 11px; }
-          td { padding: 7px 10px; border: 1px solid #cbd5e1; font-size: 11.5px; }
-          tr:nth-child(even) { background: #f8fafc; }
+          td { padding: 7px 10px; border: 1px solid #cbd5e1; font-size: 11.5px; color: #1e293b; }
+          tbody tr { background-color: #ffffff !important; }
+          tbody tr:nth-child(even) { background-color: #f8fafc !important; }
           .badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 10.5px; font-weight: 600; }
           .badge-day { background: #eff6ff; color: #1d4ed8; font-weight: bold; }
           .badge-sub { background: #f5f3ff; color: #6d28d9; }
