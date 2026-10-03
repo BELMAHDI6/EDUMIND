@@ -1521,20 +1521,21 @@ app.post('/api/enrollments', (req, res) => {
     const { student_id, group_id, school_year, discount_amount } = req.body;
     const year = school_year || '2025-2026';
     
-    // Check if already enrolled
-    const existing = DB.queryOne("SELECT id FROM enrollments WHERE student_id = ? AND group_id = ? AND school_year = ?", [student_id, group_id, year]);
-    if (existing) {
-      return res.status(400).json({ success: false, error: 'Cet élève est déjà inscrit dans ce groupe.' });
-    }
+    const result = DB.transaction(() => {
+      const existing = DB.queryOne("SELECT id FROM enrollments WHERE student_id = ? AND group_id = ? AND school_year = ?", [student_id, group_id, year]);
+      if (existing) {
+        throw new Error('Cet élève est déjà inscrit dans ce groupe.');
+      }
 
-    const result = DB.run(`
-      INSERT INTO enrollments (student_id, group_id, school_year, discount_amount, status)
-      VALUES (?, ?, ?, ?, 'active')
-    `, [student_id, group_id, year, discount_amount || 0]);
+      return DB.run(`
+        INSERT INTO enrollments (student_id, group_id, school_year, discount_amount, status)
+        VALUES (?, ?, ?, ?, 'active')
+      `, [student_id, group_id, year, discount_amount || 0]);
+    });
 
     res.json({ success: true, enrollmentId: result.lastInsertRowid });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    res.status(400).json({ success: false, error: err.message });
   }
 });
 
@@ -1746,40 +1747,41 @@ app.post('/api/payments', (req, res) => {
   try {
     const { student_id, group_id, month_period, paid_amount, discount, payment_method, notes } = req.body;
     
-    // Fetch group base price
-    const group = DB.queryOne("SELECT price_monthly FROM groups WHERE id = ?", [group_id]);
-    const baseAmount = group ? group.price_monthly : 2000;
-    const disc = parseFloat(discount) || 0;
-    const paid = parseFloat(paid_amount) || 0;
-    const remaining = Math.max(0, (baseAmount - disc) - paid);
+    const { newPayment, receipt_no } = DB.transaction(() => {
+      // Fetch group base price
+      const group = DB.queryOne("SELECT price_monthly FROM groups WHERE id = ?", [group_id]);
+      const baseAmount = group ? group.price_monthly : 2000;
+      const disc = parseFloat(discount) || 0;
+      const paid = parseFloat(paid_amount) || 0;
+      const remaining = Math.max(0, (baseAmount - disc) - paid);
 
-    // Auto receipt number
-    const count = DB.queryOne("SELECT COUNT(*) as count FROM payments").count;
-    const receipt_no = `REC-${new Date().getFullYear()}-${String(count + 1).padStart(5, '0')}`;
+      // Auto receipt number based on max existing id + 1 to avoid race condition collisions
+      const lastPay = DB.queryOne("SELECT MAX(id) as max_id FROM payments");
+      const nextSeq = (lastPay?.max_id || 0) + 1;
+      const receipt_no = `REC-${new Date().getFullYear()}-${String(nextSeq).padStart(5, '0')}`;
 
-    const result = DB.run(`
-      INSERT INTO payments (receipt_no, student_id, group_id, month_period, base_amount, discount, paid_amount, remaining_amount, payment_method, notes)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, [receipt_no, student_id, group_id, month_period, baseAmount, disc, paid, remaining, payment_method || 'espece', notes]);
+      const result = DB.run(`
+        INSERT INTO payments (receipt_no, student_id, group_id, month_period, base_amount, discount, paid_amount, remaining_amount, payment_method, notes)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [receipt_no, student_id, group_id, month_period, baseAmount, disc, paid, remaining, payment_method || 'espece', notes]);
 
-    const newPayment = DB.queryOne(`
-      SELECT p.*, s.first_name, s.last_name, s.matricule, s.phone as student_phone, s.parent_phone,
-             l.name as level_name,
-             g.name as group_name, g.price_monthly,
-             sub.name as subject_name,
-             t.first_name || ' ' || t.last_name as teacher_name
-      FROM payments p
-      JOIN students s ON p.student_id = s.id
-      LEFT JOIN levels l ON s.level_id = l.id
-      JOIN groups g ON p.group_id = g.id
-      JOIN subjects sub ON g.subject_id = sub.id
-      JOIN teachers t ON g.teacher_id = t.id
-      WHERE p.id = ?
-    `, [result.lastInsertRowid]);
+      const newPayment = DB.queryOne(`
+        SELECT p.*, s.first_name, s.last_name, s.matricule, s.phone as student_phone, s.parent_phone,
+               l.name as level_name,
+               g.name as group_name, g.price_monthly,
+               sub.name as subject_name,
+               t.first_name || ' ' || t.last_name as teacher_name
+        FROM payments p
+        JOIN students s ON p.student_id = s.id
+        LEFT JOIN levels l ON s.level_id = l.id
+        JOIN groups g ON p.group_id = g.id
+        JOIN subjects sub ON g.subject_id = sub.id
+        JOIN teachers t ON g.teacher_id = t.id
+        WHERE p.id = ?
+      `, [result.lastInsertRowid]);
 
-    // Automatic Caisse Entry for paid amount
-    if (paid > 0) {
-      try {
+      // Automatic Caisse Entry for paid amount
+      if (paid > 0) {
         const nowP = new Date();
         const curDate = nowP.toISOString().split('T')[0];
         const curTime = nowP.toTimeString().split(' ')[0];
@@ -1795,14 +1797,14 @@ app.post('/api/payments', (req, res) => {
           curDate,
           curTime
         ]);
-      } catch (caisseErr) {
-        console.warn('Auto caisse payment entry:', caisseErr.message);
       }
-    }
+
+      return { newPayment, receipt_no };
+    });
 
     res.json({ success: true, payment: newPayment, receipt_no });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    res.status(400).json({ success: false, error: err.message });
   }
 });
 
