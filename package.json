@@ -1,7 +1,7 @@
 {
   "name": "edumind",
   "productName": "EDUMIND",
-  "version": "v1.0.0",
+  "version": "1.1.2",
   "description": "EDUMIND - Système de Gestion d'Écoles Privées & Cours de Soutien",
   "main": "main.js",
   "scripts": {

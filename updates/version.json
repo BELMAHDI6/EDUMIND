@@ -1,7 +1,7 @@
 {
-  "version": "v1.0.0",
+  "version": "1.1.2",
   "releaseDate": "2026-10-04",
-  "zipUrl": "https://raw.githubusercontent.com/BELMAHDI6/EDUMIND/main/updates/edumind_patch_vv1.0.0.zip",
-  "notes": "EXCEL IMPORT",
-  "notes_ar": "EXCEL IMPORT"
+  "zipUrl": "https://raw.githubusercontent.com/BELMAHDI6/EDUMIND/main/updates/edumind_patch_v1.1.2.zip",
+  "notes": "Correction de la prévisualisation et importation Excel des élèves",
+  "notes_ar": "Correction de la prévisualisation et importation Excel des élèves"
 }
