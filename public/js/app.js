@@ -3855,6 +3855,7 @@ class EdumindApp {
     previewSection.style.display = 'block';
 
     const validCount = students.filter(s => s.isValid).length;
+    const warnCount = students.filter(s => !s.isValid).length;
     const isAr = this.lang === 'ar';
     if (badgeTotal) badgeTotal.textContent = isAr ? `الإجمالي: ${students.length}` : `Total : ${students.length}`;
     if (badgeReady) badgeReady.textContent = isAr ? `جاهز للاستيراد: ${validCount}` : `Prêts : ${validCount}`;

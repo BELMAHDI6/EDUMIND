@@ -1,7 +1,7 @@
 {
-  "version": "1.1.1",
-  "releaseDate": "2026-10-03",
-  "zipUrl": "https://raw.githubusercontent.com/BELMAHDI6/EDUMIND/main/updates/edumind_patch_v1.1.1.zip",
-  "notes": "Fix teachers table refresh and display",
-  "notes_ar": "Fix teachers table refresh and display"
+  "version": "v1.0.0",
+  "releaseDate": "2026-10-04",
+  "zipUrl": "https://raw.githubusercontent.com/BELMAHDI6/EDUMIND/main/updates/edumind_patch_vv1.0.0.zip",
+  "notes": "EXCEL IMPORT",
+  "notes_ar": "EXCEL IMPORT"
 }
