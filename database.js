@@ -69,9 +69,25 @@ try {
   db.exec('PRAGMA busy_timeout = 15000;');
   db.exec('PRAGMA cache_size = -64000;'); // 64MB in-memory cache
   db.exec('PRAGMA temp_store = MEMORY;');
-  db.exec('PRAGMA mmap_size = 268435456;'); // 256MB memory mapped I/O
+  db.exec('PRAGMA mmap_size = 0;'); // Disable memory mapping on Windows to prevent corrupt/malformed handle collisions
   db.exec('PRAGMA wal_autocheckpoint = 1000;');
   db.exec('PRAGMA foreign_keys = ON;');
+
+  // Self-healing integrity check on database startup
+  try {
+    const quick = db.prepare('PRAGMA quick_check;').get();
+    if (!quick || Object.values(quick)[0] !== 'ok') {
+      console.warn('⚠️ [DB Self-Healing] Index mismatch detected during startup. Executing REINDEX...');
+      db.exec('REINDEX;');
+      console.log('✅ [DB Self-Healing] Indexes successfully repaired via REINDEX.');
+    }
+  } catch (chkErr) {
+    try {
+      console.warn('⚠️ [DB Self-Healing] Startup check exception, attempting REINDEX:', chkErr.message);
+      db.exec('REINDEX;');
+    } catch (e) {}
+  }
+
   console.log('✅ SQLite Database connected via node:sqlite at:', dbPath);
 } catch (err) {
   console.error('Failed to load node:sqlite, falling back...', err);
@@ -280,10 +296,38 @@ function getPrepared(sql) {
 const DB = {
   exec: (sql) => db.exec(sql),
   queryAll: (sql, params = []) => {
-    return getPrepared(sql).all(...sanitizeParams(params));
+    try {
+      return getPrepared(sql).all(...sanitizeParams(params));
+    } catch (err) {
+      if (err.message && err.message.toLowerCase().includes('malformed')) {
+        console.warn('⚠️ [DB Self-Healing] "malformed" detected in queryAll. Auto-reindexing...');
+        try {
+          db.exec('REINDEX;');
+          _stmtCache.clear();
+          return db.prepare(sql).all(...sanitizeParams(params));
+        } catch (repairErr) {
+          console.error('❌ [DB Self-Healing] Auto-repair failed:', repairErr.message);
+        }
+      }
+      throw err;
+    }
   },
   queryOne: (sql, params = []) => {
-    return getPrepared(sql).get(...sanitizeParams(params));
+    try {
+      return getPrepared(sql).get(...sanitizeParams(params));
+    } catch (err) {
+      if (err.message && err.message.toLowerCase().includes('malformed')) {
+        console.warn('⚠️ [DB Self-Healing] "malformed" detected in queryOne. Auto-reindexing...');
+        try {
+          db.exec('REINDEX;');
+          _stmtCache.clear();
+          return db.prepare(sql).get(...sanitizeParams(params));
+        } catch (repairErr) {
+          console.error('❌ [DB Self-Healing] Auto-repair failed:', repairErr.message);
+        }
+      }
+      throw err;
+    }
   },
   run: (sql, params = []) => {
     // Write operations with automatic busy retry (up to 5 attempts) to prevent lock freezes
@@ -292,6 +336,16 @@ const DB = {
       try {
         return db.prepare(sql).run(...sanitizeParams(params));
       } catch (err) {
+        if (err.message && err.message.toLowerCase().includes('malformed')) {
+          console.warn('⚠️ [DB Self-Healing] "malformed" detected in run. Auto-reindexing...');
+          try {
+            db.exec('REINDEX;');
+            _stmtCache.clear();
+            return db.prepare(sql).run(...sanitizeParams(params));
+          } catch (repairErr) {
+            console.error('❌ [DB Self-Healing] Auto-repair failed:', repairErr.message);
+          }
+        }
         if (err.message && (err.message.includes('busy') || err.message.includes('locked')) && retries > 1) {
           retries--;
           const waitMs = 20 + Math.floor(Math.random() * 30);
