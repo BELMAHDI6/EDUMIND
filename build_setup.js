@@ -80,6 +80,20 @@ async function main() {
         try { fs.unlinkSync(path.join(appDir, f)); console.log('   Supprimé junk :', f); } catch(e){}
       }
     }
+
+    const appSqlite = path.join(appDir, 'edumind.sqlite');
+    if (fs.existsSync(appSqlite)) {
+      try {
+        const { DatabaseSync } = require('node:sqlite');
+        const sdb = new DatabaseSync(appSqlite);
+        sdb.exec('REINDEX;');
+        sdb.exec('VACUUM;');
+        sdb.close();
+        console.log('   Base edumind.sqlite modèle optimisée et compressée via VACUUM.');
+      } catch (e) {
+        console.warn('   Avertissement maintenance SQLite build :', e.message);
+      }
+    }
   }
 
   console.log('\n2. Compression du répertoire d\'installation :');

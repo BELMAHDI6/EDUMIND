@@ -4390,13 +4390,37 @@ function stopServer() {
       serverInstance.close(() => {
         console.log('🛑 EDUMIND Server stopped');
         serverInstance = null;
+        try { DB.close(); } catch (e) {}
         resolve();
       });
     } else {
+      try { DB.close(); } catch (e) {}
       resolve();
     }
   });
 }
+
+// Graceful shutdown handler
+function gracefulShutdown(reason = 'exit') {
+  console.log(`[EDUMIND Serveur] Arrêt gracieux du serveur (${reason})...`);
+  stopServer().then(() => {
+    process.exit(0);
+  }).catch(() => {
+    process.exit(0);
+  });
+}
+
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('message', (msg) => {
+  if (msg === 'shutdown') gracefulShutdown('IPC');
+});
+
+// Internal shutdown endpoint for Electron Desktop
+app.post('/api/internal/shutdown', (req, res) => {
+  res.json({ success: true, message: 'Server shutting down' });
+  setTimeout(() => gracefulShutdown('HTTP call'), 100);
+});
 
 if (require.main === module) {
   startServer(PORT).catch((err) => {

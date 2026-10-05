@@ -140,16 +140,34 @@ async function ensureServerRunning() {
  */
 function cleanupServer() {
   if (serverProcess) {
-    console.log('[EDUMIND Electron] Arrêt propre du serveur interne...');
+    logMsg('[EDUMIND Electron] Arrêt propre du serveur interne...');
+    const pid = serverProcess.pid;
+    // 1. Notify server gracefully to checkpoint and close SQLite cleanly
     try {
-      if (process.platform === 'win32') {
-        spawn('taskkill', ['/pid', serverProcess.pid, '/f', '/t']);
-      } else {
-        serverProcess.kill('SIGTERM');
-      }
-    } catch (e) {
-      console.error('[EDUMIND Electron] Erreur lors de l\'arrêt du serveur:', e.message);
-    }
+      const req = http.request({
+        hostname: '127.0.0.1',
+        port: activePort,
+        path: '/api/internal/shutdown',
+        method: 'POST',
+        timeout: 600
+      });
+      req.on('error', () => {});
+      req.end();
+    } catch (e) {}
+
+    // 2. Safety fallback kill after 400ms if process has not exited on its own
+    setTimeout(() => {
+      try {
+        if (pid) {
+          if (process.platform === 'win32') {
+            spawn('taskkill', ['/pid', String(pid), '/f', '/t']);
+          } else {
+            process.kill(pid, 'SIGTERM');
+          }
+        }
+      } catch (e) {}
+    }, 400);
+
     serverProcess = null;
   }
 }

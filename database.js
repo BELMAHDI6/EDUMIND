@@ -382,6 +382,17 @@ const DB = {
   // Clears the cache — call this after restoreDatabase
   clearCache: () => _stmtCache.clear(),
   raw: db,
+  close: () => {
+    try {
+      if (db) {
+        db.exec('PRAGMA wal_checkpoint(TRUNCATE);');
+        db.close();
+        console.log('✅ [DB] Base de données SQLite checkpointée et fermée proprement.');
+      }
+    } catch (e) {
+      console.warn('⚠️ [DB] Erreur fermeture SQLite :', e.message);
+    }
+  },
   createInstantBackup,
   cleanupOldBackups,
   performAutoBackup,
@@ -390,6 +401,15 @@ const DB = {
   getBackupDirectory,
   getDatabasePath
 };
+
+process.on('beforeExit', () => {
+  try {
+    if (db) {
+      db.exec('PRAGMA wal_checkpoint(TRUNCATE);');
+      db.close();
+    }
+  } catch (e) {}
+});
 
 // Initialize All Database Tables
 function initDatabase() {
