@@ -72,6 +72,8 @@ async function main() {
     'server.js',
     'database.js',
     'license_manager.js',
+    'generate-license.js',
+    'get-hwid.js',
     'updater.js',
     'main.js',
     'package.json',
