@@ -22,3 +22,7 @@ temp_*/
 installer.cs
 launcher.cs
 build_setup.js
+
+# Scolaire repository separation
+edumind_scolaire/
+
