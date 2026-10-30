@@ -758,11 +758,37 @@ function initDatabase() {
     }
   }
 
-  // Ensure teachers columns for the 8 remuneration modes
+  // Ensure teachers columns for the 8 remuneration modes & mobile app
   addColumnIfNotExists('teachers', 'tarif_heure', 'REAL DEFAULT 0');
   addColumnIfNotExists('teachers', 'tarif_seance', 'REAL DEFAULT 0');
   addColumnIfNotExists('teachers', 'salaire_fixe', 'REAL DEFAULT 0');
   addColumnIfNotExists('teachers', 'tarif_par_eleve', 'REAL DEFAULT 0');
+  addColumnIfNotExists('teachers', 'password', 'TEXT');
+  addColumnIfNotExists('teachers', 'mobile_pin', 'TEXT');
+
+  // Ensure attendance columns & group_sessions table & discipline_absences
+  try {
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS discipline_absences (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        student_id INTEGER NOT NULL,
+        group_id INTEGER,
+        absence_date DATE NOT NULL,
+        time_slot TEXT NOT NULL,
+        period_type TEXT DEFAULT 'absence',
+        subject_name TEXT,
+        is_justified INTEGER DEFAULT 0,
+        justification_reason TEXT,
+        justified_at DATETIME,
+        billet_issued INTEGER DEFAULT 0,
+        billet_number TEXT,
+        billet_issued_at DATETIME,
+        notes TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+      );
+    `);
+  } catch (e) {}
 
   // Ensure teacher_payouts columns
   addColumnIfNotExists('teacher_payouts', 'remuneration_mode', "TEXT DEFAULT 'percent'");
