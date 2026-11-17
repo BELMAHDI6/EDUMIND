@@ -1,7 +1,7 @@
 {
-  "version": "1.1.3",
-  "releaseDate": "2026-10-05",
-  "zipUrl": "https://raw.githubusercontent.com/BELMAHDI6/EDUMIND/main/updates/edumind_patch_v1.1.3.zip",
-  "notes": "Mise à jour v1.1.3 : Optimisation de l'arrêt sécurisé, auto-réparation SQLite et stabilité générale / تحديث v1.1.3: تحسين الإغلاق الآمن وقاعدة البيانات والاستقرار العام",
-  "notes_ar": "Mise à jour v1.1.3 : Optimisation de l'arrêt sécurisé, auto-réparation SQLite et stabilité générale / تحديث v1.1.3: تحسين الإغلاق الآمن وقاعدة البيانات والاستقرار العام"
+  "version": "1.1.4",
+  "releaseDate": "2026-11-17",
+  "zipUrl": "https://raw.githubusercontent.com/BELMAHDI6/EDUMIND/main/updates/edumind_patch_v1.1.4.zip",
+  "notes": "Mise à jour v1.1.4 : Synchronisation cloud Google Sheets et interface de gestion / تحديث v1.1.4: المزامنة السحابية مع Google Sheets وتحسينات عامة",
+  "notes_ar": "Mise à jour v1.1.4 : Synchronisation cloud Google Sheets et interface de gestion / تحديث v1.1.4: المزامنة السحابية مع Google Sheets وتحسينات عامة"
 }
