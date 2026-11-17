@@ -78,7 +78,9 @@ async function main() {
     'main.js',
     'package.json',
     'Démarrer_EDUMIND.bat',
-    'Lancer_EDUMIND.vbs'
+    'Lancer_EDUMIND.vbs',
+    'google_sheets_sync.js',
+    'google_apps_script.js'
   ];
 
   for (const f of FILES_TO_COPY) {

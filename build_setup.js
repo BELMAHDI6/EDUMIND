@@ -57,6 +57,7 @@ async function main() {
     'server.js', 'database.js', 'main.js', 'package.json',
     'updater.js', 'license_manager.js', 'generate-license.js', 'get-hwid.js',
     'Démarrer_EDUMIND.bat', 'Lancer_EDUMIND.vbs',
+    'google_sheets_sync.js', 'google_apps_script.js',
     'public', 'updates'
   ];
 
