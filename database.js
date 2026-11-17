@@ -368,6 +368,17 @@ const DB = {
         return result;
       } catch (err) {
         try { db.exec('ROLLBACK;'); } catch (rbErr) {}
+        if (err.message && err.message.toLowerCase().includes('malformed') && retries > 1) {
+          console.warn('⚠️ [DB Self-Healing] "malformed" detected in transaction. Auto-reindexing and retrying...');
+          try {
+            db.exec('REINDEX;');
+            _stmtCache.clear();
+          } catch (repairErr) {
+            console.error('❌ [DB Self-Healing] Auto-reindex in transaction failed:', repairErr.message);
+          }
+          retries--;
+          continue;
+        }
         if (err.message && (err.message.includes('busy') || err.message.includes('locked')) && retries > 1) {
           retries--;
           const waitMs = 25 + Math.floor(Math.random() * 35);
@@ -391,6 +402,17 @@ const DB = {
       }
     } catch (e) {
       console.warn('⚠️ [DB] Erreur fermeture SQLite :', e.message);
+    }
+  },
+  repair: () => {
+    try {
+      db.exec('REINDEX;');
+      try { db.exec('VACUUM;'); } catch(e) {}
+      _stmtCache.clear();
+      const check = db.prepare('PRAGMA integrity_check;').get();
+      return { success: true, integrity: Object.values(check)[0] };
+    } catch(err) {
+      return { success: false, error: err.message };
     }
   },
   createInstantBackup,

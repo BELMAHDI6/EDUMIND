@@ -80,7 +80,9 @@ async function main() {
     'Démarrer_EDUMIND.bat',
     'Lancer_EDUMIND.vbs',
     'google_sheets_sync.js',
-    'google_apps_script.js'
+    'google_apps_script.js',
+    'repair_database.js',
+    'reparer_base_de_donnees.bat'
   ];
 
   for (const f of FILES_TO_COPY) {

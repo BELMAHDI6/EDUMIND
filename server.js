@@ -4362,6 +4362,20 @@ app.post('/api/backup/restore-archive/:filename', (req, res) => {
   }
 });
 
+// Database Self-Healing & Repair Endpoint
+app.post('/api/database/repair', (req, res) => {
+  try {
+    const result = DB.repair();
+    if (result.success) {
+      res.json({ success: true, message: 'Base de données vérifiée et réparée avec succès', integrity: result.integrity });
+    } else {
+      res.status(500).json({ success: false, error: result.error || 'Échec de la réparation' });
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // Universal PDF File Downloader (guarantees correct filename and MIME type across all browsers & OS)
 app.post('/api/download-pdf', (req, res) => {
   try {

@@ -15175,6 +15175,29 @@ class EdumindApp {
     }
   }
 
+  async repairDatabase() {
+    const isAr = this.lang === 'ar';
+    const confirmMsg = isAr
+      ? 'هل ترغب في فحص وإصلاح قاعدة البيانات الآن؟ سيتم إعادة بناء الفهارس تلقائياً وإصلاح أي تلف.'
+      : 'Voulez-vous vérifier et réparer la base de données ? Les index seront reconstruits et les anomalies corrigées.';
+    if (!confirm(confirmMsg)) return;
+
+    try {
+      this.showToast(isAr ? 'جاري الفحص والإصلاح...' : 'Vérification et réparation en cours...', 'info');
+      const res = await fetch('/api/database/repair', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        this.playChime('success');
+        this.showToast(isAr ? '✅ تم فحص وإصلاح قاعدة البيانات بنجاح!' : '✅ Base de données réparée avec succès !', 'success');
+      } else {
+        this.playChime('error');
+        this.showToast((isAr ? '❌ فشل الإصلاح: ' : '❌ Échec : ') + (data.error || 'Erreur'), 'error');
+      }
+    } catch (e) {
+      this.showToast(isAr ? 'خطأ في الاتصال بالخادم' : 'Erreur de communication', 'error');
+    }
+  }
+
   async saveSettings() {
     return this.saveEtablissementSettings();
   }
