@@ -1,7 +1,7 @@
 {
-  "version": "1.1.4",
+  "version": "1.1.5",
   "releaseDate": "2026-11-17",
-  "zipUrl": "https://raw.githubusercontent.com/BELMAHDI6/EDUMIND/main/updates/edumind_patch_v1.1.4.zip",
-  "notes": "Mise à jour v1.1.4 : Synchronisation cloud Google Sheets et interface de gestion / تحديث v1.1.4: المزامنة السحابية مع Google Sheets وتحسينات عامة",
-  "notes_ar": "Mise à jour v1.1.4 : Synchronisation cloud Google Sheets et interface de gestion / تحديث v1.1.4: المزامنة السحابية مع Google Sheets وتحسينات عامة"
+  "zipUrl": "https://raw.githubusercontent.com/BELMAHDI6/EDUMIND/main/updates/edumind_patch_v1.1.5.zip",
+  "notes": "Mise à jour v1.1.5 : Auto-réparation SQLite, correction du bouton inscrire & encaisser, et outil de réparation / تحديث v1.1.5: إصلاح ذاتي لقاعدة البيانات وتصحيح نافذة التسجيل والدفع",
+  "notes_ar": "Mise à jour v1.1.5 : Auto-réparation SQLite, correction du bouton inscrire & encaisser, et outil de réparation / تحديث v1.1.5: إصلاح ذاتي لقاعدة البيانات وتصحيح نافذة التسجيل والدفع"
 }
