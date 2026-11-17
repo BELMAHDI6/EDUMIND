@@ -1550,8 +1550,9 @@ app.get('/api/enrollments', (req, res) => {
 
 app.post('/api/enrollments', (req, res) => {
   try {
-    const { student_id, group_id, school_year, discount_amount } = req.body;
+    const { student_id, group_id, school_year, discount_amount, registration_date } = req.body;
     const year = school_year || '2025-2026';
+    const regDate = registration_date || new Date().toISOString().split('T')[0];
     
     const result = DB.transaction(() => {
       const existing = DB.queryOne("SELECT id FROM enrollments WHERE student_id = ? AND group_id = ? AND school_year = ?", [student_id, group_id, year]);
@@ -1560,9 +1561,9 @@ app.post('/api/enrollments', (req, res) => {
       }
 
       return DB.run(`
-        INSERT INTO enrollments (student_id, group_id, school_year, discount_amount, status)
-        VALUES (?, ?, ?, ?, 'active')
-      `, [student_id, group_id, year, discount_amount || 0]);
+        INSERT INTO enrollments (student_id, group_id, school_year, registration_date, discount_amount, status)
+        VALUES (?, ?, ?, ?, ?, 'active')
+      `, [student_id, group_id, year, regDate, discount_amount || 0]);
     });
 
     res.json({ success: true, enrollmentId: result.lastInsertRowid });

@@ -1469,8 +1469,12 @@ class EdumindApp {
       const res = await fetch('/api/updates/check');
       const data = await res.json();
 
-      if (data.currentVersion && currentBadge) {
-        currentBadge.textContent = 'v' + data.currentVersion;
+      if (data.currentVersion) {
+        if (currentBadge) currentBadge.textContent = 'v' + data.currentVersion;
+        const sideBadge = document.querySelector('.sidebar-version-badge');
+        if (sideBadge) sideBadge.textContent = 'EDUMIND v' + data.currentVersion;
+        const aboutTag = document.querySelector('.about-tag');
+        if (aboutTag) aboutTag.textContent = 'v' + data.currentVersion + ' Pro';
       }
 
       if (data.success && data.updateAvailable) {
@@ -7841,6 +7845,10 @@ class EdumindApp {
     printWin.document.close();
   }
 
+  openNewPaymentModal(preselectedStudentId = null, preselectedGroupId = null) {
+    return this.openModalPayment(preselectedStudentId, preselectedGroupId);
+  }
+
   async openModalPayment(preselectedStudentId = null, preselectedGroupId = null) {
     try {
       const res = await fetch('/api/students?status=all');
@@ -13602,8 +13610,9 @@ class EdumindApp {
         }
 
         if (andPay) {
-          alert(isAr ? 'تم تسجيل التلميذ بنجاح! جاري فتح نافذة استلام الدفع والوصل...' : 'Inscription réussie ! Ouverture du reçu de paiement...');
-          if (typeof this.openNewPaymentModal === 'function') {
+          if (typeof this.openModalPayment === 'function') {
+            this.openModalPayment(student.id, group.id);
+          } else if (typeof this.openNewPaymentModal === 'function') {
             this.openNewPaymentModal(student.id, group.id);
           }
         } else {
